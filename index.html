@@ -2146,39 +2146,38 @@ function sendChat() {
 
 function listenToChat() {
   const chatRef = db.ref('rooms/' + roomCode + '/chat');
-  chatRef.on('child_added', snap => {
-    const msg = snap.val();
-    if (!msg) return;
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '<div class="chat-msg system">Chat is live! Say hi 👋</div>';
 
-    // Skip messages already shown (on initial load)
-    if (lastChatKey === null) {
-      lastChatKey = snap.key;
-      return; // skip loading old messages on join
-    }
-
-    appendChatMessage(msg, snap.key);
-    lastChatKey = snap.key;
-
-    if (!chatOpen && msg.sender !== myRole) {
-      unreadCount++;
-      updateChatBadge();
-    }
-  });
-
-  // Load last 20 messages on join
+  // Step 1: Load existing messages first
   chatRef.limitToLast(20).once('value', snap => {
-    const msgs = document.getElementById('chat-messages');
-    msgs.innerHTML = '<div class="chat-msg system">Chat is live! Say hi 👋</div>';
     if (snap.exists()) {
       snap.forEach(child => {
-        appendChatMessage(child.val(), child.key);
+        appendChatMessage(child.val());
         lastChatKey = child.key;
       });
     }
+
+    // Step 2: Only AFTER loading history, listen for NEW messages
+    chatRef.on('child_added', snap => {
+      // Skip if this key was already loaded in history
+      if (lastChatKey && snap.key <= lastChatKey) return;
+
+      const msg = snap.val();
+      if (!msg) return;
+      lastChatKey = snap.key;
+
+      appendChatMessage(msg);
+
+      if (!chatOpen && msg.sender !== myRole) {
+        unreadCount++;
+        updateChatBadge();
+      }
+    });
   });
 }
 
-function appendChatMessage(msg, key) {
+function appendChatMessage(msg) {
   const msgs = document.getElementById('chat-messages');
   const div = document.createElement('div');
   const isMine = msg.sender === myRole;
