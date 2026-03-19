@@ -1987,7 +1987,9 @@ function listenToRoom() {
   roomRef.on('value', snap => {
     if (!snap.exists()) return;
     const data = snap.val();
-    gameState = data.state; // set FIRST before any checks
+    // Always ensure gameState.turn is set
+    gameState = data.state || {};
+    if (!gameState.turn) gameState.turn = data.turn || 'p1';
     scores = data.scores || scores;
     if (data.seriesWins) seriesWins = data.seriesWins;
 
@@ -2000,7 +2002,7 @@ function listenToRoom() {
     }
 
     // Use gameState.turn (same as data.state.turn) - consistent with move checks
-    updateTurnBanner(gameState.turn || 'p1');
+    updateTurnBanner(gameState.turn || data.turn || 'p1');
 
     if (currentGame === 'ttt') renderTtt();
     if (currentGame === 'sos') renderSos();
@@ -2044,7 +2046,7 @@ function getInitialState() {
   if (currentGame === 'sos') return { board: Array(49).fill(''), turn: 'p1', sosCount: { p1: 0, p2: 0 }, status: 'playing', winner: null, cellOwner: {}, sosLines: [] };
   if (currentGame === 'tod') return { turn: 'p1', action: null, type: null, questionIdx: null, reply: '' };
   if (currentGame === 'nhie') return { turn: 'p1', statementIdx: null, response: null, status: 'waiting' };
-  if (currentGame === 'card-dare') return { p1Card: null, p2Card: null, dareIdx: null, status: 'drawing', round: 1 };
+  if (currentGame === 'card-dare') return { p1Card: null, p2Card: null, dareIdx: null, status: 'drawing', round: 1, turn: 'p1' };
 }
 
 // ══════════════════════════════════════════════
@@ -2054,13 +2056,15 @@ const TTT_WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6
 
 function tttMove(idx) {
   if (gameState.status === 'done') return;
-  if (!myRole) { toast("Session error - please rejoin the room"); return; }
-  if (gameState.turn !== myRole) { toast(`Not your turn! (You are ${myRole}, turn is ${gameState.turn})`); return; }
+  if (!myRole) { toast("Session error — please rejoin"); return; }
+  const tttTurn = gameState.turn || 'p1';
+  if (tttTurn !== myRole) { toast("Not your turn!"); return; }
   if (gameState.board[idx]) return;
 
   const board = [...gameState.board];
   board[idx] = myRole === 'p1' ? 'X' : 'O';
   const nextTurn = myRole === 'p1' ? 'p2' : 'p1';
+  gameState.turn = nextTurn;
 
   const winner = checkTttWin(board);
   const isDraw = !winner && board.every(c => c);
@@ -2141,7 +2145,8 @@ function buildSosBoard() {
 
 function sosMove(idx) {
   if (gameState.status === 'done') return;
-  if (gameState.turn !== myRole) { toast("Not your turn!"); return; }
+  const sosTurn = gameState.turn || 'p1';
+  if (sosTurn !== myRole) { toast("Not your turn!"); return; }
   if (gameState.board[idx]) return;
 
   const board = [...gameState.board];
