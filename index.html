@@ -1221,9 +1221,12 @@
   <div class="logo">🎮 Game Hub</div>
   <p class="tagline" id="home-tagline">Play with your friend</p>
   <div class="game-cards" id="game-cards-container"></div>
-  <div style="margin-top:20px;text-align:center;">
-    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:10px;">Got a room code from your friend?</p>
-    <button class="btn btn-secondary" onclick="goToJoin()" style="max-width:340px;width:100%;">🔗 Join a Friend's Room</button>
+  <div style="margin-top:20px;width:100%;max-width:820px;">
+    <div style="background:rgba(37,99,235,0.08);border:2px solid rgba(37,99,235,0.2);border-radius:var(--radius);padding:20px;text-align:center;">
+      <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:#60a5fa;margin-bottom:6px;">🔗 Got a room code from your friend?</div>
+      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:12px;">Don't click a game card — use this button to join!</p>
+      <button class="btn btn-secondary" onclick="goToJoin()" style="max-width:280px;width:100%;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;">🔗 Join a Friend's Room</button>
+    </div>
   </div>
 </div>
 
@@ -1258,6 +1261,9 @@
   <button class="back-btn" onclick="goHome()">← Back</button>
   <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;width:100%;">
     <div class="lobby-title" id="lobby-game-title">🎮 Game</div>
+    <div style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.2);border-radius:8px;padding:10px 14px;font-size:0.78rem;color:#eab308;text-align:center;max-width:440px;width:100%;">
+      ℹ️ You are <strong>Player 1</strong> (Creator). Share the room code with your friend to join as Player 2.
+    </div>
     <div class="lobby-box">
       <div class="input-group">
         <label>Your Name (Player 1)</label>
@@ -1274,6 +1280,9 @@
   <button class="back-btn" onclick="goHome()">← Back</button>
   <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;width:100%;">
     <div class="lobby-title">🔗 Join a Room</div>
+    <div style="background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.2);border-radius:8px;padding:10px 14px;font-size:0.78rem;color:#60a5fa;text-align:center;max-width:440px;width:100%;">
+      ℹ️ You are <strong>Player 2</strong>. Enter your name and the code your friend shared.
+    </div>
     <div class="lobby-box">
       <div class="input-group">
         <label>Your Name (Player 2)</label>
