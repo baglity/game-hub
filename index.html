@@ -2179,7 +2179,9 @@ function tttMove(idx) {
     return;
   }
 
-  const board = [...gameState.board];
+  // Convert Firebase object to array
+  const rawBoard = gameState.board || {};
+  const board = Array.from({length: 9}, (_, i) => rawBoard[i] || '');
   board[idx] = myRole === 'p1' ? 'X' : 'O';
   const nextTurn = myRole === 'p1' ? 'p2' : 'p1';
   const winner = checkTttWin(board);
@@ -2219,7 +2221,9 @@ function checkTttWin(board) {
 
 function renderTtt() {
   const cells = document.querySelectorAll('.ttt-cell');
-  const board = gameState.board || Array(9).fill('');
+  // Firebase may return object instead of array — convert it
+  const rawBoard = gameState.board || {};
+  const board = Array.from({length: 9}, (_, i) => rawBoard[i] || '');
   const winner = checkTttWin(board);
   let winLine = [];
   if (winner) {
@@ -2234,10 +2238,7 @@ function renderTtt() {
     if (board[i] === 'X') cell.classList.add('x', 'filled');
     if (board[i] === 'O') cell.classList.add('o', 'filled');
     if (winLine.includes(i)) cell.classList.add('win');
-    // Highlight clickable cells for current player
-    if (!board[i] && isMyTurn && gameState.status !== 'done') cell.style.cursor = 'pointer';
-    else if (!board[i]) cell.style.cursor = 'not-allowed';
-    else cell.style.cursor = 'default';
+    cell.style.cursor = (!board[i] && isMyTurn && gameState.status !== 'done') ? 'pointer' : board[i] ? 'default' : 'not-allowed';
   });
 }
 
