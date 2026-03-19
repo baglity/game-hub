@@ -1845,6 +1845,8 @@ function createRoom() {
   const name = document.getElementById('p1-name-input').value.trim() || 'Player 1';
   roomCode = Math.floor(1000 + Math.random() * 9000).toString();
   myRole = 'p1';
+  sessionStorage.setItem('myRole', 'p1');
+  sessionStorage.setItem('roomCode', roomCode);
   playerNames.p1 = name;
 
   roomRef = db.ref('rooms/' + roomCode);
@@ -1883,6 +1885,8 @@ function joinRoom() {
   if (!code || code.length !== 4) { toast('Enter a 4-digit room code'); return; }
 
   myRole = 'p2';
+  sessionStorage.setItem('myRole', 'p2');
+  sessionStorage.setItem('roomCode', code);
   playerNames.p2 = name;
   roomCode = code;
   roomRef = db.ref('rooms/' + roomCode);
@@ -1983,12 +1987,10 @@ function listenToRoom() {
   roomRef.on('value', snap => {
     if (!snap.exists()) return;
     const data = snap.val();
-    gameState = data.state;
+    gameState = data.state; // set FIRST before any checks
     scores = data.scores || scores;
-    // Sync seriesWins from Firebase - source of truth
     if (data.seriesWins) seriesWins = data.seriesWins;
 
-    // Show series wins in header if series mode, else round wins
     if (seriesMax > 1) {
       document.getElementById('score-p1').textContent = seriesWins.p1 || 0;
       document.getElementById('score-p2').textContent = seriesWins.p2 || 0;
@@ -1997,7 +1999,8 @@ function listenToRoom() {
       document.getElementById('score-p2').textContent = scores.p2;
     }
 
-    updateTurnBanner(data.state.turn);
+    // Use gameState.turn (same as data.state.turn) - consistent with move checks
+    updateTurnBanner(gameState.turn || 'p1');
 
     if (currentGame === 'ttt') renderTtt();
     if (currentGame === 'sos') renderSos();
@@ -2051,7 +2054,8 @@ const TTT_WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6
 
 function tttMove(idx) {
   if (gameState.status === 'done') return;
-  if (gameState.turn !== myRole) { toast("Not your turn!"); return; }
+  if (!myRole) { toast("Session error - please rejoin the room"); return; }
+  if (gameState.turn !== myRole) { toast(`Not your turn! (You are ${myRole}, turn is ${gameState.turn})`); return; }
   if (gameState.board[idx]) return;
 
   const board = [...gameState.board];
