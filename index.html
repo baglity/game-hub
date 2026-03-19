@@ -1204,8 +1204,9 @@
   <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;text-align:center;">
     <div style="font-family:'Fredoka One',cursive;font-size:clamp(2rem,7vw,3.5rem);background:linear-gradient(135deg,#2563eb,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🎮 Game Hub</div>
     <p style="color:var(--muted);font-size:0.95rem;">Enter your access code to continue</p>
+    <p style="color:rgba(255,255,255,0.3);font-size:0.75rem;">Player 2 joining a friend? Type <strong style="color:rgba(255,255,255,0.5);">join</strong></p>
     <div style="background:var(--card);border-radius:var(--radius);padding:32px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px;">
-      <input type="password" id="entry-code-input" placeholder="_ _ _ _" maxlength="10"
+      <input type="password" id="entry-code-input" placeholder="code or join" maxlength="10"
         style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12);border-radius:10px;padding:14px;color:#fff;font-family:'Fredoka One',cursive;font-size:2rem;letter-spacing:0.4em;text-align:center;outline:none;transition:border-color 0.2s;"
         onkeydown="if(event.key==='Enter')checkEntryCode()"
         onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
@@ -4155,33 +4156,41 @@ const COUPLES_CARDS = `
   </div>`;
 
 function checkEntryCode() {
-  const input = document.getElementById('entry-code-input').value.trim();
-  const level = ACCESS_CODES[input];
+  const input = document.getElementById('entry-code-input').value.trim().toLowerCase();
+
+  // Special code for Player 2 - goes straight to join screen
+  if (input === 'join') {
+    document.getElementById('entry-code-error').style.display = 'none';
+    document.getElementById('entry-code-input').value = '';
+    accessLevel = 'joiner';
+    showScreen('join-screen');
+    return;
+  }
+
+  const level = ACCESS_CODES[input] || ACCESS_CODES[document.getElementById('entry-code-input').value.trim()];
   if (level) {
     accessLevel = level;
     document.getElementById('entry-code-error').style.display = 'none';
     document.getElementById('entry-code-input').value = '';
-    // Load correct game cards
     const container = document.getElementById('game-cards-container');
     if (level === 'friends') {
       container.innerHTML = FRIENDS_CARDS;
       document.getElementById('home-tagline').textContent = 'Play with your friend — anywhere!';
+      document.getElementById('home-tagline').style.color = '';
     } else {
       container.innerHTML = COUPLES_CARDS;
       document.getElementById('home-tagline').textContent = '♥ Couples Game Hub ♥';
       document.getElementById('home-tagline').style.color = '#ec4899';
     }
     showScreen('home');
-    // Admin only visible for couples
     document.getElementById('admin-btn').style.display = level === 'couples' ? 'flex' : 'none';
   } else {
     document.getElementById('entry-code-error').style.display = 'block';
     document.getElementById('entry-code-input').value = '';
     document.getElementById('entry-code-input').focus();
-    // Shake animation
-    const input2 = document.getElementById('entry-code-input');
-    input2.style.animation = 'shake 0.4s ease';
-    setTimeout(() => input2.style.animation = '', 400);
+    const inp = document.getElementById('entry-code-input');
+    inp.style.animation = 'shake 0.4s ease';
+    setTimeout(() => inp.style.animation = '', 400);
   }
 }
 
