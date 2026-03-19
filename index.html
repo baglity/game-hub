@@ -122,6 +122,12 @@
   .game-card.ttt .game-title { color: var(--accent1); }
   .game-card.sos .game-title { color: var(--accent2); }
   .game-card.tod .game-title { color: var(--accent4); }
+  .game-card.nhie::before { background: linear-gradient(135deg, rgba(236,72,153,0.15), transparent); }
+  .game-card.nhie .game-title { color: #ec4899; }
+  .game-card.card-dare::before { background: linear-gradient(135deg, rgba(168,85,247,0.15), transparent); }
+  .game-card.card-dare .game-title { color: #a855f7; }
+  .game-card.rummy::before { background: linear-gradient(135deg, rgba(234,179,8,0.15), transparent); }
+  .game-card.rummy .game-title { color: #eab308; }
 
   /* ── LOBBY ── */
   #lobby {
@@ -907,6 +913,180 @@
     #chat-messages { height: 180px; }
   }
 
+  /* ── RUMMY ── */
+  .rummy-player-btn {
+    padding: 8px 4px;
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .rummy-player-btn.active {
+    background: #eab308;
+    border-color: #eab308;
+    color: #000;
+  }
+
+  .rummy-card {
+    width: 46px;
+    height: 64px;
+    border-radius: 6px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: #fff;
+    color: #111;
+    user-select: none;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .rummy-card.red { color: #e94560; }
+  .rummy-card.selected {
+    transform: translateY(-10px);
+    border-color: #eab308;
+    box-shadow: 0 4px 16px rgba(234,179,8,0.5);
+  }
+  .rummy-card.joker-card {
+    background: linear-gradient(135deg,#ec4899,#8b5cf6);
+    color: white;
+    border-color: #ec4899;
+  }
+  .rummy-card:hover:not(.selected) { transform: translateY(-4px); }
+
+  .rummy-player-chip {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    text-align: center;
+    min-width: 80px;
+    border: 2px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  .rummy-player-chip.active-turn { border-color: #eab308; }
+
+  /* ── SECRET ADMIN PANEL ── */
+  #admin-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 46px;
+    height: 46px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 60;
+    transition: all 0.3s;
+    color: rgba(255,255,255,0.15);
+  }
+
+  #admin-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.4);
+  }
+
+  #admin-panel {
+    position: fixed;
+    bottom: 76px;
+    left: 20px;
+    width: 300px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+    z-index: 60;
+    overflow: hidden;
+    animation: slideUp 0.2s ease;
+  }
+
+  #admin-panel.open { display: flex; }
+
+  #admin-panel-header {
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+    color: var(--muted);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .admin-upload-block {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .admin-upload-block:last-child { border-bottom: none; }
+
+  .admin-game-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .admin-upload-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .admin-upload-row .btn {
+    font-size: 0.72rem;
+    padding: 6px 10px;
+    width: auto;
+  }
+
+  #master-lock {
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #master-lock input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: white;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    text-align: center;
+    outline: none;
+    width: 100%;
+  }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+
   @media (max-width: 480px) {
     .game-cards { grid-template-columns: 1fr; }
     .ttt-cell { font-size: 2rem; }
@@ -936,6 +1116,36 @@
     <div id="tod-code-error" style="display:none;color:#e94560;font-size:0.82rem;margin-bottom:10px;">❌ Wrong code. Try again!</div>
     <button class="btn btn-primary" onclick="checkTodCode()" style="margin-bottom:10px;">🔓 Unlock</button>
     <button class="btn btn-ghost" onclick="document.getElementById('tod-lock-overlay').classList.remove('show');document.getElementById('tod-code-input').value='';document.getElementById('tod-code-error').style.display='none';" style="font-size:0.85rem;">← Back</button>
+  </div>
+</div>
+
+<!-- NEVER HAVE I EVER LOCK -->
+<div class="overlay" id="nhie-lock-overlay">
+  <div class="overlay-box" style="max-width:360px;">
+    <span style="font-size:3rem;display:block;margin-bottom:8px;">🔒</span>
+    <div class="overlay-title" style="font-size:1.5rem;margin-bottom:6px;">Couples Only</div>
+    <div class="overlay-sub" style="margin-bottom:20px;">Enter code to play Never Have I Ever</div>
+    <input type="password" id="nhie-code-input" placeholder="Enter access code..." maxlength="20"
+      style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.3rem;letter-spacing:0.15em;text-align:center;outline:none;margin-bottom:8px;"
+      onkeydown="if(event.key==='Enter') checkNhieCode()">
+    <div id="nhie-code-error" style="display:none;color:#e94560;font-size:0.82rem;margin-bottom:10px;">❌ Wrong code. Try again!</div>
+    <button class="btn btn-primary" onclick="checkNhieCode()" style="margin-bottom:10px;">🔓 Unlock</button>
+    <button class="btn btn-ghost" onclick="closeLock('nhie')" style="font-size:0.85rem;">← Back</button>
+  </div>
+</div>
+
+<!-- CARD DARE LOCK -->
+<div class="overlay" id="card-dare-lock-overlay">
+  <div class="overlay-box" style="max-width:360px;">
+    <span style="font-size:3rem;display:block;margin-bottom:8px;">🔒</span>
+    <div class="overlay-title" style="font-size:1.5rem;margin-bottom:6px;">Couples Only</div>
+    <div class="overlay-sub" style="margin-bottom:20px;">Enter code to play Card Dare</div>
+    <input type="password" id="card-dare-code-input" placeholder="Enter access code..." maxlength="20"
+      style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.3rem;letter-spacing:0.15em;text-align:center;outline:none;margin-bottom:8px;"
+      onkeydown="if(event.key==='Enter') checkCardDareCode()">
+    <div id="card-dare-code-error" style="display:none;color:#e94560;font-size:0.82rem;margin-bottom:10px;">❌ Wrong code. Try again!</div>
+    <button class="btn btn-primary" onclick="checkCardDareCode()" style="margin-bottom:10px;">🔓 Unlock</button>
+    <button class="btn btn-ghost" onclick="closeLock('card-dare')" style="font-size:0.85rem;">← Back</button>
   </div>
 </div>
 
@@ -989,28 +1199,28 @@
   </div>
 </div>
 
-<!-- ══════════════ HOME ══════════════ -->
-<div id="home" class="screen active">
-  <div class="logo">🎮 Game Hub</div>
-  <p class="tagline">Play with your friend — anywhere in the world</p>
-
-  <div class="game-cards">
-    <div class="game-card ttt" onclick="selectGame('ttt')">
-      <span class="game-icon">❌⭕</span>
-      <div class="game-title">Tic Tac Toe</div>
-      <div class="game-desc">Classic X and O battle. Get 3 in a row to win!</div>
+<!-- ══════════════ ENTRY LOCK ══════════════ -->
+<div id="entry-lock" class="screen active">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;text-align:center;">
+    <div style="font-family:'Fredoka One',cursive;font-size:clamp(2rem,7vw,3.5rem);background:linear-gradient(135deg,#2563eb,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🎮 Game Hub</div>
+    <p style="color:var(--muted);font-size:0.95rem;">Enter your access code to continue</p>
+    <div style="background:var(--card);border-radius:var(--radius);padding:32px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px;">
+      <input type="password" id="entry-code-input" placeholder="_ _ _ _" maxlength="10"
+        style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12);border-radius:10px;padding:14px;color:#fff;font-family:'Fredoka One',cursive;font-size:2rem;letter-spacing:0.4em;text-align:center;outline:none;transition:border-color 0.2s;"
+        onkeydown="if(event.key==='Enter')checkEntryCode()"
+        onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+      <div id="entry-code-error" style="display:none;color:#e94560;font-size:0.82rem;">❌ Wrong code. Try again!</div>
+      <button class="btn btn-primary" onclick="checkEntryCode()" style="font-size:1rem;">🔓 Enter</button>
     </div>
-    <div class="game-card sos" onclick="selectGame('sos')">
-      <span class="game-icon">📝</span>
-      <div class="game-title">SOS Game</div>
-      <div class="game-desc">Place S or O. Form the most SOS sequences to win!</div>
-    </div>
-    <div class="game-card tod" onclick="selectGame('tod')">
-      <span class="game-icon">🎭</span>
-      <div class="game-title">Truth or Dare</div>
-      <div class="game-desc">Take turns choosing Truth or Dare with your friend!</div>
-    </div>
+    <p style="color:rgba(255,255,255,0.06);font-size:0.65rem;margin-top:16px;">v1.0</p>
   </div>
+</div>
+
+<!-- ══════════════ HOME ══════════════ -->
+<div id="home" class="screen">
+  <div class="logo">🎮 Game Hub</div>
+  <p class="tagline" id="home-tagline">Play with your friend</p>
+  <div class="game-cards" id="game-cards-container"></div>
   <div style="margin-top:20px;text-align:center;">
     <p style="color:var(--muted);font-size:0.85rem;margin-bottom:10px;">Got a room code from your friend?</p>
     <button class="btn btn-secondary" onclick="goToJoin()" style="max-width:340px;width:100%;">🔗 Join a Friend's Room</button>
@@ -1142,6 +1352,174 @@
     <div id="sos-board"></div>
   </div>
 
+  <!-- NHIE Area -->
+  <div id="nhie-area" style="display:none;width:100%;max-width:560px;flex-direction:column;align-items:center;gap:16px;">
+    <div class="tod-player-turn" id="nhie-turn-text">🙈 Player 1's Turn</div>
+    <div id="nhie-card" style="background:var(--card);border-radius:var(--radius);padding:32px 28px;text-align:center;width:100%;border:2px solid rgba(255,255,255,0.08);animation:cardReveal 0.4s ease;">
+      <div style="font-family:'Fredoka One',cursive;font-size:0.9rem;color:#ec4899;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;">🙈 Never Have I Ever...</div>
+      <div id="nhie-statement" style="font-size:1.2rem;font-weight:700;line-height:1.6;margin-bottom:20px;">Press draw to get a statement!</div>
+      <div id="nhie-reply-display" style="display:none;margin:12px 0;background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;border-left:3px solid #ec4899;">
+        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;text-transform:uppercase;">Their answer</div>
+        <div id="nhie-reply-text" style="font-weight:700;"></div>
+      </div>
+    </div>
+    <div id="nhie-action-btns" style="display:flex;gap:12px;width:100%;">
+      <button class="btn btn-primary" id="nhie-draw-btn" onclick="nhieDraw()" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);">🎲 Draw Statement</button>
+    </div>
+    <div id="nhie-response-btns" style="display:none;width:100%;gap:12px;flex-direction:column;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <button class="btn" onclick="nhieRespond('✅ I HAVE!')" style="background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:1rem;">✅ I Have!</button>
+        <button class="btn" onclick="nhieRespond('❌ Never!')" style="background:linear-gradient(135deg,#e94560,#c0392b);color:white;font-size:1rem;">❌ Never!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Dare Area -->
+  <div id="card-dare-area" style="display:none;width:100%;max-width:560px;flex-direction:column;align-items:center;gap:16px;">
+    <div class="tod-player-turn" id="card-dare-turn-text">🃏 Both players draw!</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;">
+      <!-- P1 Card -->
+      <div style="text-align:center;">
+        <div style="font-size:0.8rem;color:#2563eb;font-weight:800;margin-bottom:8px;" id="cd-p1-label">Player 1</div>
+        <div id="cd-p1-card" onclick="drawCard('p1')" style="aspect-ratio:0.7;background:var(--card);border-radius:12px;border:2px solid rgba(37,99,235,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s;font-family:'Fredoka One',cursive;font-size:2.5rem;gap:4px;user-select:none;">
+          <span style="font-size:1.5rem;">🂠</span>
+          <span style="font-size:0.75rem;color:var(--muted);font-family:'Nunito',sans-serif;">Tap to draw</span>
+        </div>
+      </div>
+      <!-- P2 Card -->
+      <div style="text-align:center;">
+        <div style="font-size:0.8rem;color:#e94560;font-weight:800;margin-bottom:8px;" id="cd-p2-label">Player 2</div>
+        <div id="cd-p2-card" onclick="drawCard('p2')" style="aspect-ratio:0.7;background:var(--card);border-radius:12px;border:2px solid rgba(233,69,96,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s;font-family:'Fredoka One',cursive;font-size:2.5rem;gap:4px;user-select:none;">
+          <span style="font-size:1.5rem;">🂠</span>
+          <span style="font-size:0.75rem;color:var(--muted);font-family:'Nunito',sans-serif;">Tap to draw</span>
+        </div>
+      </div>
+    </div>
+    <div id="cd-result" style="display:none;background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;width:100%;border:2px solid rgba(255,255,255,0.08);">
+      <div id="cd-result-text" style="font-family:'Fredoka One',cursive;font-size:1.3rem;margin-bottom:12px;"></div>
+      <div id="cd-dare-display" style="display:none;background:rgba(168,85,247,0.1);border-radius:10px;padding:14px;border-left:3px solid #a855f7;margin-bottom:12px;">
+        <div style="font-size:0.75rem;color:#a855f7;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">🎯 Dare for the loser</div>
+        <div id="cd-dare-text" style="font-weight:700;font-size:1rem;line-height:1.5;"></div>
+      </div>
+      <button class="btn btn-success" onclick="cdNextRound()" style="font-size:0.9rem;">🔄 Next Round</button>
+    </div>
+    <div id="cd-upload-wrapper" style="display:none;width:100%;">
+      <div class="upload-section" onclick="document.getElementById('cd-file-input').click()">
+        <input type="file" id="cd-file-input" accept=".xlsx,.csv" onchange="uploadCardDareDares(event)">
+        <label class="upload-label">
+          <span style="font-size:1.5rem;">📂</span>
+          <strong>Upload Custom Dares</strong>
+          <span>Click to upload .csv file</span>
+          <span id="cd-upload-status" style="color:var(--accent4);display:none;">✅ Dares loaded!</span>
+        </label>
+      </div>
+      <button onclick="downloadCardDareTemplate()" class="btn btn-success" style="margin-top:8px;font-size:0.82rem;padding:10px 16px;">⬇️ Download Dare Template</button>
+    </div>
+  </div>
+
+  <!-- RUMMY SETUP -->
+  <div id="rummy-setup" style="display:none;width:100%;max-width:480px;flex-direction:column;align-items:center;gap:16px;padding:80px 16px 20px;">
+    <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#eab308;">🃏 Rummy</div>
+
+    <!-- CREATE ROOM -->
+    <div style="background:var(--card);border-radius:var(--radius);padding:24px;width:100%;display:flex;flex-direction:column;gap:14px;">
+      <div style="font-size:0.82rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">🏠 Create a Room</div>
+      <div class="input-group">
+        <label>Your Name</label>
+        <input type="text" id="rummy-my-name" placeholder="Enter your name..." maxlength="16" style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;">
+      </div>
+      <div class="input-group">
+        <label>Number of Players</label>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+          <button class="rummy-player-btn active" id="rbtn-2" onclick="setRummyPlayers(2)">2</button>
+          <button class="rummy-player-btn" id="rbtn-3" onclick="setRummyPlayers(3)">3</button>
+          <button class="rummy-player-btn" id="rbtn-4" onclick="setRummyPlayers(4)">4</button>
+          <button class="rummy-player-btn" id="rbtn-5" onclick="setRummyPlayers(5)">5</button>
+          <button class="rummy-player-btn" id="rbtn-ai" onclick="setRummyPlayers('ai')" style="font-size:0.75rem;">🤖 AI</button>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="createRummyRoom()" style="background:linear-gradient(135deg,#eab308,#d97706);">🏠 Create Room</button>
+    </div>
+
+    <div style="color:var(--muted);font-size:0.85rem;font-weight:700;">— OR —</div>
+
+    <!-- JOIN ROOM -->
+    <div style="background:var(--card);border-radius:var(--radius);padding:24px;width:100%;display:flex;flex-direction:column;gap:14px;">
+      <div style="font-size:0.82rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">🔗 Join a Room</div>
+      <div class="input-group">
+        <label>Your Name</label>
+        <input type="text" id="rummy-join-name" placeholder="Enter your name..." maxlength="16" style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;">
+      </div>
+      <div class="input-group">
+        <label>Room Code</label>
+        <input type="text" id="rummy-join-code" placeholder="Enter code..." maxlength="4" style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.6rem;letter-spacing:0.2em;text-align:center;outline:none;">
+      </div>
+      <button class="btn btn-secondary" onclick="joinRummyRoom()">🔗 Join Room</button>
+    </div>
+  </div>
+
+  <!-- RUMMY WAITING -->
+  <div id="rummy-waiting" style="display:none;width:100%;max-width:400px;flex-direction:column;align-items:center;gap:16px;text-align:center;">
+    <div style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#eab308;">Waiting for Players</div>
+    <div style="background:var(--card);border-radius:var(--radius);padding:28px;width:100%;">
+      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:6px;">ROOM CODE</p>
+      <div id="rummy-room-code" style="font-family:'Fredoka One',cursive;font-size:3rem;letter-spacing:0.2em;background:linear-gradient(135deg,#eab308,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">----</div>
+      <button class="btn btn-ghost" onclick="copyRummyCode()" style="font-size:0.82rem;margin-top:8px;">📋 Copy Code</button>
+    </div>
+    <div id="rummy-players-waiting" style="display:flex;flex-direction:column;gap:8px;width:100%;"></div>
+    <p style="color:var(--muted);font-size:0.85rem;"><span class="pulse-dot" style="background:#eab308;"></span> Waiting for <span id="rummy-wait-count">?</span> more player(s)...</p>
+    <button id="rummy-start-btn" class="btn btn-primary" onclick="hostStartRummy()" style="display:none;background:linear-gradient(135deg,#eab308,#d97706);">🃏 Start Game!</button>
+  </div>
+
+  <!-- RUMMY GAME -->
+  <div id="rummy-game" style="display:none;width:100%;max-width:700px;flex-direction:column;align-items:center;gap:12px;">
+    <!-- Info bar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;width:100%;background:var(--card);border-radius:10px;padding:10px 16px;font-size:0.82rem;">
+      <span id="rummy-turn-label" style="font-family:'Fredoka One',cursive;color:#eab308;">Your Turn</span>
+      <span id="rummy-deck-count" style="color:var(--muted);">🂠 52 left</span>
+      <span id="rummy-joker-label" style="color:#ec4899;">🃏 Joker: ?</span>
+    </div>
+
+    <!-- Other players scores -->
+    <div id="rummy-players-bar" style="display:flex;gap:8px;width:100%;overflow-x:auto;padding-bottom:4px;"></div>
+
+    <!-- Table area: deck + discard -->
+    <div style="display:flex;gap:16px;align-items:center;justify-content:center;width:100%;">
+      <div style="text-align:center;">
+        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;">DECK</div>
+        <div id="rummy-deck" onclick="rummyDrawFromDeck()" style="width:60px;height:84px;background:#1e2a45;border-radius:8px;border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.8rem;cursor:pointer;transition:all 0.2s;" title="Draw from deck">🂠</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;">DISCARD</div>
+        <div id="rummy-discard" onclick="rummyDrawFromDiscard()" style="width:60px;height:84px;background:#1e2a45;border-radius:8px;border:2px dashed rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:var(--muted);cursor:pointer;transition:all 0.2s;" title="Draw from discard">Empty</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;">ACTION</div>
+        <button id="rummy-declare-btn" onclick="rummyDeclare()" style="width:60px;height:84px;background:linear-gradient(135deg,#eab308,#d97706);border:none;border-radius:8px;color:#000;font-family:'Fredoka One',cursive;font-size:0.7rem;cursor:pointer;display:none;">DECLARE!</button>
+      </div>
+    </div>
+
+    <!-- My hand -->
+    <div style="width:100%;">
+      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;">
+        <span>YOUR HAND <span id="rummy-hand-count" style="color:#eab308;"></span></span>
+        <span style="font-size:0.7rem;color:var(--muted);">Tap to select · Tap discard pile to throw</span>
+      </div>
+      <div id="rummy-hand" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;min-height:90px;padding:8px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid rgba(255,255,255,0.06);"></div>
+    </div>
+
+    <!-- Sort buttons -->
+    <div style="display:flex;gap:8px;">
+      <button onclick="rummySortBySuit()" class="btn btn-ghost" style="font-size:0.78rem;padding:7px 12px;width:auto;">Sort by Suit</button>
+      <button onclick="rummySortByValue()" class="btn btn-ghost" style="font-size:0.78rem;padding:7px 12px;width:auto;">Sort by Value</button>
+      <button onclick="rummyAutoGroup()" class="btn btn-ghost" style="font-size:0.78rem;padding:7px 12px;width:auto;">Auto Group</button>
+    </div>
+  </div>
+
+  <!-- RUMMY RESULT -->
+  <div id="rummy-result" style="display:none;width:100%;max-width:500px;flex-direction:column;align-items:center;gap:16px;">
+  </div>
+
   <!-- TOD Area -->
   <div id="tod-area" style="display:none;">
     <div class="tod-player-turn" id="tod-turn-text">🎭 Player 1's turn</div>
@@ -1186,6 +1564,70 @@ dare,Sing a song out loud for 30 seconds</code>
         <button onclick="downloadCSVTemplate()" class="btn btn-success" style="margin-top:12px;font-size:0.82rem;padding:10px 16px;">⬇️ Download Sample Template</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ── SECRET ADMIN PANEL ── -->
+<button id="admin-btn" onclick="toggleAdminPanel()" title="">🎮</button>
+
+<div id="admin-panel">
+  <div id="admin-panel-header">
+    <span>⚙️ Settings</span>
+    <button onclick="toggleAdminPanel()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;">✕</button>
+  </div>
+
+  <!-- Master password gate -->
+  <div id="master-lock">
+    <div style="font-size:0.8rem;color:var(--muted);text-align:center;">Enter master password</div>
+    <input type="password" id="master-pwd-input" placeholder="••••••••" maxlength="20" onkeydown="if(event.key==='Enter')checkMasterPwd()">
+    <div id="master-pwd-error" style="display:none;color:#e94560;font-size:0.75rem;text-align:center;">Wrong password</div>
+    <button class="btn btn-primary" onclick="checkMasterPwd()" style="font-size:0.82rem;padding:9px;">Unlock</button>
+  </div>
+
+  <!-- Admin content (hidden until unlocked) -->
+  <div id="admin-content" style="display:none;">
+
+    <!-- Codes -->
+    <div style="padding:12px 16px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05);">
+      <div style="font-size:0.75rem;font-weight:800;color:var(--muted);margin-bottom:8px;">🔑 ACCESS CODES</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:0.8rem;">
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--accent4);">🎭 Truth or Dare</span><span style="font-family:'Fredoka One',cursive;letter-spacing:0.1em;">75980121</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#ec4899;">♥ Never Have I Ever</span><span style="font-family:'Fredoka One',cursive;letter-spacing:0.1em;">01217598</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#a855f7;">🃏 Card Dare</span><span style="font-family:'Fredoka One',cursive;letter-spacing:0.1em;">01217598</span></div>
+      </div>
+    </div>
+
+    <!-- Uploads -->
+    <div class="admin-upload-block">
+      <div class="admin-game-label"><span style="color:var(--accent4);">🎭 Truth or Dare</span></div>
+      <div class="admin-upload-row">
+        <button class="btn btn-ghost" onclick="document.getElementById('home-tod-file').click()">📂 Upload</button>
+        <button class="btn btn-ghost" onclick="downloadCSVTemplate()">⬇️ Template</button>
+        <input type="file" id="home-tod-file" accept=".xlsx,.csv" onchange="homeUploadTod(event)" style="display:none;">
+        <span id="home-tod-status" style="display:none;color:var(--accent4);font-size:0.7rem;align-self:center;">✅</span>
+      </div>
+    </div>
+
+    <div class="admin-upload-block">
+      <div class="admin-game-label"><span style="color:#ec4899;">♥ Never Have I Ever</span></div>
+      <div class="admin-upload-row">
+        <button class="btn btn-ghost" onclick="document.getElementById('home-nhie-file').click()">📂 Upload</button>
+        <button class="btn btn-ghost" onclick="downloadNhieTemplate()">⬇️ Template</button>
+        <input type="file" id="home-nhie-file" accept=".csv" onchange="homeUploadNhie(event)" style="display:none;">
+        <span id="home-nhie-status" style="display:none;color:var(--accent4);font-size:0.7rem;align-self:center;">✅</span>
+      </div>
+    </div>
+
+    <div class="admin-upload-block">
+      <div class="admin-game-label"><span style="color:#a855f7;">🃏 Card Dare</span></div>
+      <div class="admin-upload-row">
+        <button class="btn btn-ghost" onclick="document.getElementById('home-cd-file').click()">📂 Upload</button>
+        <button class="btn btn-ghost" onclick="downloadCardDareTemplate()">⬇️ Template</button>
+        <input type="file" id="home-cd-file" accept=".csv" onchange="homeUploadCardDare(event)" style="display:none;">
+        <span id="home-cd-status" style="display:none;color:var(--accent4);font-size:0.7rem;align-self:center;">✅</span>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1269,15 +1711,21 @@ function showScreen(id) {
 
 function goHome() {
   if (roomRef) { roomRef.remove().catch(()=>{}); roomRef = null; }
+  if (rummyRef) { rummyRef.off(); rummyRef = null; }
+  rummyState = null; rummySelectedCard = null; rummyIsHost = false;
   scores = { p1: 0, p2: 0 };
   seriesWins = { p1: 0, p2: 0 };
   seriesRound = 0;
   seriesMax = 1;
-  // Close all overlays
   document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show'));
   const jt = document.getElementById('lobby-game-title');
   if (jt) jt.textContent = '🎮 Game';
   showChatContainer(false);
+  document.getElementById('admin-btn').style.display = 'none';
+  document.getElementById('admin-panel').classList.remove('open');
+  adminUnlocked = false;
+  document.getElementById('admin-content').style.display = 'none';
+  document.getElementById('master-lock').style.display = 'flex';
   chatOpen = false;
   unreadCount = 0;
   lastChatKey = null;
@@ -1285,7 +1733,13 @@ function goHome() {
   if (cb) cb.classList.remove('open');
   const msgs = document.getElementById('chat-messages');
   if (msgs) msgs.innerHTML = '';
-  showScreen('home');
+  // Go back to home (stay logged in) - lock only on page refresh
+  if (accessLevel) {
+    showScreen('home');
+    document.getElementById('admin-btn').style.display = accessLevel === 'couples' ? 'flex' : 'none';
+  } else {
+    showScreen('entry-lock');
+  }
 }
 
 function goToJoin() {
@@ -1434,15 +1888,37 @@ function startGameUI() {
   if (currentGame === 'sos') { document.getElementById('sos-section').style.display = 'flex'; buildSosBoard(); }
   if (currentGame === 'tod') {
     document.getElementById('tod-area').style.display = 'flex';
-    // Only p1 can upload questions
     const uploadWrapper = document.getElementById('upload-section-wrapper');
     if (uploadWrapper) uploadWrapper.style.display = myRole === 'p1' ? 'block' : 'none';
   }
+  if (currentGame === 'nhie') {
+    document.getElementById('nhie-area').style.display = 'flex';
+  }
+  if (currentGame === 'card-dare') {
+    document.getElementById('card-dare-area').style.display = 'flex';
+    document.getElementById('cd-p1-label').textContent = playerNames.p1;
+    document.getElementById('cd-p2-label').textContent = playerNames.p2;
+    const uploadW = document.getElementById('cd-upload-wrapper');
+    if (uploadW) uploadW.style.display = myRole === 'p1' ? 'block' : 'none';
+  }
+  if (currentGame === 'rummy') {
+    // Rummy is local - skip Firebase room, show setup directly
+    document.getElementById('rummy-setup').style.display = 'flex';
+    document.getElementById('rummy-my-name').value = playerNames.p1 || '';
+    setRummyPlayers(2);
+    return; // skip rest of startGameUI
+  }
 
-  showScreen('game-area');
-  listenToRoom();
-  showChatContainer(true);
-  listenToChat();
+  if (currentGame !== 'rummy') {
+    showScreen('game-area');
+    document.getElementById('admin-btn').style.display = 'none';
+    document.getElementById('admin-panel').classList.remove('open');
+    document.getElementById('turn-banner').style.display = '';
+    document.getElementById('game-header').style.display = '';
+    listenToRoom();
+    showChatContainer(true);
+    listenToChat();
+  }
 }
 
 let lastRematch = null;
@@ -1470,6 +1946,8 @@ function listenToRoom() {
     if (currentGame === 'ttt') renderTtt();
     if (currentGame === 'sos') renderSos();
     if (currentGame === 'tod') renderTod(data);
+    if (currentGame === 'nhie') renderNhie(data);
+    if (currentGame === 'card-dare') renderCardDare(data);
 
     // If other player clicked Next Round - close overlay immediately
     if (data.rematch && data.rematch !== lastRematch) {
@@ -1505,7 +1983,9 @@ function isMyTurn() {
 function getInitialState() {
   if (currentGame === 'ttt') return { board: Array(9).fill(''), turn: 'p1', status: 'playing', winner: null };
   if (currentGame === 'sos') return { board: Array(49).fill(''), turn: 'p1', sosCount: { p1: 0, p2: 0 }, status: 'playing', winner: null, cellOwner: {}, sosLines: [] };
-  if (currentGame === 'tod') return { turn: 'p1', action: null, type: null, questionIdx: null };
+  if (currentGame === 'tod') return { turn: 'p1', action: null, type: null, questionIdx: null, reply: '' };
+  if (currentGame === 'nhie') return { turn: 'p1', statementIdx: null, response: null, status: 'waiting' };
+  if (currentGame === 'card-dare') return { p1Card: null, p2Card: null, dareIdx: null, status: 'drawing', round: 1 };
 }
 
 // ══════════════════════════════════════════════
@@ -1918,31 +2398,71 @@ let seriesMax = 0; // 0 = no series
 let seriesWins = { p1: 0, p2: 0 };
 let seriesRound = 0;
 
+const GAME_TITLES = { ttt: '❌ Tic Tac Toe', sos: '📝 SOS Game', tod: '🎭 Truth or Dare', nhie: '♥ Never Have I Ever', 'card-dare': '🃏 Card Dare' };
+
 function selectGame(game) {
-  if (game === 'tod') {
-    document.getElementById('tod-lock-overlay').classList.add('show');
+  launchGame(game);
+}
+
+function launchGame(game) {
+  currentGame = game;
+  document.getElementById('lobby-game-title').textContent = GAME_TITLES[game] || '🎮 Game';
+  if (game === 'rummy') {
+    showScreen('game-area');
+    // Hide game header and turn banner for rummy
+    const gh = document.getElementById('game-header');
+    const tb = document.getElementById('turn-banner');
+    if (gh) gh.style.display = 'none';
+    if (tb) tb.style.display = 'none';
+    // Hide all rummy panels then show setup
+    ['rummy-game','rummy-waiting','rummy-result'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const setup = document.getElementById('rummy-setup');
+    if (setup) setup.style.display = 'flex';
+    // Reset inputs
+    const nameInput = document.getElementById('rummy-my-name');
+    if (nameInput) nameInput.value = '';
+    const joinName = document.getElementById('rummy-join-name');
+    if (joinName) joinName.value = '';
+    const joinCode = document.getElementById('rummy-join-code');
+    if (joinCode) joinCode.value = '';
+    // Reset player buttons - select 2 by default
+    document.querySelectorAll('.rummy-player-btn').forEach(b => b.classList.remove('active'));
+    const btn2 = document.getElementById('rbtn-2');
+    if (btn2) btn2.classList.add('active');
+    rummyNumPlayers = 2;
+    rummyVsAI = false;
     return;
   }
-  currentGame = game;
-  const titles = { ttt: '❌ Tic Tac Toe', sos: '📝 SOS Game', tod: '🎭 Truth or Dare' };
-  document.getElementById('lobby-game-title').textContent = titles[game];
   document.getElementById('series-overlay').classList.add('show');
+}
+
+
+
+function closeLock(game) {
+  document.getElementById(game + '-lock-overlay').classList.remove('show');
+  document.getElementById(game + '-code-input').value = '';
+  document.getElementById(game + '-code-error').style.display = 'none';
 }
 
 function checkTodCode() {
   const input = document.getElementById('tod-code-input').value.trim();
-  if (input === '75980121') {
-    document.getElementById('tod-lock-overlay').classList.remove('show');
-    document.getElementById('tod-code-input').value = '';
-    document.getElementById('tod-code-error').style.display = 'none';
-    currentGame = 'tod';
-    document.getElementById('lobby-game-title').textContent = '🎭 Truth or Dare';
-    document.getElementById('series-overlay').classList.add('show');
-  } else {
-    document.getElementById('tod-code-error').style.display = 'block';
-    document.getElementById('tod-code-input').value = '';
-    document.getElementById('tod-code-input').focus();
-  }
+  if (input === GAME_CODES.tod) { closeLock('tod'); launchGame('tod'); }
+  else { document.getElementById('tod-code-error').style.display = 'block'; document.getElementById('tod-code-input').value = ''; document.getElementById('tod-code-input').focus(); }
+}
+
+function checkNhieCode() {
+  const input = document.getElementById('nhie-code-input').value.trim();
+  if (input === GAME_CODES.nhie) { closeLock('nhie'); launchGame('nhie'); }
+  else { document.getElementById('nhie-code-error').style.display = 'block'; document.getElementById('nhie-code-input').value = ''; document.getElementById('nhie-code-input').focus(); }
+}
+
+function checkCardDareCode() {
+  const input = document.getElementById('card-dare-code-input').value.trim();
+  if (input === GAME_CODES['card-dare']) { closeLock('card-dare'); launchGame('card-dare'); }
+  else { document.getElementById('card-dare-code-error').style.display = 'block'; document.getElementById('card-dare-code-input').value = ''; document.getElementById('card-dare-code-input').focus(); }
 }
 
 function setSeries(n) {
@@ -2199,6 +2719,757 @@ function showChatContainer(show) {
   document.getElementById('chat-container').style.display = show ? 'flex' : 'none';
 }
 
+// ══════════════════════════════════════════════
+//  NEVER HAVE I EVER
+// ══════════════════════════════════════════════
+let nhieStatements = [
+  "Never have I ever stayed up all night talking to someone",
+  "Never have I ever cried watching a movie",
+  "Never have I ever sent a text to the wrong person",
+  "Never have I ever pretended to be sick to avoid something",
+  "Never have I ever had a secret crush for over a year",
+  "Never have I ever stalked someone's social media for hours",
+  "Never have I ever said 'I love you' first",
+  "Never have I ever kept a diary or journal",
+  "Never have I ever eaten an entire pizza alone",
+  "Never have I ever ghosted someone",
+  "Never have I ever skipped work or school for no real reason",
+  "Never have I ever fallen asleep during a phone call",
+  "Never have I ever bought something expensive and hid it from family",
+  "Never have I ever cried over a song",
+  "Never have I ever had a dream about someone I know",
+  "Never have I ever lied about my age",
+  "Never have I ever deleted a text before sending it 5+ times",
+  "Never have I ever stayed in a relationship too long",
+  "Never have I ever been on a blind date",
+  "Never have I ever read someone else's messages without permission"
+];
+
+function nhieDraw() {
+  if (gameState.turn !== myRole) { toast("Not your turn!"); return; }
+  const idx = Math.floor(Math.random() * nhieStatements.length);
+  roomRef.update({ 'state/statementIdx': idx, 'state/response': null, 'state/status': 'drawn' });
+}
+
+function nhieRespond(response) {
+  roomRef.update({ 'state/response': response, 'state/status': 'responded' });
+}
+
+function nhieNext() {
+  const nextTurn = gameState.turn === 'p1' ? 'p2' : 'p1';
+  roomRef.update({ 'state/turn': nextTurn, 'state/statementIdx': null, 'state/response': null, 'state/status': 'waiting' });
+}
+
+function renderNhie(data) {
+  const state = data.state;
+  const isMyTurn = state.turn === myRole;
+  const name = state.turn === 'p1' ? playerNames.p1 : playerNames.p2;
+
+  document.getElementById('nhie-turn-text').textContent = isMyTurn ? '🙈 Your Turn — Draw a statement!' : `⏳ ${name} is drawing...`;
+
+  const stmt = state.statementIdx !== null ? nhieStatements[state.statementIdx] : 'Press draw to get a statement!';
+  document.getElementById('nhie-statement').textContent = stmt;
+
+  const replyDisplay = document.getElementById('nhie-reply-display');
+  const replyText = document.getElementById('nhie-reply-text');
+  const drawBtn = document.getElementById('nhie-draw-btn');
+  const responseBtns = document.getElementById('nhie-response-btns');
+
+  if (state.status === 'waiting') {
+    replyDisplay.style.display = 'none';
+    responseBtns.style.display = 'none';
+    drawBtn.parentElement.style.display = 'flex';
+    drawBtn.style.display = isMyTurn ? 'flex' : 'none';
+    if (!isMyTurn) {
+      drawBtn.parentElement.innerHTML = '<p style="color:var(--muted);text-align:center;font-size:0.9rem;">⏳ Waiting for ' + name + ' to draw...</p>';
+    }
+  } else if (state.status === 'drawn') {
+    replyDisplay.style.display = 'none';
+    // Show response buttons only to the player whose turn it is
+    if (isMyTurn) {
+      responseBtns.style.display = 'flex';
+      drawBtn.parentElement.style.display = 'none';
+    } else {
+      responseBtns.style.display = 'none';
+      drawBtn.parentElement.innerHTML = '<p style="color:var(--muted);text-align:center;font-size:0.9rem;">⏳ Waiting for ' + name + ' to respond...</p>';
+    }
+  } else if (state.status === 'responded') {
+    replyDisplay.style.display = 'block';
+    replyText.textContent = state.response;
+    responseBtns.style.display = 'none';
+    // Show next button to the active player
+    const existingNext = document.getElementById('nhie-next-btn');
+    if (!existingNext) {
+      const btn = document.createElement('button');
+      btn.id = 'nhie-next-btn';
+      btn.className = 'btn btn-success';
+      btn.textContent = '➡️ Next Turn';
+      btn.onclick = nhieNext;
+      btn.style.marginTop = '8px';
+      document.getElementById('nhie-action-btns').appendChild(btn);
+    }
+    document.getElementById('nhie-action-btns').style.display = 'flex';
+  }
+}
+
+// ══════════════════════════════════════════════
+//  CARD DARE
+// ══════════════════════════════════════════════
+const CARD_SUITS = ['♠','♥','♦','♣'];
+const CARD_VALUES = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const CARD_RANK = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+
+let cardDareDares = [
+  "Send a sweet voice note to the winner",
+  "Give the winner a 2 minute shoulder massage",
+  "Say 3 things you love about the winner",
+  "Let the winner choose what you watch tonight",
+  "Cook or order the winner's favorite food",
+  "Write a short poem about the winner",
+  "Give the winner a kiss on the forehead",
+  "Do the winner's least favorite chore for them",
+  "Tell the winner your most embarrassing story",
+  "Slow dance with the winner for one song",
+  "Let the winner go through your phone for 1 minute",
+  "Send a cheesy good morning text every day for a week",
+  "Give the winner a full hug for 30 seconds",
+  "Say something you have never told the winner before",
+  "Let the winner pick your outfit for one day"
+];
+
+function drawCard(player) {
+  if (player !== myRole) { toast("That's not your card!"); return; }
+  if (gameState[player + 'Card']) { toast("You already drew!"); return; }
+  if (gameState.status === 'result') return;
+
+  const suit = CARD_SUITS[Math.floor(Math.random() * 4)];
+  const value = CARD_VALUES[Math.floor(Math.random() * 13)];
+  const card = { suit, value };
+
+  const update = {};
+  update['state/' + player + 'Card'] = card;
+
+  // Check if both cards are now drawn
+  const otherPlayer = player === 'p1' ? 'p2' : 'p1';
+  const otherCard = gameState[otherPlayer + 'Card'];
+
+  if (otherCard) {
+    // Both drawn - determine winner
+    const myRank = CARD_RANK[card.value];
+    const otherRank = CARD_RANK[otherCard.value];
+    let winner = null;
+    if (myRank > otherRank) winner = player;
+    else if (otherRank > myRank) winner = otherPlayer;
+    else winner = 'draw';
+
+    const dareIdx = Math.floor(Math.random() * cardDareDares.length);
+    update['state/status'] = 'result';
+    update['state/winner'] = winner;
+    update['state/dareIdx'] = dareIdx;
+  } else {
+    update['state/status'] = 'waiting-other';
+  }
+
+  roomRef.update(update);
+}
+
+function cdNextRound() {
+  const round = (gameState.round || 1) + 1;
+  roomRef.update({
+    state: { p1Card: null, p2Card: null, dareIdx: null, status: 'drawing', round, turn: 'p1' }
+  });
+}
+
+function renderCardDare(data) {
+  const state = data.state;
+
+  document.getElementById('cd-p1-label').textContent = playerNames.p1;
+  document.getElementById('cd-p2-label').textContent = playerNames.p2;
+
+  const p1CardEl = document.getElementById('cd-p1-card');
+  const p2CardEl = document.getElementById('cd-p2-card');
+  const resultEl = document.getElementById('cd-result');
+
+  // Render P1 card
+  if (state.p1Card) {
+    const c = state.p1Card;
+    const isRed = c.suit === '♥' || c.suit === '♦';
+    p1CardEl.innerHTML = `<div style="font-size:2rem;color:${isRed?'#e94560':'#fff'}">${c.suit}</div><div style="font-family:'Fredoka One',cursive;font-size:2rem;">${c.value}</div>`;
+    p1CardEl.style.background = 'rgba(37,99,235,0.2)';
+    p1CardEl.style.cursor = 'default';
+  } else {
+    p1CardEl.innerHTML = '<span style="font-size:2rem">🂠</span><span style="font-size:0.75rem;color:var(--muted);font-family:Nunito,sans-serif;">' + (myRole === 'p1' ? 'Tap to draw' : 'Waiting...') + '</span>';
+    p1CardEl.style.cursor = myRole === 'p1' ? 'pointer' : 'default';
+  }
+
+  // Render P2 card
+  if (state.p2Card) {
+    const c = state.p2Card;
+    const isRed = c.suit === '♥' || c.suit === '♦';
+    p2CardEl.innerHTML = `<div style="font-size:2rem;color:${isRed?'#e94560':'#fff'}">${c.suit}</div><div style="font-family:'Fredoka One',cursive;font-size:2rem;">${c.value}</div>`;
+    p2CardEl.style.background = 'rgba(233,69,96,0.2)';
+    p2CardEl.style.cursor = 'default';
+  } else {
+    p2CardEl.innerHTML = '<span style="font-size:2rem">🂠</span><span style="font-size:0.75rem;color:var(--muted);font-family:Nunito,sans-serif;">' + (myRole === 'p2' ? 'Tap to draw' : 'Waiting...') + '</span>';
+    p2CardEl.style.cursor = myRole === 'p2' ? 'pointer' : 'default';
+  }
+
+  // Show result
+  if (state.status === 'result') {
+    resultEl.style.display = 'block';
+    const w = state.winner;
+    const wName = w === 'p1' ? playerNames.p1 : w === 'p2' ? playerNames.p2 : null;
+    const loserRole = w === 'p1' ? 'p2' : 'p1';
+    const lName = loserRole === 'p1' ? playerNames.p1 : playerNames.p2;
+
+    if (w === 'draw') {
+      document.getElementById('cd-result-text').textContent = "🤝 It's a tie! Draw again!";
+      document.getElementById('cd-dare-display').style.display = 'none';
+    } else {
+      const isIWon = w === myRole;
+      document.getElementById('cd-result-text').innerHTML = `${isIWon ? '🎉 You Win!' : '😅 ' + wName + ' Wins!'}<br><small style="font-size:0.8rem;color:var(--muted);">${lName} must complete the dare below</small>`;
+      const dare = cardDareDares[state.dareIdx] || 'Do something sweet for the winner!';
+      document.getElementById('cd-dare-text').textContent = dare;
+      document.getElementById('cd-dare-display').style.display = 'block';
+    }
+  } else {
+    resultEl.style.display = 'none';
+  }
+
+  // Turn banner
+  if (state.status === 'drawing') {
+    document.getElementById('card-dare-turn-text').textContent = '🃏 Both players tap your card to draw!';
+  } else if (state.status === 'waiting-other') {
+    document.getElementById('card-dare-turn-text').textContent = '⏳ Waiting for the other player to draw...';
+  } else if (state.status === 'result') {
+    document.getElementById('card-dare-turn-text').textContent = `Round ${state.round || 1} Result`;
+  }
+}
+
+function uploadCardDareDares(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n');
+    const dares = [];
+    lines.forEach((line, i) => {
+      if (i === 0) return;
+      const dare = line.replace(/^"|"$/g,'').trim();
+      if (dare) dares.push(dare);
+    });
+    if (dares.length) {
+      cardDareDares = dares;
+      document.getElementById('cd-upload-status').style.display = 'block';
+      toast(`✅ Loaded ${dares.length} dares!`);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function downloadCardDareTemplate() {
+  const csv = `dare
+Send a sweet voice note to the winner
+Give the winner a 2 minute shoulder massage
+Say 3 things you love about the winner
+Let the winner choose what you watch tonight
+Cook or order the winner favorite food`;
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'card_dare_dares.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ Template downloaded!');
+}
+
+// ══════════════════════════════════════════════
+//  RUMMY GAME - INDIAN POINTS RUMMY (ONLINE)
+// ══════════════════════════════════════════════
+const R_SUITS = ['♠','♥','♦','♣'];
+const R_VALUES = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const R_POINTS = {A:1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,J:10,Q:10,K:10};
+
+let rummyRef = null;
+let rummyRoomCode = '';
+let rummyMyIdx = 0;
+let rummyNumPlayers = 2;
+let rummyVsAI = false;
+let rummyIsHost = false;
+let rummyState = null;
+let rummySelectedCard = null;
+
+function setRummyPlayers(n) {
+  rummyNumPlayers = n === 'ai' ? 2 : parseInt(n);
+  rummyVsAI = n === 'ai';
+  document.querySelectorAll('.rummy-player-btn').forEach(b => b.classList.remove('active'));
+  const btnId = n === 'ai' ? 'rbtn-ai' : 'rbtn-' + n;
+  const btn = document.getElementById(btnId);
+  if (btn) btn.classList.add('active');
+  // No extra name inputs needed - players join via room code
+}
+
+function buildRummyDeck() {
+  const deck = [];
+  for (const s of R_SUITS) for (const v of R_VALUES) deck.push({s,v});
+  for (let i = deck.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [deck[i],deck[j]] = [deck[j],deck[i]];
+  }
+  return deck;
+}
+
+function cardPts(card) { return R_POINTS[card.v] || 0; }
+
+function createRummyRoom() {
+  const name = document.getElementById('rummy-my-name').value.trim() || 'Player 1';
+  rummyRoomCode = Math.floor(1000+Math.random()*9000).toString();
+  rummyIsHost = true;
+  rummyMyIdx = 0;
+
+  rummyRef = db.ref('rummy/' + rummyRoomCode);
+  rummyRef.set({
+    host: name,
+    numPlayers: rummyNumPlayers,
+    vsAI: rummyVsAI,
+    players: [{ name, idx: 0 }],
+    status: 'waiting',
+    gameState: null
+  });
+
+  document.getElementById('rummy-room-code').textContent = rummyRoomCode;
+  document.getElementById('rummy-setup').style.display = 'none';
+  document.getElementById('rummy-waiting').style.display = 'flex';
+  updateRummyWaitingUI([{ name, idx: 0 }], rummyNumPlayers, rummyVsAI);
+  listenRummyRoom();
+}
+
+function joinRummyRoom() {
+  const name = document.getElementById('rummy-join-name').value.trim() || 'Player';
+  const code = document.getElementById('rummy-join-code').value.trim();
+  if (!code || code.length !== 4) { toast('Enter a 4-digit room code'); return; }
+
+  rummyRoomCode = code;
+  rummyIsHost = false;
+  rummyRef = db.ref('rummy/' + rummyRoomCode);
+
+  rummyRef.once('value', snap => {
+    if (!snap.exists()) { toast('❌ Room not found'); return; }
+    const data = snap.val();
+    if (data.status !== 'waiting') { toast('❌ Game already started'); return; }
+
+    const players = data.players || [];
+    if (players.length >= data.numPlayers && !data.vsAI) { toast('❌ Room is full'); return; }
+
+    rummyMyIdx = players.length;
+    rummyNumPlayers = data.numPlayers;
+    rummyVsAI = data.vsAI;
+    players.push({ name, idx: rummyMyIdx });
+    rummyRef.update({ players });
+
+    document.getElementById('rummy-room-code').textContent = rummyRoomCode;
+    document.getElementById('rummy-setup').style.display = 'none';
+    document.getElementById('rummy-waiting').style.display = 'flex';
+    listenRummyRoom();
+  });
+}
+
+function copyRummyCode() {
+  navigator.clipboard.writeText(rummyRoomCode).then(() => toast('📋 Code copied!'));
+}
+
+function updateRummyWaitingUI(players, total, vsAI) {
+  const bar = document.getElementById('rummy-players-waiting');
+  bar.innerHTML = players.map(p => `
+    <div style="background:var(--card);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+      <span style="color:#eab308;">●</span>
+      <span style="font-weight:700;">${p.name}</span>
+      ${p.idx === 0 ? '<span style="font-size:0.7rem;color:var(--muted);">HOST</span>' : ''}
+    </div>`).join('');
+
+  const needed = vsAI ? 0 : (total - players.length);
+  document.getElementById('rummy-wait-count').textContent = needed;
+
+  // Show start button to host when enough players or vsAI
+  const canStart = vsAI || players.length >= total;
+  const startBtn = document.getElementById('rummy-start-btn');
+  if (rummyIsHost) {
+    startBtn.style.display = canStart ? 'flex' : 'none';
+    startBtn.textContent = `🃏 Start Game! (${players.length}/${vsAI ? 1 : total} joined)`;
+  }
+}
+
+function listenRummyRoom() {
+  rummyRef.on('value', snap => {
+    if (!snap.exists()) return;
+    const data = snap.val();
+
+    if (data.status === 'waiting') {
+      updateRummyWaitingUI(data.players || [], data.numPlayers, data.vsAI);
+    }
+
+    if (data.status === 'playing' && data.gameState) {
+      document.getElementById('rummy-waiting').style.display = 'none';
+      document.getElementById('rummy-game').style.display = 'flex';
+      rummyState = data.gameState;
+      renderRummy();
+    }
+
+    if (data.status === 'done' && data.gameState) {
+      rummyState = data.gameState;
+      document.getElementById('rummy-game').style.display = 'none';
+      showRummyResult(data.gameState.players);
+    }
+  });
+}
+
+function hostStartRummy() {
+  rummyRef.once('value', snap => {
+    const data = snap.val();
+    const players = data.players || [];
+    const deck = buildRummyDeck();
+    const joker = deck.splice(Math.floor(Math.random()*deck.length), 1)[0];
+
+    // Deal 13 cards to each player — store separately
+    const hands = {};
+    const playerList = [...players];
+    if (data.vsAI) playerList.push({ name: '🤖 Computer', idx: playerList.length, isAI: true });
+
+    playerList.forEach((p, i) => {
+      hands[i] = [];
+      for (let c = 0; c < 13; c++) hands[i].push(deck.pop());
+    });
+
+    const gameState = {
+      players: playerList.map(p => ({ name: p.name, idx: p.idx, isAI: p.isAI || false, points: 0, cardCount: 13 })),
+      hands,
+      deck,
+      discardPile: [deck.pop()],
+      joker,
+      currentTurn: 0,
+      hasDrawn: false,
+      round: 1
+    };
+
+    rummyRef.update({ status: 'playing', gameState });
+  });
+}
+
+function renderRummy() {
+  if (!rummyState) return;
+  const me = rummyState.players[rummyMyIdx];
+  const myHand = rummyState.hands ? rummyState.hands[rummyMyIdx] || [] : [];
+  const isMyTurn = rummyState.currentTurn === rummyMyIdx;
+  const turnPlayer = rummyState.players[rummyState.currentTurn];
+
+  // Turn label
+  document.getElementById('rummy-turn-label').textContent = isMyTurn ? '⚡ Your Turn!' : `⏳ ${turnPlayer.name}'s Turn`;
+  document.getElementById('rummy-deck-count').textContent = `🂠 ${(rummyState.deck || []).length} left`;
+  document.getElementById('rummy-joker-label').textContent = `🃏 Joker: ${rummyState.joker.v}${rummyState.joker.s}`;
+
+  // Players bar
+  const bar = document.getElementById('rummy-players-bar');
+  bar.innerHTML = rummyState.players.map((p,i) => `
+    <div class="rummy-player-chip ${i===rummyState.currentTurn?'active-turn':''}">
+      <div style="font-weight:800;font-size:0.78rem;">${p.name}</div>
+      <div style="color:var(--muted);font-size:0.68rem;">${p.cardCount||0} cards</div>
+      <div style="color:#eab308;font-size:0.68rem;">${p.points||0} pts</div>
+    </div>`).join('');
+
+  // Discard pile
+  const discardEl = document.getElementById('rummy-discard');
+  const pile = rummyState.discardPile || [];
+  if (pile.length > 0) {
+    const top = pile[pile.length-1];
+    const isRed = top.s==='♥'||top.s==='♦';
+    discardEl.innerHTML = `<div style="font-size:0.9rem;color:${isRed?'#e94560':'#111'};line-height:1.2;font-weight:800;">${top.s}<br>${top.v}</div>`;
+    discardEl.style.background = '#fff'; discardEl.style.cursor = isMyTurn ? 'pointer' : 'default';
+  } else {
+    discardEl.innerHTML = 'Empty'; discardEl.style.background = '#1e2a45';
+  }
+
+  // Declare button
+  document.getElementById('rummy-declare-btn').style.display = isMyTurn && rummyState.hasDrawn ? 'flex' : 'none';
+
+  // My hand
+  renderRummyHand(myHand);
+}
+
+function renderRummyHand(hand) {
+  const handEl = document.getElementById('rummy-hand');
+  document.getElementById('rummy-hand-count').textContent = `(${hand.length})`;
+  handEl.innerHTML = '';
+  hand.forEach((card, i) => {
+    const isRed = card.s==='♥'||card.s==='♦';
+    const isJoker = card.v === rummyState.joker.v;
+    const isSelected = rummySelectedCard === i;
+    const div = document.createElement('div');
+    div.className = `rummy-card${isRed?' red':''}${isJoker?' joker-card':''}${isSelected?' selected':''}`;
+    div.innerHTML = `<div style="font-size:0.65rem;">${card.s}</div><div style="font-size:0.8rem;font-weight:800;">${card.v}</div>`;
+    div.onclick = () => {
+      if (rummyState.currentTurn !== rummyMyIdx) { toast("Not your turn!"); return; }
+      if (!rummyState.hasDrawn) { toast("Draw a card first!"); return; }
+      rummySelectedCard = rummySelectedCard === i ? null : i;
+      renderRummyHand(rummyState.hands[rummyMyIdx]);
+    };
+    handEl.appendChild(div);
+  });
+}
+
+function rummyDrawFromDeck() {
+  if (rummyState.currentTurn !== rummyMyIdx) { toast("Not your turn!"); return; }
+  if (rummyState.hasDrawn) { toast("Already drew! Select a card and tap discard to throw."); return; }
+  if (!rummyState.deck.length) { toast("Deck empty!"); return; }
+
+  const deck = [...rummyState.deck];
+  const card = deck.pop();
+  const hands = JSON.parse(JSON.stringify(rummyState.hands));
+  hands[rummyMyIdx].push(card);
+
+  rummyRef.update({
+    'gameState/deck': deck,
+    [`gameState/hands/${rummyMyIdx}`]: hands[rummyMyIdx],
+    [`gameState/players/${rummyMyIdx}/cardCount`]: hands[rummyMyIdx].length,
+    'gameState/hasDrawn': true
+  });
+  toast(`Drew ${card.v}${card.s}`);
+}
+
+function rummyDrawFromDiscard() {
+  if (rummyState.currentTurn !== rummyMyIdx) { toast("Not your turn!"); return; }
+  if (rummyState.hasDrawn) {
+    // Use as discard action
+    if (rummySelectedCard === null) { toast("Select a card to discard!"); return; }
+    rummyDiscardCard();
+    return;
+  }
+  if (!rummyState.discardPile.length) { toast("Discard pile empty!"); return; }
+
+  const pile = [...rummyState.discardPile];
+  const card = pile.pop();
+  const hands = JSON.parse(JSON.stringify(rummyState.hands));
+  hands[rummyMyIdx].push(card);
+
+  rummyRef.update({
+    'gameState/discardPile': pile,
+    [`gameState/hands/${rummyMyIdx}`]: hands[rummyMyIdx],
+    [`gameState/players/${rummyMyIdx}/cardCount`]: hands[rummyMyIdx].length,
+    'gameState/hasDrawn': true
+  });
+  toast(`Picked ${card.v}${card.s} from discard`);
+}
+
+function rummyDiscardCard() {
+  if (rummySelectedCard === null) { toast("Select a card to discard!"); return; }
+  const hands = JSON.parse(JSON.stringify(rummyState.hands));
+  const card = hands[rummyMyIdx].splice(rummySelectedCard, 1)[0];
+  const pile = [...(rummyState.discardPile||[]), card];
+  const nextTurn = (rummyState.currentTurn + 1) % rummyState.players.length;
+
+  rummySelectedCard = null;
+  rummyRef.update({
+    'gameState/discardPile': pile,
+    [`gameState/hands/${rummyMyIdx}`]: hands[rummyMyIdx],
+    [`gameState/players/${rummyMyIdx}/cardCount`]: hands[rummyMyIdx].length,
+    'gameState/currentTurn': nextTurn,
+    'gameState/hasDrawn': false
+  });
+
+  // Trigger AI if next is AI
+  setTimeout(() => {
+    if (rummyState && rummyState.players[nextTurn] && rummyState.players[nextTurn].isAI) {
+      aiRummyTurn(nextTurn);
+    }
+  }, 1200);
+}
+
+function rummyDeclare() {
+  // Calculate points for everyone
+  const players = JSON.parse(JSON.stringify(rummyState.players));
+  players.forEach((p, i) => {
+    const hand = rummyState.hands[i] || [];
+    p.points = (p.points||0) + hand.reduce((sum,c) => sum + cardPts(c), 0);
+  });
+  rummyRef.update({ status: 'done', 'gameState/players': players });
+}
+
+function aiRummyTurn(aiIdx) {
+  if (!rummyIsHost) return; // only host runs AI
+  rummyRef.once('value', snap => {
+    const data = snap.val();
+    if (!data || data.status !== 'playing') return;
+    const gs = data.gameState;
+    if (gs.currentTurn !== aiIdx) return;
+
+    const hands = JSON.parse(JSON.stringify(gs.hands));
+    const deck = [...(gs.deck||[])];
+    let pile = [...(gs.discardPile||[])];
+
+    // Draw from deck
+    if (deck.length) hands[aiIdx].push(deck.pop());
+
+    // Discard highest point card
+    let maxPts = -1, maxIdx = 0;
+    hands[aiIdx].forEach((c,i) => { const p = cardPts(c); if (p>maxPts) { maxPts=p; maxIdx=i; } });
+    const discarded = hands[aiIdx].splice(maxIdx, 1)[0];
+    pile.push(discarded);
+
+    const nextTurn = (aiIdx+1) % gs.players.length;
+    const update = {};
+    update['gameState/deck'] = deck;
+    update['gameState/discardPile'] = pile;
+    update[`gameState/hands/${aiIdx}`] = hands[aiIdx];
+    update[`gameState/players/${aiIdx}/cardCount`] = hands[aiIdx].length;
+    update['gameState/currentTurn'] = nextTurn;
+    update['gameState/hasDrawn'] = false;
+    rummyRef.update(update);
+  });
+}
+
+function showRummyResult(players) {
+  document.getElementById('rummy-game').style.display = 'none';
+  const resultEl = document.getElementById('rummy-result');
+  resultEl.style.display = 'flex';
+  const sorted = [...players].sort((a,b) => (a.points||0)-(b.points||0));
+  resultEl.innerHTML = `
+    <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#eab308;">🏆 Round Result</div>
+    <div style="background:var(--card);border-radius:var(--radius);padding:24px;width:100%;display:flex;flex-direction:column;gap:10px;">
+      ${sorted.map((p,i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:${i===0?'rgba(234,179,8,0.15)':'rgba(255,255,255,0.03)'};border-radius:10px;border:${i===0?'1px solid rgba(234,179,8,0.3)':'none'};">
+          <div><span style="margin-right:8px;">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'🎴'}</span><span style="font-weight:800;">${p.name}</span></div>
+          <div style="font-family:'Fredoka One',cursive;font-size:1.2rem;color:${i===0?'#eab308':'var(--muted)'};">${p.points||0} pts</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;width:100%;">
+      <button class="btn btn-primary" onclick="restartRummy()" style="background:linear-gradient(135deg,#eab308,#d97706);">🔄 New Round</button>
+      <button class="btn btn-ghost" onclick="goHome()">🏠 Home</button>
+    </div>`;
+}
+
+function restartRummy() {
+  document.getElementById('rummy-result').style.display = 'none';
+  if (rummyIsHost) {
+    rummyRef.update({ status: 'waiting', gameState: null });
+    document.getElementById('rummy-waiting').style.display = 'flex';
+  } else {
+    document.getElementById('rummy-waiting').style.display = 'flex';
+  }
+}
+
+function rummySortBySuit() {
+  if (!rummyState) return;
+  const sO = {'♠':0,'♥':1,'♦':2,'♣':3};
+  const vO = {A:1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,J:11,Q:12,K:13};
+  const hand = [...rummyState.hands[rummyMyIdx]];
+  hand.sort((a,b) => sO[a.s]-sO[b.s] || vO[a.v]-vO[b.v]);
+  rummySelectedCard = null;
+  rummyRef.update({ [`gameState/hands/${rummyMyIdx}`]: hand });
+}
+
+function rummySortByValue() {
+  if (!rummyState) return;
+  const vO = {A:1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,J:11,Q:12,K:13};
+  const hand = [...rummyState.hands[rummyMyIdx]];
+  hand.sort((a,b) => vO[a.v]-vO[b.v] || a.s.localeCompare(b.s));
+  rummySelectedCard = null;
+  rummyRef.update({ [`gameState/hands/${rummyMyIdx}`]: hand });
+}
+
+function rummyAutoGroup() { rummySortBySuit(); toast('Cards grouped by suit!'); }
+
+// ══════════════════════════════════════════════
+//  HOME UPLOADS
+// ══════════════════════════════════════════════// ══════════════════════════════════════════════
+//  HOME UPLOADS
+// ══════════════════════════════════════════════
+function homeUploadTod(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n');
+    const newQ = { truth: [], dare: [] };
+    lines.forEach((line, i) => {
+      if (i === 0) return;
+      const parts = line.split(',');
+      const type = (parts[0] || '').trim().replace(/^"|"$/g,'').toLowerCase();
+      const question = parts.slice(1).join(',').trim().replace(/^"|"$/g,'');
+      if (type === 'truth' && question) newQ.truth.push(question);
+      if (type === 'dare' && question) newQ.dare.push(question);
+    });
+    if (newQ.truth.length || newQ.dare.length) {
+      todQuestions = newQ;
+      document.getElementById('home-tod-status').style.display = 'block';
+      toast(`✅ Truth or Dare: ${newQ.truth.length} truths & ${newQ.dare.length} dares loaded!`, 4000);
+    } else { toast('❌ No valid questions found. Check format.'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function homeUploadNhie(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n');
+    const stmts = [];
+    lines.forEach((line, i) => {
+      if (i === 0) return;
+      const s = line.trim().replace(/^"|"$/g,'');
+      if (s) stmts.push(s);
+    });
+    if (stmts.length) {
+      nhieStatements = stmts;
+      document.getElementById('home-nhie-status').style.display = 'block';
+      toast(`✅ Never Have I Ever: ${stmts.length} statements loaded!`, 4000);
+    } else { toast('❌ No statements found.'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function homeUploadCardDare(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n');
+    const dares = [];
+    lines.forEach((line, i) => {
+      if (i === 0) return;
+      const d = line.trim().replace(/^"|"$/g,'');
+      if (d) dares.push(d);
+    });
+    if (dares.length) {
+      cardDareDares = dares;
+      document.getElementById('home-cd-status').style.display = 'block';
+      toast(`✅ Card Dare: ${dares.length} dares loaded!`, 4000);
+    } else { toast('❌ No dares found.'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function downloadNhieTemplate() {
+  const csv = `statement
+Never have I ever stayed up all night talking to someone
+Never have I ever cried watching a movie
+Never have I ever sent a text to the wrong person
+Never have I ever had a secret crush for over a year
+Never have I ever said I love you first`;
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'never_have_i_ever_statements.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ Template downloaded!');
+}
+
 function downloadCSVTemplate() {
   const csv = `type,question
 truth,What is your biggest fear in life?
@@ -2230,6 +3501,119 @@ dare,Speak only in questions for the next 2 minutes`;
   a.click();
   URL.revokeObjectURL(url);
   toast('✅ Template downloaded!');
+}
+
+// ══════════════════════════════════════════════
+//  ENTRY LOCK - TWO ACCESS LEVELS
+// ══════════════════════════════════════════════
+const ACCESS_CODES = {
+  '7598': 'friends',   // shows Tic Tac Toe + SOS
+  '0121': 'couples'    // shows Truth or Dare + Never Have I Ever + Card Dare
+};
+
+let accessLevel = null; // 'friends' or 'couples'
+
+const FRIENDS_CARDS = `
+  <div class="game-card ttt" onclick="selectGame('ttt')">
+    <span class="game-icon">❌⭕</span>
+    <div class="game-title">Tic Tac Toe</div>
+    <div class="game-desc">Classic X and O battle. Get 3 in a row to win!</div>
+  </div>
+  <div class="game-card sos" onclick="selectGame('sos')">
+    <span class="game-icon">📝</span>
+    <div class="game-title">SOS Game</div>
+    <div class="game-desc">Place S or O. Form the most SOS sequences to win!</div>
+  </div>
+  <div class="game-card rummy" onclick="selectGame('rummy')">
+    <span class="game-icon">🃏</span>
+    <div class="game-title">Rummy</div>
+    <div class="game-desc">Indian Points Rummy — 2 to 5 players or vs Computer!</div>
+  </div>`;
+
+const COUPLES_CARDS = `
+  <div class="game-card tod" onclick="selectGame('tod')">
+    <span class="game-icon">🎭</span>
+    <div class="game-title">Truth or Dare</div>
+    <div class="game-desc">Take turns choosing Truth or Dare with your partner!</div>
+  </div>
+  <div class="game-card nhie" onclick="selectGame('nhie')">
+    <span class="game-icon" style="color:#ec4899;font-size:2.8rem;">♥</span>
+    <div class="game-title">Never Have I Ever</div>
+    <div class="game-desc">Take turns revealing secrets — who has done the most?</div>
+  </div>
+  <div class="game-card card-dare" onclick="selectGame('card-dare')">
+    <span class="game-icon">🃏</span>
+    <div class="game-title">Card Dare</div>
+    <div class="game-desc">Draw cards — higher card wins, loser takes a dare!</div>
+  </div>`;
+
+function checkEntryCode() {
+  const input = document.getElementById('entry-code-input').value.trim();
+  const level = ACCESS_CODES[input];
+  if (level) {
+    accessLevel = level;
+    document.getElementById('entry-code-error').style.display = 'none';
+    document.getElementById('entry-code-input').value = '';
+    // Load correct game cards
+    const container = document.getElementById('game-cards-container');
+    if (level === 'friends') {
+      container.innerHTML = FRIENDS_CARDS;
+      document.getElementById('home-tagline').textContent = 'Play with your friend — anywhere!';
+    } else {
+      container.innerHTML = COUPLES_CARDS;
+      document.getElementById('home-tagline').textContent = '♥ Couples Game Hub ♥';
+      document.getElementById('home-tagline').style.color = '#ec4899';
+    }
+    showScreen('home');
+    // Admin only visible for couples
+    document.getElementById('admin-btn').style.display = level === 'couples' ? 'flex' : 'none';
+  } else {
+    document.getElementById('entry-code-error').style.display = 'block';
+    document.getElementById('entry-code-input').value = '';
+    document.getElementById('entry-code-input').focus();
+    // Shake animation
+    const input2 = document.getElementById('entry-code-input');
+    input2.style.animation = 'shake 0.4s ease';
+    setTimeout(() => input2.style.animation = '', 400);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  SECRET ADMIN PANEL
+// ══════════════════════════════════════════════
+let adminUnlocked = false;
+const MASTER_PWD = '7598';
+
+// Show admin btn on home load
+// admin btn shown only after entry unlock (handled in checkEntryCode)
+
+
+function toggleAdminPanel() {
+  const panel = document.getElementById('admin-panel');
+  panel.classList.toggle('open');
+  if (!panel.classList.contains('open')) return;
+  // Reset lock if not unlocked
+  if (!adminUnlocked) {
+    document.getElementById('master-lock').style.display = 'flex';
+    document.getElementById('admin-content').style.display = 'none';
+    document.getElementById('master-pwd-error').style.display = 'none';
+    document.getElementById('master-pwd-input').value = '';
+    setTimeout(() => document.getElementById('master-pwd-input').focus(), 100);
+  }
+}
+
+function checkMasterPwd() {
+  const val = document.getElementById('master-pwd-input').value.trim();
+  if (val === MASTER_PWD) {
+    adminUnlocked = true;
+    document.getElementById('master-lock').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    document.getElementById('master-pwd-input').value = '';
+  } else {
+    document.getElementById('master-pwd-error').style.display = 'block';
+    document.getElementById('master-pwd-input').value = '';
+    document.getElementById('master-pwd-input').focus();
+  }
 }
 
 let toastTimer;
