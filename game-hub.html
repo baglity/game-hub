@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Hub 🎮</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1a2e;
+    --card: #16213e;
+    --accent1: #2563eb;
+    --accent2: #e94560;
+    --accent3: #0f3460;
+    --accent4: #53c28b;
+    --text: #fffffe;
+    --muted: #a7a9be;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 20% 20%, rgba(233,69,96,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(83,194,139,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .screen { display: none !important; }
+  .screen.active { display: flex !important; flex-direction: column; align-items: center; position: relative; z-index: 1; }
+  #home.active { justify-content: center; min-height: 100vh; padding: 24px; gap: 0; }
+  #config-screen.active, #lobby-screen.active { justify-content: center; min-height: 100vh; }
+  #waiting.active { justify-content: center; min-height: 100vh; padding: 24px; gap: 20px; text-align: center; }
+  #game-area.active { padding: 80px 20px 20px; gap: 16px; min-height: 100vh; }
+
+  /* ── HOME ── */
+  #home { /* layout handled by .screen.active */ }
+
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+    margin-bottom: 8px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .tagline {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-bottom: 48px;
+    text-align: center;
+  }
+
+  .game-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 820px;
+    margin-bottom: 40px;
+  }
+
+  .game-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .game-card.ttt::before { background: linear-gradient(135deg, rgba(233,69,96,0.15), transparent); }
+  .game-card.sos::before { background: linear-gradient(135deg, rgba(245,166,35,0.15), transparent); }
+  .game-card.tod::before { background: linear-gradient(135deg, rgba(83,194,139,0.15), transparent); }
+
+  .game-card:hover { transform: translateY(-6px); border-color: rgba(255,255,255,0.15); }
+  .game-card:hover::before { opacity: 1; }
+
+  .game-icon { font-size: 3rem; margin-bottom: 12px; display: block; }
+  .game-title { font-family: 'Fredoka One', cursive; font-size: 1.5rem; margin-bottom: 6px; }
+  .game-desc { color: var(--muted); font-size: 0.85rem; line-height: 1.5; }
+
+  .game-card.ttt .game-title { color: var(--accent1); }
+  .game-card.sos .game-title { color: var(--accent2); }
+  .game-card.tod .game-title { color: var(--accent4); }
+
+  /* ── LOBBY ── */
+  #lobby {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .lobby-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .lobby-box {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px;
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .input-group input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-group input:focus { border-color: var(--accent1); }
+  .input-group input::placeholder { color: var(--muted); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 13px 28px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent1), #c0392b);
+    color: white;
+    box-shadow: 0 4px 20px rgba(233,69,96,0.35);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, var(--accent3), #0d2137);
+    color: white;
+    border: 2px solid rgba(255,255,255,0.1);
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, var(--accent4), #27ae60);
+    color: white;
+    box-shadow: 0 4px 20px rgba(83,194,139,0.35);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 2px solid rgba(255,255,255,0.1);
+  }
+
+  .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  /* ── WAITING ROOM ── */
+  #waiting {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .room-code-box {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .room-code {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3.5rem;
+    letter-spacing: 0.2em;
+    background: linear-gradient(135deg, var(--accent2), var(--accent1));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 12px 0;
+  }
+
+  .pulse-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: var(--accent4);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  /* ── GAME AREA ── */
+  #game-area { /* layout handled by .screen.active */ }
+
+  .game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 600px;
+    padding: 12px 20px;
+    background: var(--card);
+    border-radius: var(--radius);
+  }
+
+  .player-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .player-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .score-board {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .score-item {
+    text-align: center;
+  }
+
+  .score-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+  }
+
+  .score-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .turn-banner {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+  }
+
+  /* ── TIC TAC TOE ── */
+  #ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 360px;
+    width: 100%;
+  }
+
+  .ttt-cell {
+    aspect-ratio: 1;
+    background: var(--card);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 3rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid rgba(255,255,255,0.05);
+  }
+
+  .ttt-cell:hover:not(.filled) {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .ttt-cell.x { color: var(--accent1); }
+  .ttt-cell.o { color: var(--accent2); }
+  .ttt-cell.win { background: rgba(83,194,139,0.2); border-color: var(--accent4); animation: winPop 0.4s ease; }
+
+  @keyframes winPop {
+    0% { transform: scale(0.9); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  /* ── SOS BOARD ── */
+  #sos-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .letter-btn {
+    padding: 10px 28px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--text);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .letter-btn.active {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #000;
+    box-shadow: 0 4px 16px rgba(245,166,35,0.4);
+  }
+
+  #sos-section {
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  #sos-board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap: 5px;
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    border: 2px solid rgba(255,255,255,0.1);
+    box-sizing: border-box;
+  }
+
+  .sos-cell {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1;
+    background: #1e2a45;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(0.7rem, 2.5vw, 1.1rem);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 2px solid rgba(255,255,255,0.18);
+    min-width: 0;
+    min-height: 0;
+    user-select: none;
+    box-sizing: border-box;
+  }
+
+  .sos-cell:hover:not(.filled) {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.35);
+    transform: scale(1.05);
+  }
+
+  .sos-cell.filled { cursor: default; }
+  .sos-cell.p1 { color: #60a5fa; border-color: rgba(96,165,250,0.4); background: rgba(37,99,235,0.2); }
+  .sos-cell.p2 { color: #f87171; border-color: rgba(248,113,113,0.4); background: rgba(220,38,38,0.2); }
+  .sos-cell.sos-win { background: rgba(83,194,139,0.25) !important; border-color: var(--accent4) !important; }
+  /* SOS completed line highlights */
+  .sos-cell.sos-line-p1 {
+    background: rgba(37,99,235,0.45) !important;
+    border-color: #2563eb !important;
+    color: #fff !important;
+    box-shadow: inset 0 0 8px rgba(37,99,235,0.5);
+  }
+  .sos-cell.sos-line-p2 {
+    background: rgba(220,38,38,0.45) !important;
+    border-color: #e94560 !important;
+    color: #fff !important;
+    box-shadow: inset 0 0 8px rgba(220,38,38,0.5);
+  }
+
+  #sos-controls {
+    display: flex;
+    gap: 12px;
+  }
+
+  .letter-btn {
+    padding: 10px 32px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .letter-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.5);
+    transform: scale(1.05);
+  }
+
+  /* ── TRUTH OR DARE ── */
+  #tod-area {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .tod-player-turn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    text-align: center;
+  }
+
+  .tod-choice-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .tod-choice {
+    padding: 24px 16px;
+    border-radius: var(--radius);
+    border: none;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tod-choice span { font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 600; opacity: 0.8; }
+
+  .tod-truth {
+    background: linear-gradient(135deg, #5b86e5, #36d1dc);
+    color: white;
+    box-shadow: 0 6px 24px rgba(91,134,229,0.4);
+  }
+
+  .tod-dare {
+    background: linear-gradient(135deg, var(--accent1), #f5af19);
+    color: white;
+    box-shadow: 0 6px 24px rgba(233,69,96,0.4);
+  }
+
+  .tod-choice:hover { transform: translateY(-4px) scale(1.02); }
+
+  .tod-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    text-align: center;
+    width: 100%;
+    border: 2px solid rgba(255,255,255,0.08);
+    animation: cardReveal 0.4s ease;
+  }
+
+  @keyframes cardReveal {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .tod-card-type {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .tod-card-type.truth { color: #5b86e5; }
+  .tod-card-type.dare { color: var(--accent1); }
+
+  .tod-question {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .upload-section {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    width: 100%;
+    border: 2px dashed rgba(255,255,255,0.15);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .upload-section:hover { border-color: var(--accent4); background: rgba(83,194,139,0.05); }
+
+  .upload-section input { display: none; }
+
+  .upload-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .upload-label strong { color: var(--accent4); }
+
+  /* ── RESULT OVERLAY ── */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+
+  .overlay.show { display: flex; }
+
+  .overlay-box {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 40px 36px;
+    text-align: center;
+    max-width: 380px;
+    width: 90%;
+    border: 2px solid rgba(255,255,255,0.1);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .overlay-emoji { font-size: 4rem; margin-bottom: 12px; display: block; }
+  .overlay-title { font-family: 'Fredoka One', cursive; font-size: 2rem; margin-bottom: 8px; }
+  .overlay-sub { color: var(--muted); margin-bottom: 28px; font-size: 0.95rem; }
+
+  .overlay-btns { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface);
+    color: var(--text);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: transform 0.3s;
+    z-index: 200;
+    border: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+  }
+
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── BACK BTN ── */
+  .back-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    background: var(--card);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 50;
+    transition: all 0.2s;
+  }
+
+  .back-btn:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+
+  .firebase-note {
+    background: rgba(245,166,35,0.1);
+    border: 1px solid rgba(245,166,35,0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    color: var(--accent2);
+    text-align: center;
+    max-width: 440px;
+    line-height: 1.5;
+  }
+
+  .config-box {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .config-box h3 {
+    font-family: 'Fredoka One', cursive;
+    color: var(--accent2);
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+  }
+
+  .config-box textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: monospace;
+    font-size: 0.8rem;
+    resize: vertical;
+    outline: none;
+    min-height: 120px;
+    transition: border-color 0.2s;
+  }
+
+  .config-box textarea:focus { border-color: var(--accent2); }
+
+  #series-overlay .overlay-box { max-width: 360px; }
+  .series-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  @media (max-width: 480px) {
+    .game-cards { grid-template-columns: 1fr; }
+    .ttt-cell { font-size: 2rem; }
+    .sos-cell { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- SERIES SELECT OVERLAY -->
+<div class="overlay" id="series-overlay">
+  <div class="overlay-box">
+    <span style="font-size:2.5rem;display:block;margin-bottom:8px;">🏆</span>
+    <div class="overlay-title" style="font-size:1.5rem;margin-bottom:6px;">Choose Series</div>
+    <div class="overlay-sub" style="margin-bottom:20px;">How many rounds to play?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-secondary" onclick="setSeries(1)" style="font-size:1rem;">Single Game</button>
+      <button class="btn btn-secondary" onclick="setSeries(3)" style="font-size:1rem;">Best of 3</button>
+      <button class="btn btn-secondary" onclick="setSeries(5)" style="font-size:1rem;">Best of 5</button>
+      <button class="btn btn-secondary" onclick="setSeries(10)" style="font-size:1rem;">Best of 10</button>
+    </div>
+    <button class="btn btn-ghost" onclick="document.getElementById('series-overlay').classList.remove('show')" style="font-size:0.85rem;margin-top:4px;">← Back to Games</button>
+  </div>
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <span class="overlay-emoji" id="overlay-emoji">🎉</span>
+    <div class="overlay-title" id="overlay-title">Winner!</div>
+    <div class="overlay-sub" id="overlay-sub">Great game!</div>
+    <div id="series-progress" style="margin:12px 0;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;display:none;">
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Series Score</div>
+      <div id="series-score-display" style="font-family:'Fredoka One',cursive;font-size:1.4rem;"></div>
+      <div id="series-needed" style="font-size:0.75rem;color:var(--muted);margin-top:4px;"></div>
+    </div>
+    <div class="overlay-btns">
+      <button class="btn btn-success" id="overlay-rematch" style="display:none;">🔄 Next Round</button>
+      <button class="btn btn-primary" id="overlay-series-end" style="display:none;">🏆 See Final Result</button>
+      <button class="btn btn-ghost" id="overlay-home">🏠 Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- SERIES FINAL OVERLAY -->
+<div class="overlay" id="final-overlay">
+  <div class="overlay-box">
+    <span class="overlay-emoji" id="final-emoji">🏆</span>
+    <div class="overlay-title" id="final-title">Champion!</div>
+    <div id="final-score-box" style="margin:16px 0;padding:16px;background:rgba(255,255,255,0.05);border-radius:12px;">
+      <div id="final-score-detail" style="font-size:1.1rem;font-weight:700;"></div>
+    </div>
+    <div class="overlay-btns">
+      <button class="btn btn-success" onclick="playAgainSeries()">🔄 Play Again</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('final-overlay').classList.remove('show');goHome();">🏠 Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ HOME ══════════════ -->
+<div id="home" class="screen active">
+  <div class="logo">🎮 Game Hub</div>
+  <p class="tagline">Play with your friend — anywhere in the world</p>
+
+  <div class="game-cards">
+    <div class="game-card ttt" onclick="selectGame('ttt')">
+      <span class="game-icon">❌⭕</span>
+      <div class="game-title">Tic Tac Toe</div>
+      <div class="game-desc">Classic X and O battle. Get 3 in a row to win!</div>
+    </div>
+    <div class="game-card sos" onclick="selectGame('sos')">
+      <span class="game-icon">📝</span>
+      <div class="game-title">SOS Game</div>
+      <div class="game-desc">Place S or O. Form the most SOS sequences to win!</div>
+    </div>
+    <div class="game-card tod" onclick="selectGame('tod')">
+      <span class="game-icon">🎭</span>
+      <div class="game-title">Truth or Dare</div>
+      <div class="game-desc">Take turns choosing Truth or Dare with your friend!</div>
+    </div>
+  </div>
+  <div style="margin-top:20px;text-align:center;">
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:10px;">Got a room code from your friend?</p>
+    <button class="btn btn-secondary" onclick="goToJoin()" style="max-width:340px;width:100%;">🔗 Join a Friend's Room</button>
+  </div>
+</div>
+
+<!-- ══════════════ FIREBASE CONFIG ══════════════ -->
+<div id="config-screen" class="screen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div id="lobby" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;">
+    <div class="lobby-title">🔧 Firebase Setup</div>
+    <div class="firebase-note">
+      ⚡ One-time setup! Paste your Firebase config below to enable online multiplayer.<br>
+      <a href="https://console.firebase.google.com" target="_blank" style="color:inherit;font-weight:800;">→ Get it from Firebase Console</a>
+    </div>
+    <div class="config-box">
+      <h3>📋 Paste your firebaseConfig object</h3>
+      <textarea id="firebase-config-input" placeholder='{
+  "apiKey": "xxx",
+  "authDomain": "xxx.firebaseapp.com",
+  "databaseURL": "https://xxx-default-rtdb.firebaseio.com",
+  "projectId": "xxx",
+  "storageBucket": "xxx.appspot.com",
+  "messagingSenderId": "xxx",
+  "appId": "xxx"
+}'></textarea>
+    </div>
+    <button class="btn btn-primary" style="max-width:440px;width:100%;" onclick="initFirebase()">🚀 Connect & Continue</button>
+    <p style="color:var(--muted);font-size:0.8rem;text-align:center;max-width:400px;">Your config stays in your browser only. Never shared anywhere.</p>
+  </div>
+</div>
+
+<!-- ══════════════ LOBBY (CREATE ONLY) ══════════════ -->
+<div id="lobby-screen" class="screen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;width:100%;">
+    <div class="lobby-title" id="lobby-game-title">🎮 Game</div>
+    <div class="lobby-box">
+      <div class="input-group">
+        <label>Your Name (Player 1)</label>
+        <input type="text" id="p1-name-input" placeholder="Enter your name..." maxlength="16">
+      </div>
+      <div id="series-info-create" style="background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.3);border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#93c5fd;text-align:center;display:none;"></div>
+      <button class="btn btn-primary" onclick="createRoom()">🏠 Create Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ JOIN SCREEN ══════════════ -->
+<div id="join-screen" class="screen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;width:100%;">
+    <div class="lobby-title">🔗 Join a Room</div>
+    <div class="lobby-box">
+      <div class="input-group">
+        <label>Your Name (Player 2)</label>
+        <input type="text" id="p2-name-input" placeholder="Enter your name..." maxlength="16">
+      </div>
+      <div class="input-group">
+        <label>Room Code</label>
+        <input type="text" id="join-code" placeholder="Enter 4-digit code..." maxlength="4" style="font-family:'Fredoka One',cursive;font-size:1.4rem;letter-spacing:0.15em;text-align:center;">
+      </div>
+      <button class="btn btn-secondary" onclick="joinRoom()">🔗 Join Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ WAITING ══════════════ -->
+<div id="waiting" class="screen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;text-align:center;">Waiting for Friend</div>
+  <div class="room-code-box">
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:4px;">SHARE THIS CODE</p>
+    <div class="room-code" id="display-room-code">----</div>
+    <button class="btn btn-ghost" onclick="copyCode()" style="font-size:0.85rem;">📋 Copy Code</button>
+  </div>
+  <p style="color:var(--muted);font-size:0.9rem;"><span class="pulse-dot"></span>Waiting for player 2 to join...</p>
+  <p style="color:var(--muted);font-size:0.8rem;text-align:center;max-width:320px;">Tell your friend to open the game link and enter this code</p>
+</div>
+
+<!-- ══════════════ GAME AREA ══════════════ -->
+<div id="game-area" class="screen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+
+  <div class="game-header">
+    <div class="player-indicator">
+      <div class="player-dot" style="background:#2563eb"></div>
+      <span id="p1-name">Player 1</span>
+    </div>
+    <div class="score-board">
+      <div class="score-item">
+        <div class="score-num" id="score-p1" style="color:#2563eb">0</div>
+        <div class="score-label">P1</div>
+      </div>
+      <div style="color:var(--muted);font-size:1.2rem;">:</div>
+      <div class="score-item">
+        <div class="score-num" id="score-p2" style="color:#e94560">0</div>
+        <div class="score-label">P2</div>
+      </div>
+    </div>
+    <div class="player-indicator">
+      <span id="p2-name">Player 2</span>
+      <div class="player-dot" style="background:#e94560"></div>
+    </div>
+  </div>
+
+  <div class="turn-banner" id="turn-banner">Your turn!</div>
+
+  <!-- TTT Board -->
+  <div id="ttt-board" style="display:none;">
+    <div class="ttt-cell" onclick="tttMove(0)"></div>
+    <div class="ttt-cell" onclick="tttMove(1)"></div>
+    <div class="ttt-cell" onclick="tttMove(2)"></div>
+    <div class="ttt-cell" onclick="tttMove(3)"></div>
+    <div class="ttt-cell" onclick="tttMove(4)"></div>
+    <div class="ttt-cell" onclick="tttMove(5)"></div>
+    <div class="ttt-cell" onclick="tttMove(6)"></div>
+    <div class="ttt-cell" onclick="tttMove(7)"></div>
+    <div class="ttt-cell" onclick="tttMove(8)"></div>
+  </div>
+
+  <!-- SOS Board -->
+  <div id="sos-section" style="display:none;">
+    <p style="color:var(--muted);font-size:0.8rem;text-align:center;margin-bottom:4px;">Pick a letter then click a cell</p>
+    <div id="sos-controls">
+      <button class="letter-btn active" id="btn-s" onclick="selectLetter('S')">S</button>
+      <button class="letter-btn" id="btn-o" onclick="selectLetter('O')">O</button>
+    </div>
+    <div id="sos-board"></div>
+  </div>
+
+  <!-- TOD Area -->
+  <div id="tod-area" style="display:none;">
+    <div class="tod-player-turn" id="tod-turn-text">🎭 Player 1's turn</div>
+    <div class="tod-choice-btns" id="tod-choice-btns">
+      <button class="tod-choice tod-truth" onclick="pickTod('truth')">🤫 Truth<span>Answer honestly</span></button>
+      <button class="tod-choice tod-dare" onclick="pickTod('dare')">🔥 Dare<span>Accept the challenge</span></button>
+    </div>
+    <div class="tod-card" id="tod-card" style="display:none;">
+      <div class="tod-card-type" id="tod-card-type">Truth</div>
+      <div class="tod-question" id="tod-question">Loading...</div>
+
+      <!-- Reply box - shown to active player -->
+      <div id="tod-reply-box" style="display:none;margin-top:12px;">
+        <textarea id="tod-reply-input" placeholder="Type your answer or what you did..." style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;color:#fff;font-family:'Nunito',sans-serif;font-size:0.95rem;resize:none;outline:none;min-height:80px;transition:border-color 0.2s;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'"></textarea>
+        <button class="btn btn-success" onclick="submitTodReply()" style="margin-top:8px;">✅ Submit & Next Player</button>
+      </div>
+
+      <!-- Reply display - shown to watching player -->
+      <div id="tod-reply-display" style="display:none;margin-top:12px;background:rgba(255,255,255,0.05);border-radius:10px;padding:12px 16px;border-left:3px solid var(--accent4);">
+        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">💬 Their Reply</div>
+        <div id="tod-reply-text" style="font-size:0.95rem;font-weight:600;line-height:1.5;"></div>
+      </div>
+    </div>
+    <div id="upload-section-wrapper" style="display:none;width:100%;">
+      <div class="upload-section" onclick="document.getElementById('tod-file-input').click()">
+        <input type="file" id="tod-file-input" accept=".xlsx,.csv" onchange="uploadQuestions(event)">
+        <label class="upload-label" for="tod-file-input">
+          <span style="font-size:1.8rem;">📂</span>
+          <strong>Upload Your Questions</strong>
+          <span>Click to upload .xlsx or .csv file</span>
+          <span id="upload-status" style="color:var(--accent4);display:none;">✅ Questions loaded!</span>
+        </label>
+      </div>
+      <div style="margin-top:8px;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px 16px;font-size:0.8rem;color:var(--muted);line-height:1.8;">
+        <div style="font-weight:800;color:var(--accent4);margin-bottom:6px;">📋 CSV Format:</div>
+        <code style="display:block;background:rgba(0,0,0,0.3);padding:8px 12px;border-radius:8px;font-size:0.75rem;color:#a8dadc;white-space:pre;">type,question
+truth,What is your biggest fear?
+truth,Have you ever lied to a friend?
+dare,Do 10 push-ups right now
+dare,Sing a song out loud for 30 seconds</code>
+        <div style="margin-top:8px;">• Column 1: <strong style="color:#fff;">type</strong> — write exactly <code style="color:var(--accent2);">truth</code> or <code style="color:var(--accent1);">dare</code><br>• Column 2: <strong style="color:#fff;">question</strong> — your question text<br>• Save as <strong style="color:#fff;">.csv</strong> and upload</div>
+        <button onclick="downloadCSVTemplate()" class="btn btn-success" style="margin-top:12px;font-size:0.82rem;padding:10px 16px;">⬇️ Download Sample Template</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let db = null;
+let roomRef = null;
+let currentGame = '';
+let roomCode = '';
+let myRole = ''; // 'p1' or 'p2'
+let gameState = {};
+let scores = { p1: 0, p2: 0 };
+let playerNames = { p1: 'Player 1', p2: 'Player 2' };
+
+// Truth or Dare questions
+let todQuestions = {
+  truth: [
+    "What is the most embarrassing thing you have ever done?",
+    "Have you ever lied to your best friend?",
+    "What is your biggest fear in life?",
+    "Who was your first crush?",
+    "What is a secret you have never told anyone?",
+    "What is the weirdest dream you have ever had?",
+    "Have you ever cheated in an exam?",
+    "What is something you are ashamed of?",
+    "Who do you like the most in this group?",
+    "What is the worst thing you have done and gotten away with?",
+    "Have you ever had a crush on a teacher?",
+    "What is the most childish thing you still do?",
+    "Have you ever blamed someone else for something you did?",
+    "What is your most used app on your phone?",
+    "Have you ever pretended to be sick to skip something?",
+  ],
+  dare: [
+    "Do your best dance move for 30 seconds",
+    "Sing the chorus of your favorite song out loud",
+    "Send a funny selfie to the last person you texted",
+    "Speak in an accent for the next 3 rounds",
+    "Do 10 push-ups right now",
+    "Say the alphabet backwards as fast as you can",
+    "Act like a monkey for 1 minute",
+    "Tell a joke — if no one laughs, do 5 jumping jacks",
+    "Do your best celebrity impression",
+    "Walk like a robot for the next 2 rounds",
+    "Compliment every player genuinely",
+    "Sing everything you say for the next round",
+    "Do your best dramatic death scene",
+    "Speak only in questions for the next 2 minutes",
+    "Do the worm on the floor"
+  ]
+};
+
+// ══════════════════════════════════════════════
+//  SCREENS
+// ══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome() {
+  if (roomRef) { roomRef.remove().catch(()=>{}); roomRef = null; }
+  scores = { p1: 0, p2: 0 };
+  seriesWins = { p1: 0, p2: 0 };
+  seriesRound = 0;
+  seriesMax = 1;
+  // Close all overlays
+  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show'));
+  const jt = document.getElementById('lobby-game-title');
+  if (jt) jt.textContent = '🎮 Game';
+  showScreen('home');
+}
+
+function goToJoin() {
+  currentGame = '';
+  showScreen('join-screen');
+}
+
+// ══════════════════════════════════════════════
+//  GAME SELECT
+// ══════════════════════════════════════════════
+function selectGameOLD_REPLACED(game) {
+  if (false) {
+  }
+}
+
+// ══════════════════════════════════════════════
+//  FIREBASE INIT
+// ══════════════════════════════════════════════
+function initFirebase() {
+  const raw = document.getElementById('firebase-config-input').value.trim();
+  let config;
+  try {
+    // Try parsing as JSON
+    const cleaned = raw.replace(/(\w+):/g, '"$1":').replace(/'/g, '"');
+    config = JSON.parse(raw.startsWith('{') ? raw : `{${raw}}`);
+  } catch(e) {
+    try {
+      // Extract key-value pairs manually
+      config = {};
+      const pairs = raw.matchAll(/"?(\w+)"?\s*:\s*"([^"]+)"/g);
+      for (const [,k,v] of pairs) config[k] = v;
+      if (!config.apiKey) throw new Error('bad');
+    } catch {
+      toast('❌ Invalid config. Please paste the full JSON object.');
+      return;
+    }
+  }
+
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(config);
+    db = firebase.database();
+    toast('✅ Firebase connected!');
+    showScreen('lobby-screen');
+  } catch(e) {
+    toast('❌ Firebase error: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  ROOM MANAGEMENT
+// ══════════════════════════════════════════════
+function createRoom() {
+  const name = document.getElementById('p1-name-input').value.trim() || 'Player 1';
+  roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+  myRole = 'p1';
+  playerNames.p1 = name;
+
+  roomRef = db.ref('rooms/' + roomCode);
+  roomRef.set({
+    game: currentGame,
+    p1: name,
+    p2: '',
+    seriesMax: seriesMax,
+    seriesWins: { p1: 0, p2: 0 },
+    state: getInitialState(),
+    turn: 'p1',
+    scores: { p1: 0, p2: 0 },
+    action: null
+  });
+
+  document.getElementById('display-room-code').textContent = roomCode;
+  showScreen('waiting');
+  // Force re-render after screen shows
+  setTimeout(() => {
+    document.getElementById('display-room-code').textContent = roomCode;
+  }, 100);
+
+  // Wait for p2
+  roomRef.child('p2').on('value', snap => {
+    if (snap.val() && snap.val() !== '') {
+      playerNames.p2 = snap.val();
+      roomRef.child('p2').off();
+      startGameUI();
+    }
+  });
+}
+
+function joinRoom() {
+  const name = document.getElementById('p2-name-input').value.trim() || 'Player 2';
+  const code = document.getElementById('join-code').value.trim();
+  if (!code || code.length !== 4) { toast('Enter a 4-digit room code'); return; }
+
+  myRole = 'p2';
+  playerNames.p2 = name;
+  roomCode = code;
+  roomRef = db.ref('rooms/' + roomCode);
+
+  roomRef.once('value', snap => {
+    if (!snap.exists()) { toast('❌ Room not found'); return; }
+    const data = snap.val();
+    currentGame = data.game;
+    playerNames.p1 = data.p1;
+    gameState = data.state;
+    scores = data.scores || { p1: 0, p2: 0 };
+    // Read series from room - player 2 just gets informed
+    seriesMax = data.seriesMax || 1;
+    seriesWins = { p1: 0, p2: 0 };
+    seriesRound = 0;
+
+    roomRef.child('p2').set(name);
+    startGameUI();
+
+    // Series info shown in startGameUI for both players
+  });
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(roomCode).then(() => toast('📋 Code copied!'));
+}
+
+// ══════════════════════════════════════════════
+//  GAME START
+// ══════════════════════════════════════════════
+function startGameUI() {
+  document.getElementById('p1-name').textContent = playerNames.p1;
+  document.getElementById('p2-name').textContent = playerNames.p2;
+  document.getElementById('score-p1').textContent = 0;
+  document.getElementById('score-p2').textContent = 0;
+  // Update score label
+  const scoreLabels = document.querySelectorAll('.score-label');
+  scoreLabels.forEach(l => l.textContent = seriesMax > 1 ? 'Wins' : 'Score');
+
+  // Show series banner for both players
+  if (seriesMax > 1) {
+    const needed = Math.ceil(seriesMax / 2);
+    const label = `🏆 Best of ${seriesMax} — First to ${needed} wins!`;
+    setTimeout(() => toast(label, 4000), 600);
+  }
+
+  // Show correct board
+  document.getElementById('ttt-board').style.display = 'none';
+  document.getElementById('sos-section').style.display = 'none';
+  document.getElementById('tod-area').style.display = 'none';
+
+  if (currentGame === 'ttt') document.getElementById('ttt-board').style.display = 'grid';
+  if (currentGame === 'sos') { document.getElementById('sos-section').style.display = 'flex'; buildSosBoard(); }
+  if (currentGame === 'tod') {
+    document.getElementById('tod-area').style.display = 'flex';
+    // Only p1 can upload questions
+    const uploadWrapper = document.getElementById('upload-section-wrapper');
+    if (uploadWrapper) uploadWrapper.style.display = myRole === 'p1' ? 'block' : 'none';
+  }
+
+  showScreen('game-area');
+  listenToRoom();
+}
+
+let lastRematch = null;
+
+function listenToRoom() {
+  roomRef.on('value', snap => {
+    if (!snap.exists()) return;
+    const data = snap.val();
+    gameState = data.state;
+    scores = data.scores || scores;
+    // Sync seriesWins from Firebase - source of truth
+    if (data.seriesWins) seriesWins = data.seriesWins;
+
+    // Show series wins in header if series mode, else round wins
+    if (seriesMax > 1) {
+      document.getElementById('score-p1').textContent = seriesWins.p1 || 0;
+      document.getElementById('score-p2').textContent = seriesWins.p2 || 0;
+    } else {
+      document.getElementById('score-p1').textContent = scores.p1;
+      document.getElementById('score-p2').textContent = scores.p2;
+    }
+
+    updateTurnBanner(data.state.turn);
+
+    if (currentGame === 'ttt') renderTtt();
+    if (currentGame === 'sos') renderSos();
+    if (currentGame === 'tod') renderTod(data);
+
+    // If other player clicked Next Round - close overlay immediately
+    if (data.rematch && data.rematch !== lastRematch) {
+      lastRematch = data.rematch;
+      document.getElementById('overlay').classList.remove('show');
+    }
+
+    // Check win/draw for BOTH players
+    if (data.state.status === 'done' && !document.getElementById('overlay').classList.contains('show')) {
+      const w = data.state.winner;
+      if (w === 'draw') showResult(null, 'draw');
+      else showResult(w, 'win');
+    }
+  });
+}
+
+function updateTurnBanner(turn) {
+  const isMyTurn = turn === myRole;
+  const name = turn === 'p1' ? playerNames.p1 : playerNames.p2;
+  const banner = document.getElementById('turn-banner');
+  banner.textContent = isMyTurn ? '⚡ Your Turn!' : `⏳ ${name}'s Turn`;
+  banner.style.borderColor = isMyTurn ? 'var(--accent4)' : 'transparent';
+  banner.style.color = isMyTurn ? 'var(--accent4)' : 'var(--muted)';
+}
+
+function isMyTurn() {
+  return gameState.turn === myRole;
+}
+
+// ══════════════════════════════════════════════
+//  INITIAL STATE
+// ══════════════════════════════════════════════
+function getInitialState() {
+  if (currentGame === 'ttt') return { board: Array(9).fill(''), turn: 'p1', status: 'playing', winner: null };
+  if (currentGame === 'sos') return { board: Array(49).fill(''), turn: 'p1', sosCount: { p1: 0, p2: 0 }, status: 'playing', winner: null, cellOwner: {}, sosLines: [] };
+  if (currentGame === 'tod') return { turn: 'p1', action: null, type: null, questionIdx: null };
+}
+
+// ══════════════════════════════════════════════
+//  TIC TAC TOE
+// ══════════════════════════════════════════════
+const TTT_WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function tttMove(idx) {
+  if (gameState.status === 'done') return;
+  if (gameState.turn !== myRole) { toast("Not your turn!"); return; }
+  if (gameState.board[idx]) return;
+
+  const board = [...gameState.board];
+  board[idx] = myRole === 'p1' ? 'X' : 'O';
+  const nextTurn = myRole === 'p1' ? 'p2' : 'p1';
+
+  const winner = checkTttWin(board);
+  const isDraw = !winner && board.every(c => c);
+
+  let newScores = { ...scores };
+  let status = 'playing';
+  let winnerRole = null;
+
+  if (winner) { newScores[myRole]++; status = 'done'; winnerRole = myRole; }
+  else if (isDraw) { status = 'done'; winnerRole = 'draw'; }
+
+  // Update series wins in Firebase
+  let newSeriesWins = { ...seriesWins };
+  if (status === 'done' && winnerRole && winnerRole !== 'draw') {
+    newSeriesWins[winnerRole] = (newSeriesWins[winnerRole] || 0) + 1;
+  }
+
+  roomRef.update({
+    'state/board': board,
+    'state/turn': nextTurn,
+    'state/status': status,
+    'state/winner': winnerRole,
+    scores: newScores,
+    seriesWins: newSeriesWins
+  });
+}
+
+function checkTttWin(board) {
+  for (const [a,b,c] of TTT_WINS) {
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+  }
+  return null;
+}
+
+function renderTtt() {
+  const cells = document.querySelectorAll('.ttt-cell');
+  const board = gameState.board || Array(9).fill('');
+  const winner = checkTttWin(board);
+  let winLine = [];
+
+  if (winner) {
+    for (const [a,b,c] of TTT_WINS) {
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) { winLine = [a,b,c]; break; }
+    }
+  }
+
+  cells.forEach((cell, i) => {
+    cell.textContent = board[i] || '';
+    cell.className = 'ttt-cell';
+    if (board[i] === 'X') cell.classList.add('x', 'filled');
+    if (board[i] === 'O') cell.classList.add('o', 'filled');
+    if (winLine.includes(i)) cell.classList.add('win');
+  });
+}
+
+// ══════════════════════════════════════════════
+//  SOS GAME
+// ══════════════════════════════════════════════
+const SOS_SIZE = 7;
+let selectedLetter = 'S';
+
+function selectLetter(l) {
+  selectedLetter = l;
+  document.getElementById('btn-s').classList.toggle('active', l === 'S');
+  document.getElementById('btn-o').classList.toggle('active', l === 'O');
+}
+
+function buildSosBoard() {
+  const board = document.getElementById('sos-board');
+  board.innerHTML = '';
+  for (let i = 0; i < SOS_SIZE * SOS_SIZE; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'sos-cell';
+    cell.onclick = () => sosMove(i);
+    board.appendChild(cell);
+  }
+}
+
+function sosMove(idx) {
+  if (gameState.status === 'done') return;
+  if (gameState.turn !== myRole) { toast("Not your turn!"); return; }
+  if (gameState.board[idx]) return;
+
+  const board = [...gameState.board];
+  board[idx] = selectedLetter;
+
+  // Track who placed each letter
+  const cellOwner = { ...(gameState.cellOwner || {}) };
+  cellOwner[idx] = myRole;
+
+  // Find new SOS sequences formed
+  const formed = findSOS(board, idx);
+  const sosCount = { ...(gameState.sosCount || { p1: 0, p2: 0 }) };
+  sosCount[myRole] = (sosCount[myRole] || 0) + formed.length;
+
+  // Track all completed SOS lines with owner for highlighting
+  const sosLines = [...(gameState.sosLines || [])];
+  formed.forEach(line => {
+    sosLines.push({ cells: line, owner: myRole });
+  });
+
+  const nextTurn = myRole === 'p1' ? 'p2' : 'p1';
+  const isFull = board.every(c => c);
+
+  let newScores = { p1: sosCount.p1, p2: sosCount.p2 };
+  let sosStatus = 'playing';
+  let sosWinner = null;
+  if (isFull) {
+    sosWinner = sosCount.p1 > sosCount.p2 ? 'p1' : sosCount.p2 > sosCount.p1 ? 'p2' : 'draw';
+    sosStatus = 'done';
+  }
+
+  let newSeriesWinsSos = { ...seriesWins };
+  if (sosStatus === 'done' && sosWinner && sosWinner !== 'draw') {
+    newSeriesWinsSos[sosWinner] = (newSeriesWinsSos[sosWinner] || 0) + 1;
+  }
+
+  roomRef.update({
+    'state/board': board,
+    'state/cellOwner': cellOwner,
+    'state/sosLines': sosLines,
+    'state/turn': formed.length > 0 ? myRole : nextTurn,
+    'state/sosCount': sosCount,
+    'state/status': sosStatus,
+    'state/winner': sosWinner,
+    scores: newScores,
+    seriesWins: newSeriesWinsSos
+  });
+}
+
+function findSOS(board, lastIdx) {
+  // All 4 directions (each direction covers both ways)
+  const directions = [[0,1],[1,0],[1,1],[1,-1]];
+  const formed = [];
+  const r = Math.floor(lastIdx / SOS_SIZE);
+  const c = lastIdx % SOS_SIZE;
+
+  function inBounds(row, col) {
+    return row >= 0 && row < SOS_SIZE && col >= 0 && col < SOS_SIZE;
+  }
+  function cell(row, col) {
+    return board[row * SOS_SIZE + col];
+  }
+
+  for (const [dr, dc] of directions) {
+    if (board[lastIdx] === 'S') {
+      // This S could be the START of S-O-S
+      const r2 = r + dr, c2 = c + dc;
+      const r3 = r + dr*2, c3 = c + dc*2;
+      if (inBounds(r2,c2) && inBounds(r3,c3)) {
+        if (cell(r2,c2) === 'O' && cell(r3,c3) === 'S') {
+          formed.push([lastIdx, r2*SOS_SIZE+c2, r3*SOS_SIZE+c3]);
+        }
+      }
+      // This S could be the END of S-O-S
+      const r0 = r - dr*2, c0 = c - dc*2;
+      const rm = r - dr, cm = c - dc;
+      if (inBounds(r0,c0) && inBounds(rm,cm)) {
+        if (cell(r0,c0) === 'S' && cell(rm,cm) === 'O') {
+          formed.push([r0*SOS_SIZE+c0, rm*SOS_SIZE+cm, lastIdx]);
+        }
+      }
+    }
+    if (board[lastIdx] === 'O') {
+      // This O is the MIDDLE of S-O-S
+      const r1 = r - dr, c1 = c - dc;
+      const r2 = r + dr, c2 = c + dc;
+      if (inBounds(r1,c1) && inBounds(r2,c2)) {
+        if (cell(r1,c1) === 'S' && cell(r2,c2) === 'S') {
+          formed.push([r1*SOS_SIZE+c1, lastIdx, r2*SOS_SIZE+c2]);
+        }
+      }
+    }
+  }
+  return formed;
+}
+
+function renderSos() {
+  const board = gameState.board || Array(SOS_SIZE*SOS_SIZE).fill('');
+  const cells = document.querySelectorAll('.sos-cell');
+  const sosCount = gameState.sosCount || { p1: 0, p2: 0 };
+  const cellOwner = gameState.cellOwner || {};
+  const sosLines = gameState.sosLines || [];
+
+  // Build a map: cellIndex -> which owner completed an SOS through it
+  const highlightMap = {};
+  sosLines.forEach(({ cells: line, owner }) => {
+    line.forEach(ci => {
+      // p1 takes priority for display if both somehow overlap
+      if (!highlightMap[ci]) highlightMap[ci] = owner;
+    });
+  });
+
+  cells.forEach((cell, i) => {
+    cell.textContent = board[i] || '';
+    cell.className = 'sos-cell';
+    if (board[i]) {
+      cell.classList.add('filled');
+      // If this cell is part of a completed SOS, highlight by SOS owner
+      if (highlightMap[i]) {
+        cell.classList.add('sos-line-' + highlightMap[i]);
+      } else if (cellOwner[i]) {
+        // Otherwise just show who placed it
+        cell.classList.add(cellOwner[i]);
+      }
+    }
+  });
+
+  // Update score display
+  document.getElementById('score-p1').textContent = seriesMax > 1 ? (seriesWins.p1 || 0) : sosCount.p1;
+  document.getElementById('score-p2').textContent = seriesMax > 1 ? (seriesWins.p2 || 0) : sosCount.p2;
+
+  // Update turn banner
+  const isMyTurn = gameState.turn === myRole;
+  const turnName = gameState.turn === 'p1' ? playerNames.p1 : playerNames.p2;
+  const banner = document.getElementById('turn-banner');
+  banner.textContent = (isMyTurn ? '⚡ Your Turn!' : `⏳ ${turnName}'s Turn`) + ` | SOS: ${sosCount.p1} — ${sosCount.p2}`;
+  banner.style.borderColor = isMyTurn ? 'var(--accent4)' : 'transparent';
+  banner.style.color = isMyTurn ? 'var(--accent4)' : 'var(--muted)';
+}
+
+// ══════════════════════════════════════════════
+//  TRUTH OR DARE
+// ══════════════════════════════════════════════
+function pickTod(type) {
+  if (gameState.turn !== myRole) { toast("Not your turn!"); return; }
+  const list = todQuestions[type];
+  const idx = Math.floor(Math.random() * list.length);
+
+  roomRef.update({
+    'state/action': type,
+    'state/questionIdx': idx,
+    'state/type': type,
+    'state/reply': ''
+  });
+}
+
+function submitTodReply() {
+  const reply = document.getElementById('tod-reply-input').value.trim();
+  if (!reply) { toast('Please type your answer first!'); return; }
+  roomRef.update({ 'state/reply': reply });
+}
+
+function todDone() {
+  const nextTurn = gameState.turn === 'p1' ? 'p2' : 'p1';
+  roomRef.update({
+    'state/turn': nextTurn,
+    'state/action': null,
+    'state/questionIdx': null,
+    'state/type': null,
+    'state/reply': ''
+  });
+}
+
+function renderTod(data) {
+  const state = data.state;
+  const turn = state.turn;
+  const name = turn === 'p1' ? playerNames.p1 : playerNames.p2;
+  const isMyTurn = turn === myRole;
+
+  document.getElementById('tod-turn-text').textContent = `🎭 ${name}'s Turn`;
+
+  const choiceBtns = document.getElementById('tod-choice-btns');
+  const card = document.getElementById('tod-card');
+  const replyBox = document.getElementById('tod-reply-box');
+  const replyDisplay = document.getElementById('tod-reply-display');
+  const replyText = document.getElementById('tod-reply-text');
+
+  if (state.action && state.questionIdx !== null) {
+    choiceBtns.style.display = 'none';
+    card.style.display = 'block';
+
+    const type = state.type;
+    const q = todQuestions[type]?.[state.questionIdx] || 'No question found';
+
+    document.getElementById('tod-card-type').textContent = type === 'truth' ? '🤫 Truth' : '🔥 Dare';
+    document.getElementById('tod-card-type').className = `tod-card-type ${type}`;
+    document.getElementById('tod-question').textContent = q;
+
+    const reply = state.reply || '';
+
+    if (isMyTurn) {
+      // Active player: show reply box if no reply yet, hide display
+      if (!reply) {
+        replyBox.style.display = 'block';
+        replyDisplay.style.display = 'none';
+      } else {
+        // Reply submitted - show next turn button
+        replyBox.style.display = 'none';
+        replyDisplay.style.display = 'block';
+        replyText.textContent = reply;
+        // Show next player button
+        if (!document.getElementById('tod-next-btn')) {
+          const btn = document.createElement('button');
+          btn.id = 'tod-next-btn';
+          btn.className = 'btn btn-success';
+          btn.style.marginTop = '12px';
+          btn.textContent = '➡️ Next Player';
+          btn.onclick = todDone;
+          card.appendChild(btn);
+        }
+      }
+    } else {
+      // Watching player: hide reply box
+      replyBox.style.display = 'none';
+      if (reply) {
+        // Show reply when submitted
+        replyDisplay.style.display = 'block';
+        replyText.textContent = reply;
+      } else {
+        replyDisplay.style.display = 'none';
+        // Show waiting message
+        replyText.textContent = '';
+      }
+    }
+
+  } else {
+    choiceBtns.style.display = 'grid';
+    card.style.display = 'none';
+    replyBox.style.display = 'none';
+    replyDisplay.style.display = 'none';
+    // Remove next btn if exists
+    const nb = document.getElementById('tod-next-btn');
+    if (nb) nb.remove();
+    // Clear reply input
+    const inp = document.getElementById('tod-reply-input');
+    if (inp) inp.value = '';
+
+    // Disable buttons if not your turn
+    const disabled = !isMyTurn;
+    document.querySelectorAll('.tod-choice').forEach(b => {
+      b.style.opacity = disabled ? '0.4' : '1';
+      b.style.pointerEvents = disabled ? 'none' : 'auto';
+    });
+  }
+}
+
+// ══════════════════════════════════════════════
+//  UPLOAD QUESTIONS
+// ══════════════════════════════════════════════
+function uploadQuestions(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.name.endsWith('.csv')) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const lines = e.target.result.split('\n');
+      const newQ = { truth: [], dare: [] };
+      lines.forEach((line, i) => {
+        if (i === 0) return; // skip header
+        const [type, question] = line.split(',').map(s => s.trim().replace(/^"|"$/g,''));
+        if (type === 'truth' && question) newQ.truth.push(question);
+        if (type === 'dare' && question) newQ.dare.push(question);
+      });
+      if (newQ.truth.length || newQ.dare.length) {
+        todQuestions = newQ;
+        document.getElementById('upload-status').style.display = 'block';
+        toast(`✅ Loaded ${newQ.truth.length} truths & ${newQ.dare.length} dares!`);
+      } else {
+        toast('❌ No valid questions found. Check the format.');
+      }
+    };
+    reader.readAsText(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wb = XLSX.read(e.target.result, { type: 'binary' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws);
+      const newQ = { truth: [], dare: [] };
+      rows.forEach(row => {
+        const type = (row.type || '').toLowerCase().trim();
+        const question = (row.question || '').trim();
+        if (type === 'truth' && question) newQ.truth.push(question);
+        if (type === 'dare' && question) newQ.dare.push(question);
+      });
+      if (newQ.truth.length || newQ.dare.length) {
+        todQuestions = newQ;
+        document.getElementById('upload-status').style.display = 'block';
+        toast(`✅ Loaded ${newQ.truth.length} truths & ${newQ.dare.length} dares!`);
+      } else {
+        toast('❌ No valid questions found. Check the format sheet.');
+      }
+    };
+    reader.readAsBinaryString(file);
+  }
+  event.target.value = '';
+}
+
+// ══════════════════════════════════════════════
+//  SERIES SYSTEM
+// ══════════════════════════════════════════════
+let seriesMax = 0; // 0 = no series
+let seriesWins = { p1: 0, p2: 0 };
+let seriesRound = 0;
+
+function selectGame(game) {
+  currentGame = game;
+  const titles = { ttt: '❌ Tic Tac Toe', sos: '📝 SOS Game', tod: '🎭 Truth or Dare' };
+  document.getElementById('lobby-game-title').textContent = titles[game];
+  document.getElementById('series-overlay').classList.add('show');
+}
+
+function setSeries(n) {
+  seriesMax = n;
+  seriesWins = { p1: 0, p2: 0 };
+  seriesRound = 0;
+  document.getElementById('series-overlay').classList.remove('show');
+  showScreen('lobby-screen');
+  // Show series info in create box
+  const label = n <= 1 ? 'Single Game' : `Best of ${n} (first to ${Math.ceil(n/2)} wins)`;
+  const el = document.getElementById('series-info-create');
+  if (el) { el.textContent = '🏆 ' + label; el.style.display = 'block'; }
+}
+
+function winsNeeded() {
+  if (seriesMax <= 1) return 1;
+  return Math.ceil(seriesMax / 2);
+}
+
+function isSeriesOver() {
+  if (seriesMax <= 1) return true;
+  return seriesWins.p1 >= winsNeeded() || seriesWins.p2 >= winsNeeded();
+}
+
+// ══════════════════════════════════════════════
+//  RESULT
+// ══════════════════════════════════════════════
+function showResult(winner, type) {
+  const overlay = document.getElementById('overlay');
+  const emoji = document.getElementById('overlay-emoji');
+  const title = document.getElementById('overlay-title');
+  const sub = document.getElementById('overlay-sub');
+  const progress = document.getElementById('series-progress');
+  const rematchBtn = document.getElementById('overlay-rematch');
+  const seriesEndBtn = document.getElementById('overlay-series-end');
+
+  // seriesWins already synced from Firebase in listenToRoom
+  seriesRound++;
+
+  // Round result message
+  if (type === 'draw' || winner === 'draw') {
+    emoji.textContent = '🤝';
+    title.textContent = "It's a Draw!";
+    sub.textContent = "No points this round!";
+  } else {
+    const isMe = winner === myRole;
+    emoji.textContent = isMe ? '🎉' : '😅';
+    const wName = winner === 'p1' ? playerNames.p1 : playerNames.p2;
+    title.textContent = isMe ? 'You Won! 🏆' : `${wName} Wins!`;
+    sub.textContent = isMe ? 'Great move!' : 'Better luck next round!';
+  }
+
+  // Show series progress
+  if (seriesMax > 1) {
+    progress.style.display = 'block';
+    const p1n = playerNames.p1;
+    const p2n = playerNames.p2;
+    document.getElementById('series-score-display').innerHTML =
+      `<span style="color:#2563eb">${p1n}</span> ${seriesWins.p1} — ${seriesWins.p2} <span style="color:#e94560">${p2n}</span>`;
+    const needed = winsNeeded();
+    document.getElementById('series-needed').textContent = `First to ${needed} wins takes the series`;
+  } else {
+    progress.style.display = 'none';
+  }
+
+  // Buttons
+  if (seriesMax <= 1 || isSeriesOver()) {
+    rematchBtn.style.display = 'none';
+    if (seriesMax > 1) {
+      seriesEndBtn.style.display = 'flex';
+    } else {
+      seriesEndBtn.style.display = 'none';
+      rematchBtn.style.display = 'flex';
+      rematchBtn.textContent = '🔄 Play Again';
+    }
+  } else {
+    rematchBtn.style.display = 'flex';
+    rematchBtn.textContent = `🔄 Next Round (${seriesRound}/${seriesMax})`;
+    seriesEndBtn.style.display = 'none';
+  }
+
+  overlay.classList.add('show');
+}
+
+document.getElementById('overlay-rematch').onclick = () => {
+  document.getElementById('overlay').classList.remove('show');
+  const fresh = getInitialState();
+  // Keep seriesWins - only reset game board and round scores
+  roomRef.update({ state: fresh, scores: { p1: 0, p2: 0 }, rematch: Date.now() });
+};
+
+document.getElementById('overlay-series-end').onclick = () => {
+  document.getElementById('overlay').classList.remove('show');
+  showFinalResult();
+};
+
+document.getElementById('overlay-home').onclick = () => {
+  document.getElementById('overlay').classList.remove('show');
+  goHome();
+};
+
+function showFinalResult() {
+  const final = document.getElementById('final-overlay');
+  const emoji = document.getElementById('final-emoji');
+  const title = document.getElementById('final-title');
+  const detail = document.getElementById('final-score-detail');
+
+  const p1n = playerNames.p1;
+  const p2n = playerNames.p2;
+  const needed = winsNeeded();
+
+  let champion = null;
+  if (seriesWins.p1 >= needed) champion = 'p1';
+  else if (seriesWins.p2 >= needed) champion = 'p2';
+
+  if (champion) {
+    const isMe = champion === myRole;
+    emoji.textContent = isMe ? '🥇' : '🥈';
+    const cName = champion === 'p1' ? p1n : p2n;
+    title.textContent = isMe ? 'You Are the Champion!' : `${cName} Wins the Series!`;
+  } else {
+    emoji.textContent = '🤝';
+    title.textContent = 'Series Tied!';
+  }
+
+  detail.innerHTML = `
+    <div style="display:flex;justify-content:space-around;align-items:center;gap:20px;">
+      <div style="text-align:center;">
+        <div style="font-size:2rem;font-family:'Fredoka One',cursive;color:#2563eb">${seriesWins.p1}</div>
+        <div style="font-size:0.85rem;color:var(--muted)">${p1n}</div>
+      </div>
+      <div style="font-size:1.5rem;color:var(--muted)">vs</div>
+      <div style="text-align:center;">
+        <div style="font-size:2rem;font-family:'Fredoka One',cursive;color:#e94560">${seriesWins.p2}</div>
+        <div style="font-size:0.85rem;color:var(--muted)">${p2n}</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:0.8rem;color:var(--muted);">Played ${seriesRound} rounds · Best of ${seriesMax}</div>
+  `;
+
+  final.classList.add('show');
+}
+
+function playAgainSeries() {
+  document.getElementById('final-overlay').classList.remove('show');
+  seriesWins = { p1: 0, p2: 0 };
+  seriesRound = 0;
+  scores = { p1: 0, p2: 0 };
+  const fresh = getInitialState();
+  // Reset everything including series wins for a fresh series
+  roomRef.update({ state: fresh, scores: { p1: 0, p2: 0 }, seriesWins: { p1: 0, p2: 0 }, rematch: Date.now() });
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function downloadCSVTemplate() {
+  const csv = `type,question
+truth,What is your biggest fear in life?
+truth,Have you ever lied to your best friend?
+truth,What is the most embarrassing thing you have ever done?
+truth,Who was your first crush?
+truth,What is a secret you have never told anyone?
+truth,Have you ever cheated in an exam?
+truth,What is the worst thing you have done and gotten away with?
+truth,Have you ever had a crush on a teacher?
+truth,What is the most childish thing you still do?
+truth,Have you ever blamed someone else for something you did?
+dare,Do your best dance move for 30 seconds
+dare,Sing the chorus of your favorite song out loud
+dare,Do 10 push-ups right now
+dare,Speak in a funny accent for the next 3 rounds
+dare,Act like a monkey for 1 minute
+dare,Say the alphabet backwards as fast as you can
+dare,Do your best celebrity impression
+dare,Walk like a robot for the next 2 rounds
+dare,Do your best dramatic death scene
+dare,Speak only in questions for the next 2 minutes`;
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'truth_or_dare_questions.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ Template downloaded!');
+}
+
+let toastTimer;
+function toast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// Init Firebase on load
+window.addEventListener('load', function() {
+  try {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdKv7ISaaT_BCxsPqlCIZDrDXgG4d_4do",
+      authDomain: "game-hub-d0a90.firebaseapp.com",
+      databaseURL: "https://game-hub-d0a90-default-rtdb.firebaseio.com",
+      projectId: "game-hub-d0a90",
+      storageBucket: "game-hub-d0a90.firebasestorage.app",
+      messagingSenderId: "921852633768",
+      appId: "1:921852633768:web:2cd3200794264fc73cd89d"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    console.log('Firebase ready');
+  } catch(e) {
+    console.error('Firebase init failed:', e);
+    toast('Firebase failed to load. Check your internet connection.');
+  }
+});
+</script>
+</body>
+</html>
