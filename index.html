@@ -839,17 +839,20 @@
 
   #chat-input {
     flex: 1;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
     border-radius: 8px;
-    padding: 7px 10px;
-    color: var(--text);
+    padding: 11px 13px;
+    color: #fff;
     font-family: 'Nunito', sans-serif;
-    font-size: 0.85rem;
+    font-size: 1rem;
     outline: none;
+    backdrop-filter: blur(4px);
   }
 
-  #chat-input:focus { border-color: #2563eb; }
+  #chat-input::placeholder { color: rgba(255,255,255,0.35); }
+
+  #chat-input:focus { border-color: #2563eb; background: rgba(255,255,255,0.16); }
 
   #chat-send {
     background: #2563eb;
@@ -1084,7 +1087,7 @@
     <div class="room-code" id="display-room-code">----</div>
     <button class="btn btn-ghost" onclick="copyCode()" style="font-size:0.85rem;">📋 Copy Code</button>
   </div>
-  <p style="color:var(--muted);font-size:0.9rem;"><span class="pulse-dot"></span>Waiting for player 2 to join...</p>
+  <p style="color:var(--muted);font-size:0.9rem;"><span style="font-size:1rem;animation:pulse 1.4s ease-in-out infinite;display:inline-block;color:var(--accent4);">♥</span>Waiting for player 2 to join...</p>
   <p style="color:var(--muted);font-size:0.8rem;text-align:center;max-width:320px;">Tell your friend to open the game link and enter this code</p>
 </div>
 
@@ -1094,7 +1097,7 @@
 
   <div class="game-header">
     <div class="player-indicator">
-      <div class="player-dot" style="background:#2563eb"></div>
+      <div style="font-size:1.1rem;line-height:1;color:#2563eb;">♥</div>
       <span id="p1-name">Player 1</span>
     </div>
     <div class="score-board">
@@ -1110,7 +1113,7 @@
     </div>
     <div class="player-indicator">
       <span id="p2-name">Player 2</span>
-      <div class="player-dot" style="background:#e94560"></div>
+      <div style="font-size:1.1rem;line-height:1;color:#e94560;">♥</div>
     </div>
   </div>
 
