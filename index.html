@@ -1079,6 +1079,11 @@
     width: 100%;
   }
 
+  @media (max-width: 500px) {
+    .game-grid-2 { grid-template-columns: 1fr !important; }
+    .game-grid-2 > div:nth-child(2) { display: none; }
+  }
+
   @keyframes shake {
     0%,100% { transform: translateX(0); }
     20% { transform: translateX(-8px); }
@@ -1203,17 +1208,42 @@
 <div id="entry-lock" class="screen active">
   <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;text-align:center;">
     <div style="font-family:'Fredoka One',cursive;font-size:clamp(2rem,7vw,3.5rem);background:linear-gradient(135deg,#2563eb,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🎮 Game Hub</div>
-    <p style="color:var(--muted);font-size:0.95rem;">Enter your access code to continue</p>
-    <p style="color:rgba(255,255,255,0.3);font-size:0.75rem;">Player 2 joining a friend? Type <strong style="color:rgba(255,255,255,0.5);">join</strong></p>
-    <div style="background:var(--card);border-radius:var(--radius);padding:32px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px;">
-      <input type="password" id="entry-code-input" placeholder="code or join" maxlength="10"
-        style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12);border-radius:10px;padding:14px;color:#fff;font-family:'Fredoka One',cursive;font-size:2rem;letter-spacing:0.4em;text-align:center;outline:none;transition:border-color 0.2s;"
+
+    <div style="background:var(--card);border-radius:var(--radius);padding:28px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px;">
+      <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:#60a5fa;">🔐 Enter Access Code</div>
+      <input type="password" id="entry-code-input" placeholder="Enter code..." maxlength="10"
+        style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12);border-radius:10px;padding:14px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.8rem;letter-spacing:0.4em;text-align:center;outline:none;transition:border-color 0.2s;"
         onkeydown="if(event.key==='Enter')checkEntryCode()"
         onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
       <div id="entry-code-error" style="display:none;color:#e94560;font-size:0.82rem;">❌ Wrong code. Try again!</div>
-      <button class="btn btn-primary" onclick="checkEntryCode()" style="font-size:1rem;">🔓 Enter</button>
+      <button class="btn btn-primary" onclick="checkEntryCode()">🔓 Enter</button>
+      <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.2);font-size:0.8rem;">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>OR<div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+      </div>
+      <button class="btn btn-secondary" onclick="openJoinPopup()" style="border-color:rgba(83,194,139,0.4);color:var(--accent4);">🔗 Join a Friend's Room</button>
     </div>
-    <p style="color:rgba(255,255,255,0.06);font-size:0.65rem;margin-top:16px;">v1.0</p>
+    <p style="color:rgba(255,255,255,0.06);font-size:0.65rem;">v1.0</p>
+  </div>
+</div>
+
+<!-- JOIN ROOM POPUP -->
+<div id="join-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+  <div style="background:var(--surface);border-radius:20px;padding:32px;width:90%;max-width:360px;border:2px solid rgba(255,255,255,0.1);animation:popIn 0.3s ease;display:flex;flex-direction:column;gap:14px;">
+    <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--accent4);text-align:center;">🔗 Join a Room</div>
+    <div class="input-group">
+      <label>Your Name</label>
+      <input type="text" id="popup-join-name" placeholder="Enter your name..." maxlength="16"
+        style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;">
+    </div>
+    <div class="input-group">
+      <label>Room Code</label>
+      <input type="text" id="popup-join-code" placeholder="Enter 4-digit code..." maxlength="4"
+        onkeydown="if(event.key==='Enter')quickJoinRoom()"
+        style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.8rem;letter-spacing:0.3em;text-align:center;outline:none;">
+    </div>
+    <div id="popup-join-error" style="display:none;color:#e94560;font-size:0.82rem;text-align:center;">❌ Room not found! Check the code.</div>
+    <button class="btn btn-success" onclick="quickJoinRoom()">🔗 Join Game</button>
+    <button class="btn btn-ghost" onclick="closeJoinPopup()" style="font-size:0.85rem;">← Cancel</button>
   </div>
 </div>
 
@@ -1798,6 +1828,68 @@ function goToJoin() {
   showScreen('join-screen');
 }
 
+function openJoinPopup() {
+  const popup = document.getElementById('join-popup');
+  popup.style.display = 'flex';
+  setTimeout(() => document.getElementById('popup-join-name').focus(), 100);
+}
+
+function closeJoinPopup() {
+  document.getElementById('join-popup').style.display = 'none';
+  document.getElementById('popup-join-error').style.display = 'none';
+  document.getElementById('popup-join-name').value = '';
+  document.getElementById('popup-join-code').value = '';
+}
+
+function quickJoinRoom() {
+  const name = document.getElementById('popup-join-name').value.trim();
+  const code = document.getElementById('popup-join-code').value.trim();
+  if (!name) { 
+    document.getElementById('popup-join-name').style.borderColor = '#e94560';
+    document.getElementById('popup-join-name').focus();
+    return; 
+  }
+  if (!code || code.length !== 4) { 
+    document.getElementById('popup-join-code').style.borderColor = '#e94560';
+    document.getElementById('popup-join-code').focus();
+    return; 
+  }
+
+  myRole = 'p2';
+  sessionStorage.setItem('myRole', 'p2');
+  sessionStorage.setItem('roomCode', code);
+  playerNames.p2 = name;
+  roomCode = code;
+  roomRef = db.ref('rooms/' + roomCode);
+
+  roomRef.once('value', snap => {
+    if (!snap.exists()) { 
+      document.getElementById('popup-join-error').style.display = 'block';
+      document.getElementById('popup-join-code').style.borderColor = '#e94560';
+      return; 
+    }
+    const data = snap.val();
+    currentGame = data.game;
+    playerNames.p1 = data.p1;
+    playerNames.p2 = name; // make sure p2 name is set
+    gameState = data.state;
+    scores = data.scores || { p1: 0, p2: 0 };
+    seriesMax = data.seriesMax || 1;
+    seriesWins = data.seriesWins || { p1: 0, p2: 0 };
+    seriesRound = 0;
+    accessLevel = accessLevel || 'friends';
+    closeJoinPopup();
+    roomRef.child('p2').set(name);
+    // myRole MUST be p2 here
+    myRole = 'p2';
+    startGameUI();
+    setTimeout(() => {
+      const seriesLabel = seriesMax <= 1 ? 'Single Game' : `Best of ${seriesMax}`;
+      toast(`✅ Joined as Player 2! ${seriesLabel}`, 3000);
+    }, 600);
+  });
+}
+
 // ══════════════════════════════════════════════
 //  GAME SELECT
 // ══════════════════════════════════════════════
@@ -1897,12 +1989,13 @@ function joinRoom() {
     const data = snap.val();
     currentGame = data.game;
     playerNames.p1 = data.p1;
+    playerNames.p2 = name;
     gameState = data.state;
     scores = data.scores || { p1: 0, p2: 0 };
-    // Read series from room - player 2 just gets informed
     seriesMax = data.seriesMax || 1;
-    seriesWins = { p1: 0, p2: 0 };
+    seriesWins = data.seriesWins || { p1: 0, p2: 0 };
     seriesRound = 0;
+    myRole = 'p2'; // always p2 when joining
 
     roomRef.child('p2').set(name);
     startGameUI();
@@ -4158,12 +4251,10 @@ const COUPLES_CARDS = `
 function checkEntryCode() {
   const input = document.getElementById('entry-code-input').value.trim().toLowerCase();
 
-  // Special code for Player 2 - goes straight to join screen
+  // 'join' shortcut opens popup
   if (input === 'join') {
-    document.getElementById('entry-code-error').style.display = 'none';
     document.getElementById('entry-code-input').value = '';
-    accessLevel = 'joiner';
-    showScreen('join-screen');
+    openJoinPopup();
     return;
   }
 
