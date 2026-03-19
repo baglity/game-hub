@@ -2087,9 +2087,23 @@ function listenToRoom() {
   roomRef.on('value', snap => {
     if (!snap.exists()) return;
     const data = snap.val();
-    // Always ensure gameState.turn is set
+
+    // Auto-correct myRole using name matching from Firebase
+    if (data.p1 && data.p2) {
+      const myName = myRole === 'p1' ? playerNames.p1 : playerNames.p2;
+      if (myName === data.p1) myRole = 'p1';
+      else if (myName === data.p2) myRole = 'p2';
+      playerNames.p1 = data.p1;
+      playerNames.p2 = data.p2;
+      const p1el = document.getElementById('p1-name');
+      const p2el = document.getElementById('p2-name');
+      if (p1el) p1el.textContent = data.p1;
+      if (p2el) p2el.textContent = data.p2;
+      sessionStorage.setItem('myRole', myRole);
+    }
+
     gameState = data.state || {};
-    if (!gameState.turn) gameState.turn = data.turn || 'p1';
+    if (!gameState.turn) gameState.turn = 'p1';
     scores = data.scores || scores;
     if (data.seriesWins) seriesWins = data.seriesWins;
 
@@ -2129,9 +2143,7 @@ function updateTurnBanner(turn) {
   const isMyTurn = turn === myRole;
   const name = turn === 'p1' ? playerNames.p1 : playerNames.p2;
   const banner = document.getElementById('turn-banner');
-  // Show role info for debugging
-  const roleTag = myRole ? ` [You: ${myRole}]` : ' [role?]';
-  banner.textContent = isMyTurn ? `⚡ Your Turn!${roleTag}` : `⏳ ${name}'s Turn${roleTag}`;
+  banner.textContent = isMyTurn ? '⚡ Your Turn!' : `⏳ ${name}'s Turn`;
   banner.style.borderColor = isMyTurn ? 'var(--accent4)' : 'transparent';
   banner.style.color = isMyTurn ? 'var(--accent4)' : 'var(--muted)';
 }
@@ -2157,31 +2169,35 @@ function getInitialState() {
 const TTT_WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
 function tttMove(idx) {
+  if (!roomRef) return;
+  if (!myRole) { toast("Role not set — please rejoin"); return; }
   if (gameState.status === 'done') return;
-  if (!myRole) { toast("Session error — please rejoin"); return; }
-  const tttTurn = gameState.turn || 'p1';
-  if (tttTurn !== myRole) { toast("Not your turn!"); return; }
   if (gameState.board[idx]) return;
+  if (gameState.turn !== myRole) {
+    const whose = gameState.turn === 'p1' ? playerNames.p1 : playerNames.p2;
+    toast(`⏳ ${whose}'s turn!`);
+    return;
+  }
 
   const board = [...gameState.board];
   board[idx] = myRole === 'p1' ? 'X' : 'O';
   const nextTurn = myRole === 'p1' ? 'p2' : 'p1';
-  gameState.turn = nextTurn;
-
   const winner = checkTttWin(board);
   const isDraw = !winner && board.every(c => c);
 
   let newScores = { ...scores };
   let status = 'playing';
   let winnerRole = null;
-
-  if (winner) { newScores[myRole]++; status = 'done'; winnerRole = myRole; }
-  else if (isDraw) { status = 'done'; winnerRole = 'draw'; }
-
-  // Update series wins in Firebase
   let newSeriesWins = { ...seriesWins };
-  if (status === 'done' && winnerRole && winnerRole !== 'draw') {
-    newSeriesWins[winnerRole] = (newSeriesWins[winnerRole] || 0) + 1;
+
+  if (winner) {
+    newScores[myRole]++;
+    status = 'done';
+    winnerRole = myRole;
+    if (seriesMax > 1) newSeriesWins[myRole] = (newSeriesWins[myRole] || 0) + 1;
+  } else if (isDraw) {
+    status = 'done';
+    winnerRole = 'draw';
   }
 
   roomRef.update({
@@ -2206,19 +2222,22 @@ function renderTtt() {
   const board = gameState.board || Array(9).fill('');
   const winner = checkTttWin(board);
   let winLine = [];
-
   if (winner) {
     for (const [a,b,c] of TTT_WINS) {
       if (board[a] && board[a] === board[b] && board[a] === board[c]) { winLine = [a,b,c]; break; }
     }
   }
-
+  const isMyTurn = gameState.turn === myRole;
   cells.forEach((cell, i) => {
     cell.textContent = board[i] || '';
     cell.className = 'ttt-cell';
     if (board[i] === 'X') cell.classList.add('x', 'filled');
     if (board[i] === 'O') cell.classList.add('o', 'filled');
     if (winLine.includes(i)) cell.classList.add('win');
+    // Highlight clickable cells for current player
+    if (!board[i] && isMyTurn && gameState.status !== 'done') cell.style.cursor = 'pointer';
+    else if (!board[i]) cell.style.cursor = 'not-allowed';
+    else cell.style.cursor = 'default';
   });
 }
 
