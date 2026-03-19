@@ -1739,7 +1739,7 @@ let db = null;
 let roomRef = null;
 let currentGame = '';
 let roomCode = '';
-let myRole = ''; // 'p1' or 'p2'
+let myRole = sessionStorage.getItem('myRole') || ''; // 'p1' or 'p2' - persists per tab
 let gameState = {};
 let scores = { p1: 0, p2: 0 };
 let playerNames = { p1: 'Player 1', p2: 'Player 2' };
@@ -1794,6 +1794,10 @@ function goHome() {
   if (roomRef) { roomRef.remove().catch(()=>{}); roomRef = null; }
   if (rummyRef) { rummyRef.off(); rummyRef = null; }
   rummyState = null; rummySelectedCard = null; rummyIsHost = false;
+  sessionStorage.removeItem('myRole');
+  sessionStorage.removeItem('roomCode');
+  sessionStorage.removeItem('isJoiner');
+  myRole = '';
   scores = { p1: 0, p2: 0 };
   seriesWins = { p1: 0, p2: 0 };
   seriesRound = 0;
@@ -1858,6 +1862,7 @@ function quickJoinRoom() {
   myRole = 'p2';
   sessionStorage.setItem('myRole', 'p2');
   sessionStorage.setItem('roomCode', code);
+  sessionStorage.setItem('isJoiner', '1');
   playerNames.p2 = name;
   roomCode = code;
   roomRef = db.ref('rooms/' + roomCode);
@@ -1871,7 +1876,7 @@ function quickJoinRoom() {
     const data = snap.val();
     currentGame = data.game;
     playerNames.p1 = data.p1;
-    playerNames.p2 = name; // make sure p2 name is set
+    playerNames.p2 = name;
     gameState = data.state;
     scores = data.scores || { p1: 0, p2: 0 };
     seriesMax = data.seriesMax || 1;
@@ -1880,8 +1885,8 @@ function quickJoinRoom() {
     accessLevel = accessLevel || 'friends';
     closeJoinPopup();
     roomRef.child('p2').set(name);
-    // myRole MUST be p2 here
-    myRole = 'p2';
+    myRole = 'p2'; // always p2 when joining
+    sessionStorage.setItem('myRole', 'p2');
     startGameUI();
     setTimeout(() => {
       const seriesLabel = seriesMax <= 1 ? 'Single Game' : `Best of ${seriesMax}`;
@@ -1940,6 +1945,7 @@ function createRoom() {
   myRole = 'p1';
   sessionStorage.setItem('myRole', 'p1');
   sessionStorage.setItem('roomCode', roomCode);
+  sessionStorage.removeItem('isJoiner');
   playerNames.p1 = name;
 
   roomRef = db.ref('rooms/' + roomCode);
@@ -2123,7 +2129,9 @@ function updateTurnBanner(turn) {
   const isMyTurn = turn === myRole;
   const name = turn === 'p1' ? playerNames.p1 : playerNames.p2;
   const banner = document.getElementById('turn-banner');
-  banner.textContent = isMyTurn ? '⚡ Your Turn!' : `⏳ ${name}'s Turn`;
+  // Show role info for debugging
+  const roleTag = myRole ? ` [You: ${myRole}]` : ' [role?]';
+  banner.textContent = isMyTurn ? `⚡ Your Turn!${roleTag}` : `⏳ ${name}'s Turn${roleTag}`;
   banner.style.borderColor = isMyTurn ? 'var(--accent4)' : 'transparent';
   banner.style.color = isMyTurn ? 'var(--accent4)' : 'var(--muted)';
 }
