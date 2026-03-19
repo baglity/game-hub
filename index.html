@@ -1307,7 +1307,7 @@
 
   <div class="game-header">
     <div class="player-indicator">
-      <div style="font-size:1.1rem;line-height:1;color:#2563eb;">♥</div>
+      <div id="p1-indicator" style="font-size:1.1rem;line-height:1;color:#2563eb;">●</div>
       <span id="p1-name">Player 1</span>
     </div>
     <div class="score-board">
@@ -1323,7 +1323,7 @@
     </div>
     <div class="player-indicator">
       <span id="p2-name">Player 2</span>
-      <div style="font-size:1.1rem;line-height:1;color:#e94560;">♥</div>
+      <div id="p2-indicator" style="font-size:1.1rem;line-height:1;color:#e94560;">●</div>
     </div>
   </div>
 
@@ -1417,13 +1417,12 @@
     </div>
   </div>
 
-  <!-- RUMMY SETUP -->
+  <!-- RUMMY SETUP: Step 1 - Choose mode -->
   <div id="rummy-setup" style="display:none;width:100%;max-width:480px;flex-direction:column;align-items:center;gap:16px;padding:80px 16px 20px;">
     <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#eab308;">🃏 Rummy</div>
 
-    <!-- CREATE ROOM -->
+    <!-- Player count -->
     <div style="background:var(--card);border-radius:var(--radius);padding:24px;width:100%;display:flex;flex-direction:column;gap:14px;">
-      <div style="font-size:0.82rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">🏠 Create a Room</div>
       <div class="input-group">
         <label>Your Name</label>
         <input type="text" id="rummy-my-name" placeholder="Enter your name..." maxlength="16" style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;">
@@ -1438,23 +1437,40 @@
           <button class="rummy-player-btn" id="rbtn-ai" onclick="setRummyPlayers('ai')" style="font-size:0.75rem;">🤖 AI</button>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="createRummyRoom()" style="background:linear-gradient(135deg,#eab308,#d97706);">🏠 Create Room</button>
+
+      <!-- Online buttons (hidden when AI selected) -->
+      <div id="rummy-online-btns">
+        <button class="btn btn-primary" onclick="goToRummyJokerSetup('online')" style="background:linear-gradient(135deg,#eab308,#d97706);margin-bottom:8px;">🏠 Create Room</button>
+        <div style="color:var(--muted);font-size:0.82rem;text-align:center;margin:4px 0;">— OR —</div>
+        <div class="input-group" style="margin-top:8px;">
+          <label>Join existing room</label>
+          <input type="text" id="rummy-join-name" placeholder="Your name..." maxlength="16" style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;color:#fff;font-family:'Nunito',sans-serif;font-size:0.95rem;outline:none;margin-bottom:8px;">
+          <input type="text" id="rummy-join-code" placeholder="Room code..." maxlength="4" style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.5rem;letter-spacing:0.2em;text-align:center;outline:none;">
+        </div>
+        <button class="btn btn-secondary" onclick="joinRummyRoom()" style="margin-top:8px;">🔗 Join Room</button>
+      </div>
+
+      <!-- AI button (shown when AI selected) -->
+      <div id="rummy-ai-btn" style="display:none;">
+        <button class="btn btn-primary" onclick="goToRummyJokerSetup('ai')" style="background:linear-gradient(135deg,#eab308,#d97706);">🤖 Play vs AI</button>
+      </div>
     </div>
+  </div>
 
-    <div style="color:var(--muted);font-size:0.85rem;font-weight:700;">— OR —</div>
-
-    <!-- JOIN ROOM -->
-    <div style="background:var(--card);border-radius:var(--radius);padding:24px;width:100%;display:flex;flex-direction:column;gap:14px;">
-      <div style="font-size:0.82rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">🔗 Join a Room</div>
-      <div class="input-group">
-        <label>Your Name</label>
-        <input type="text" id="rummy-join-name" placeholder="Enter your name..." maxlength="16" style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;">
-      </div>
-      <div class="input-group">
-        <label>Room Code</label>
-        <input type="text" id="rummy-join-code" placeholder="Enter code..." maxlength="4" style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.6rem;letter-spacing:0.2em;text-align:center;outline:none;">
-      </div>
-      <button class="btn btn-secondary" onclick="joinRummyRoom()">🔗 Join Room</button>
+  <!-- RUMMY JOKER SETUP: Step 2 - Choose joker mode -->
+  <div id="rummy-joker-setup" style="display:none;width:100%;max-width:400px;flex-direction:column;align-items:center;gap:16px;padding:80px 16px 20px;">
+    <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#eab308;">🃏 Joker Mode</div>
+    <div style="background:var(--card);border-radius:var(--radius);padding:28px;width:100%;display:flex;flex-direction:column;gap:16px;">
+      <div style="text-align:center;color:var(--muted);font-size:0.88rem;">How should the joker work?</div>
+      <button onclick="startRummyWithJoker('visible')" style="background:var(--card);border:2px solid rgba(255,255,255,0.12);border-radius:12px;padding:20px;cursor:pointer;text-align:left;transition:all 0.2s;width:100%;" onmouseover="this.style.borderColor='#eab308'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
+        <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#eab308;margin-bottom:4px;">👁 Visible Joker</div>
+        <div style="font-size:0.78rem;color:var(--muted);line-height:1.5;">Everyone sees the joker card from the start. Standard rules.</div>
+      </button>
+      <button onclick="startRummyWithJoker('hidden')" style="background:var(--card);border:2px solid rgba(255,255,255,0.12);border-radius:12px;padding:20px;cursor:pointer;text-align:left;transition:all 0.2s;width:100%;" onmouseover="this.style.borderColor='#ec4899'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
+        <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#ec4899;margin-bottom:4px;">🔒 Hidden Joker</div>
+        <div style="font-size:0.78rem;color:var(--muted);line-height:1.5;">Joker is secret. Only the first player to complete a <strong style="color:#fff;">pure sequence</strong> gets to see the joker!</div>
+      </button>
+      <button class="btn btn-ghost" onclick="backToRummySetup()" style="font-size:0.82rem;">← Back</button>
     </div>
   </div>
 
@@ -1472,47 +1488,72 @@
   </div>
 
   <!-- RUMMY GAME -->
-  <div id="rummy-game" style="display:none;width:100%;max-width:700px;flex-direction:column;align-items:center;gap:12px;">
+  <div id="rummy-game" style="display:none;width:100%;max-width:700px;flex-direction:column;align-items:center;gap:10px;padding:70px 8px 20px;">
     <!-- Info bar -->
-    <div style="display:flex;justify-content:space-between;align-items:center;width:100%;background:var(--card);border-radius:10px;padding:10px 16px;font-size:0.82rem;">
-      <span id="rummy-turn-label" style="font-family:'Fredoka One',cursive;color:#eab308;">Your Turn</span>
-      <span id="rummy-deck-count" style="color:var(--muted);">🂠 52 left</span>
-      <span id="rummy-joker-label" style="color:#ec4899;">🃏 Joker: ?</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;width:100%;background:var(--card);border-radius:10px;padding:10px 14px;font-size:0.82rem;gap:8px;">
+      <span id="rummy-turn-label" style="font-family:'Fredoka One',cursive;color:#eab308;font-size:0.9rem;">Your Turn</span>
+      <span id="rummy-deck-count" style="color:var(--muted);font-size:0.75rem;">🂠 52 left</span>
+      <span id="rummy-joker-label" style="color:#ec4899;font-size:0.75rem;">🃏 Joker: ?</span>
     </div>
 
-    <!-- Other players scores -->
-    <div id="rummy-players-bar" style="display:flex;gap:8px;width:100%;overflow-x:auto;padding-bottom:4px;"></div>
+    <!-- Players bar -->
+    <div id="rummy-players-bar" style="display:flex;gap:6px;width:100%;overflow-x:auto;padding-bottom:2px;"></div>
 
-    <!-- Table area: deck + discard -->
-    <div style="display:flex;gap:16px;align-items:center;justify-content:center;width:100%;">
+    <!-- Table: deck + discard + declare -->
+    <div style="display:flex;gap:12px;align-items:center;justify-content:center;width:100%;">
       <div style="text-align:center;">
-        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;">DECK</div>
-        <div id="rummy-deck" onclick="rummyDrawFromDeck()" style="width:60px;height:84px;background:#1e2a45;border-radius:8px;border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.8rem;cursor:pointer;transition:all 0.2s;" title="Draw from deck">🂠</div>
+        <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px;">DECK</div>
+        <div id="rummy-deck" onclick="rummyDrawFromDeck()" style="width:52px;height:72px;background:#1e2a45;border-radius:8px;border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;transition:all 0.2s;">🂠</div>
+      </div>
+      <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px;">DISCARD PILE</div>
+        <div id="rummy-discard" onclick="rummyDrawFromDiscard()" style="width:52px;height:72px;background:#1e2a45;border-radius:8px;border:2px dashed rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--muted);cursor:pointer;transition:all 0.2s;">Empty</div>
+        <button id="rummy-throw-btn" onclick="rummyDiscardCard()" style="display:none;background:linear-gradient(135deg,#e94560,#c0392b);border:none;border-radius:6px;padding:4px 8px;color:#fff;font-family:'Fredoka One',cursive;font-size:0.62rem;cursor:pointer;white-space:nowrap;">🗑 Throw</button>
       </div>
       <div style="text-align:center;">
-        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;">DISCARD</div>
-        <div id="rummy-discard" onclick="rummyDrawFromDiscard()" style="width:60px;height:84px;background:#1e2a45;border-radius:8px;border:2px dashed rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:var(--muted);cursor:pointer;transition:all 0.2s;" title="Draw from discard">Empty</div>
-      </div>
-      <div style="text-align:center;">
-        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px;">ACTION</div>
-        <button id="rummy-declare-btn" onclick="rummyDeclare()" style="width:60px;height:84px;background:linear-gradient(135deg,#eab308,#d97706);border:none;border-radius:8px;color:#000;font-family:'Fredoka One',cursive;font-size:0.7rem;cursor:pointer;display:none;">DECLARE!</button>
+        <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px;">DECLARE</div>
+        <button id="rummy-declare-btn" onclick="rummyDeclare()" style="width:52px;height:72px;background:linear-gradient(135deg,#eab308,#d97706);border:none;border-radius:8px;color:#000;font-family:'Fredoka One',cursive;font-size:0.65rem;cursor:pointer;display:none;flex-direction:column;align-items:center;justify-content:center;gap:2px;">🏆<br>DECLARE</button>
       </div>
     </div>
 
-    <!-- My hand -->
+    <!-- Ungrouped hand -->
     <div style="width:100%;">
-      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;">
+      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;">
         <span>YOUR HAND <span id="rummy-hand-count" style="color:#eab308;"></span></span>
-        <span style="font-size:0.7rem;color:var(--muted);">Tap to select · Tap discard pile to throw</span>
+        <span style="font-size:0.65rem;">Tap card → tap group to add</span>
       </div>
-      <div id="rummy-hand" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;min-height:90px;padding:8px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid rgba(255,255,255,0.06);"></div>
+      <div id="rummy-hand" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-start;min-height:76px;padding:6px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.06);"></div>
     </div>
 
-    <!-- Sort buttons -->
-    <div style="display:flex;gap:8px;">
-      <button onclick="rummySortBySuit()" class="btn btn-ghost" style="font-size:0.78rem;padding:7px 12px;width:auto;">Sort by Suit</button>
-      <button onclick="rummySortByValue()" class="btn btn-ghost" style="font-size:0.78rem;padding:7px 12px;width:auto;">Sort by Value</button>
-      <button onclick="rummyAutoGroup()" class="btn btn-ghost" style="font-size:0.78rem;padding:7px 12px;width:auto;">Auto Group</button>
+    <!-- Groups area -->
+    <!-- Pure sequence reveal notification -->
+    <div id="rummy-pure-seq-banner" style="display:none;width:100%;background:rgba(83,194,139,0.12);border:2px solid rgba(83,194,139,0.4);border-radius:12px;padding:14px 16px;text-align:center;">
+      <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:var(--accent4);margin-bottom:6px;">✅ Pure Sequence Ready!</div>
+      <div id="rummy-pure-seq-cards" style="display:flex;justify-content:center;gap:4px;margin-bottom:10px;flex-wrap:wrap;"></div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;" id="rummy-pure-seq-hint"></div>
+      <button id="rummy-show-pure-btn" onclick="showPureSequenceToAll()" style="background:linear-gradient(135deg,var(--accent4),#27ae60);border:none;border-radius:8px;padding:10px 20px;color:#000;font-family:'Fredoka One',cursive;font-size:0.9rem;cursor:pointer;display:none;">👁 Show to Everyone & Reveal Joker</button>
+    </div>
+
+    <!-- Other player showed pure sequence -->
+    <div id="rummy-others-pure-seq" style="display:none;width:100%;background:rgba(37,99,235,0.1);border:2px solid rgba(37,99,235,0.3);border-radius:12px;padding:14px 16px;text-align:center;">
+      <div style="font-family:'Fredoka One',cursive;font-size:0.95rem;color:#60a5fa;margin-bottom:6px;" id="rummy-others-pure-label"></div>
+      <div id="rummy-others-pure-cards" style="display:flex;justify-content:center;gap:4px;flex-wrap:wrap;"></div>
+    </div>
+
+    <div style="width:100%;">
+      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+        <span>GROUPS</span>
+        <span id="rummy-groups-validity" style="font-size:0.7rem;"></span>
+      </div>
+      <div id="rummy-groups" style="display:flex;flex-direction:column;gap:8px;width:100%;"></div>
+    </div>
+
+    <!-- Sort + group buttons -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+      <button onclick="rummySortBySuit()" class="btn btn-ghost" style="font-size:0.72rem;padding:6px 10px;width:auto;">♠ By Suit</button>
+      <button onclick="rummySortByValue()" class="btn btn-ghost" style="font-size:0.72rem;padding:6px 10px;width:auto;"># By Value</button>
+      <button onclick="rummyAddGroup()" class="btn btn-ghost" style="font-size:0.72rem;padding:6px 10px;width:auto;border-color:rgba(234,179,8,0.4);color:#eab308;">+ New Group</button>
+      <button onclick="rummyAutoGroup()" class="btn btn-ghost" style="font-size:0.72rem;padding:6px 10px;width:auto;border-color:rgba(234,179,8,0.4);color:#eab308;">⚡ Auto Group</button>
     </div>
   </div>
 
@@ -1868,6 +1909,12 @@ function startGameUI() {
   document.getElementById('p2-name').textContent = playerNames.p2;
   document.getElementById('score-p1').textContent = 0;
   document.getElementById('score-p2').textContent = 0;
+  // Heart for couples, dot for friends
+  const symbol = accessLevel === 'couples' ? '♥' : '●';
+  const p1ind = document.getElementById('p1-indicator');
+  const p2ind = document.getElementById('p2-indicator');
+  if (p1ind) p1ind.textContent = symbol;
+  if (p2ind) p2ind.textContent = symbol;
   // Update score label
   const scoreLabels = document.querySelectorAll('.score-label');
   scoreLabels.forEach(l => l.textContent = seriesMax > 1 ? 'Wins' : 'Score');
@@ -2415,7 +2462,7 @@ function launchGame(game) {
     if (gh) gh.style.display = 'none';
     if (tb) tb.style.display = 'none';
     // Hide all rummy panels then show setup
-    ['rummy-game','rummy-waiting','rummy-result'].forEach(id => {
+    ['rummy-game','rummy-waiting','rummy-result','rummy-joker-setup'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
@@ -2991,6 +3038,7 @@ Cook or order the winner favorite food`;
 const R_SUITS = ['♠','♥','♦','♣'];
 const R_VALUES = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const R_POINTS = {A:1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,J:10,Q:10,K:10};
+const R_VAL_ORDER = {A:1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,J:11,Q:12,K:13};
 
 let rummyRef = null;
 let rummyRoomCode = '';
@@ -2999,7 +3047,21 @@ let rummyNumPlayers = 2;
 let rummyVsAI = false;
 let rummyIsHost = false;
 let rummyState = null;
-let rummySelectedCard = null;
+let rummySelectedCard = null; // index in ungrouped hand
+let rummySelectedGroupCard = null; // {gi, ci} - selected card inside a group
+let rummyGroups = []; // local groups: [{cards:[...], valid:bool, type:''}]
+let rummyJokerMode = 'visible'; // 'visible' or 'hidden'
+let rummyJokerRevealed = false; // has this player unlocked hidden joker
+
+// ── Joker Mode ──
+function setJokerMode(mode) {
+  rummyJokerMode = mode;
+  document.getElementById('joker-visible-btn').classList.toggle('active', mode === 'visible');
+  document.getElementById('joker-hidden-btn').classList.toggle('active', mode === 'hidden');
+  document.getElementById('joker-mode-desc').textContent = mode === 'visible'
+    ? 'Everyone sees the joker card'
+    : 'Joker hidden — complete a pure sequence to reveal it';
+}
 
 function setRummyPlayers(n) {
   rummyNumPlayers = n === 'ai' ? 2 : parseInt(n);
@@ -3008,9 +3070,74 @@ function setRummyPlayers(n) {
   const btnId = n === 'ai' ? 'rbtn-ai' : 'rbtn-' + n;
   const btn = document.getElementById(btnId);
   if (btn) btn.classList.add('active');
-  // No extra name inputs needed - players join via room code
+  // Toggle online vs AI buttons
+  const onlineBtns = document.getElementById('rummy-online-btns');
+  const aiBtns = document.getElementById('rummy-ai-btn');
+  if (onlineBtns) onlineBtns.style.display = n === 'ai' ? 'none' : 'block';
+  if (aiBtns) aiBtns.style.display = n === 'ai' ? 'block' : 'none';
 }
 
+function goToRummyJokerSetup(mode) {
+  // mode = 'online' or 'ai'
+  rummyVsAI = mode === 'ai';
+  const name = document.getElementById('rummy-my-name').value.trim();
+  if (!name) { toast('Enter your name first!'); return; }
+  document.getElementById('rummy-setup').style.display = 'none';
+  document.getElementById('rummy-joker-setup').style.display = 'flex';
+}
+
+function backToRummySetup() {
+  document.getElementById('rummy-joker-setup').style.display = 'none';
+  document.getElementById('rummy-setup').style.display = 'flex';
+}
+
+function startRummyWithJoker(jokerMode) {
+  rummyJokerMode = jokerMode;
+  document.getElementById('rummy-joker-setup').style.display = 'none';
+  if (rummyVsAI) {
+    // Start AI game immediately - no room needed
+    startAIRummy();
+  } else {
+    // Online - create room
+    createRummyRoom();
+  }
+}
+
+function startAIRummy() {
+  const name = document.getElementById('rummy-my-name').value.trim() || 'Player 1';
+  rummyMyIdx = 0;
+  rummyIsHost = true;
+  rummyGroups = [];
+  rummyJokerRevealed = false;
+
+  // Build game locally - no Firebase needed for AI
+  const deck = buildRummyDeck();
+  const joker = deck.splice(Math.floor(Math.random()*deck.length), 1)[0];
+  const players = [
+    { name, idx: 0, isAI: false, points: 0, cardCount: 13 },
+    { name: '🤖 Computer', idx: 1, isAI: true, points: 0, cardCount: 13 }
+  ];
+  const hands = { 0: [], 1: [] };
+  for (let c = 0; c < 13; c++) { hands[0].push(deck.pop()); hands[1].push(deck.pop()); }
+
+  rummyState = {
+    players,
+    hands,
+    deck,
+    discardPile: [deck.pop()],
+    joker,
+    jokerMode: rummyJokerMode,
+    jokerRevealedBy: null,
+    currentTurn: 0,
+    hasDrawn: false,
+    round: 1
+  };
+
+  document.getElementById('rummy-game').style.display = 'flex';
+  renderRummy();
+}
+
+// ── Deck ──
 function buildRummyDeck() {
   const deck = [];
   for (const s of R_SUITS) for (const v of R_VALUES) deck.push({s,v});
@@ -3023,26 +3150,87 @@ function buildRummyDeck() {
 
 function cardPts(card) { return R_POINTS[card.v] || 0; }
 
+// ── Validation ──
+function isPureSequence(cards, jokerVal) {
+  // 3+ consecutive same suit, NO jokers
+  if (cards.length < 3) return false;
+  const hasJoker = cards.some(c => c.v === jokerVal);
+  if (hasJoker) return false;
+  const suits = new Set(cards.map(c => c.s));
+  if (suits.size !== 1) return false;
+  const vals = cards.map(c => R_VAL_ORDER[c.v]).sort((a,b)=>a-b);
+  for (let i = 1; i < vals.length; i++) if (vals[i] !== vals[i-1]+1) return false;
+  return true;
+}
+
+function isImpureSequence(cards, jokerVal) {
+  // 3+ consecutive same suit, with jokers as wildcards
+  if (cards.length < 3) return false;
+  const suits = new Set(cards.filter(c => c.v !== jokerVal).map(c => c.s));
+  if (suits.size !== 1) return false;
+  const jokerCount = cards.filter(c => c.v === jokerVal).length;
+  const realVals = cards.filter(c => c.v !== jokerVal).map(c => R_VAL_ORDER[c.v]).sort((a,b)=>a-b);
+  if (realVals.length < 2) return jokerCount >= 2;
+  const gaps = realVals[realVals.length-1] - realVals[0] - (realVals.length - 1);
+  return gaps <= jokerCount;
+}
+
+function isSet(cards, jokerVal) {
+  // 3-4 same value, different suits (jokers can substitute)
+  if (cards.length < 3 || cards.length > 4) return false;
+  const realCards = cards.filter(c => c.v !== jokerVal);
+  const vals = new Set(realCards.map(c => c.v));
+  if (vals.size !== 1) return false;
+  const suits = realCards.map(c => c.s);
+  return new Set(suits).size === suits.length; // no duplicate suits
+}
+
+function validateGroup(cards, jokerVal) {
+  if (!cards || cards.length < 3) return { valid: false, type: 'Need 3+ cards' };
+  if (isPureSequence(cards, jokerVal)) return { valid: true, type: '✅ Pure Sequence' };
+  if (isImpureSequence(cards, jokerVal)) return { valid: true, type: '✅ Impure Sequence' };
+  if (isSet(cards, jokerVal)) return { valid: true, type: '✅ Set' };
+  return { valid: false, type: '❌ Invalid group' };
+}
+
+function hasPureSequence() {
+  const jokerVal = rummyState && rummyState.joker ? rummyState.joker.v : null;
+  return rummyGroups.some(g => isPureSequence(g.cards, jokerVal));
+}
+
+function canDeclare() {
+  if (rummyGroups.length < 2) return false;
+  const jokerVal = rummyState && rummyState.joker ? rummyState.joker.v : null;
+  const allValid = rummyGroups.every(g => validateGroup(g.cards, jokerVal).valid);
+  const hasPure = rummyGroups.some(g => isPureSequence(g.cards, jokerVal));
+  // All cards must be in groups (no ungrouped cards)
+  const myHand = rummyState.hands ? rummyState.hands[rummyMyIdx] || [] : [];
+  return allValid && hasPure && myHand.length === 0;
+}
+
+// ── Room ──
 function createRummyRoom() {
   const name = document.getElementById('rummy-my-name').value.trim() || 'Player 1';
   rummyRoomCode = Math.floor(1000+Math.random()*9000).toString();
   rummyIsHost = true;
   rummyMyIdx = 0;
+  rummyGroups = [];
+  rummyJokerRevealed = false;
 
   rummyRef = db.ref('rummy/' + rummyRoomCode);
   rummyRef.set({
     host: name,
     numPlayers: rummyNumPlayers,
-    vsAI: rummyVsAI,
+    vsAI: false,
+    jokerMode: rummyJokerMode,
     players: [{ name, idx: 0 }],
     status: 'waiting',
     gameState: null
   });
 
   document.getElementById('rummy-room-code').textContent = rummyRoomCode;
-  document.getElementById('rummy-setup').style.display = 'none';
   document.getElementById('rummy-waiting').style.display = 'flex';
-  updateRummyWaitingUI([{ name, idx: 0 }], rummyNumPlayers, rummyVsAI);
+  updateRummyWaitingUI([{ name, idx: 0 }], rummyNumPlayers, false);
   listenRummyRoom();
 }
 
@@ -3053,22 +3241,22 @@ function joinRummyRoom() {
 
   rummyRoomCode = code;
   rummyIsHost = false;
+  rummyGroups = [];
+  rummyJokerRevealed = false;
   rummyRef = db.ref('rummy/' + rummyRoomCode);
 
   rummyRef.once('value', snap => {
     if (!snap.exists()) { toast('❌ Room not found'); return; }
     const data = snap.val();
     if (data.status !== 'waiting') { toast('❌ Game already started'); return; }
-
     const players = data.players || [];
     if (players.length >= data.numPlayers && !data.vsAI) { toast('❌ Room is full'); return; }
-
     rummyMyIdx = players.length;
     rummyNumPlayers = data.numPlayers;
     rummyVsAI = data.vsAI;
+    rummyJokerMode = data.jokerMode || 'visible';
     players.push({ name, idx: rummyMyIdx });
     rummyRef.update({ players });
-
     document.getElementById('rummy-room-code').textContent = rummyRoomCode;
     document.getElementById('rummy-setup').style.display = 'none';
     document.getElementById('rummy-waiting').style.display = 'flex';
@@ -3088,16 +3276,13 @@ function updateRummyWaitingUI(players, total, vsAI) {
       <span style="font-weight:700;">${p.name}</span>
       ${p.idx === 0 ? '<span style="font-size:0.7rem;color:var(--muted);">HOST</span>' : ''}
     </div>`).join('');
-
   const needed = vsAI ? 0 : (total - players.length);
   document.getElementById('rummy-wait-count').textContent = needed;
-
-  // Show start button to host when enough players or vsAI
   const canStart = vsAI || players.length >= total;
   const startBtn = document.getElementById('rummy-start-btn');
   if (rummyIsHost) {
     startBtn.style.display = canStart ? 'flex' : 'none';
-    startBtn.textContent = `🃏 Start Game! (${players.length}/${vsAI ? 1 : total} joined)`;
+    startBtn.textContent = `🃏 Start Game! (${players.length}/${vsAI?1:total})`;
   }
 }
 
@@ -3105,18 +3290,26 @@ function listenRummyRoom() {
   rummyRef.on('value', snap => {
     if (!snap.exists()) return;
     const data = snap.val();
-
     if (data.status === 'waiting') {
       updateRummyWaitingUI(data.players || [], data.numPlayers, data.vsAI);
     }
-
     if (data.status === 'playing' && data.gameState) {
       document.getElementById('rummy-waiting').style.display = 'none';
       document.getElementById('rummy-game').style.display = 'flex';
+      const prevSeq = rummyState ? rummyState.shownPureSeq : null;
       rummyState = data.gameState;
+      rummyJokerMode = data.jokerMode || 'visible';
+      // Detect if another player just showed their pure sequence
+      const newSeq = rummyState.shownPureSeq;
+      if (newSeq && newSeq.playerIdx !== rummyMyIdx) {
+        const prevTs = prevSeq ? prevSeq.timestamp : 0;
+        if (newSeq.timestamp > prevTs) {
+          const pName = rummyState.players[newSeq.playerIdx]?.name || 'Player';
+          toast(`✅ ${pName} showed a Pure Sequence!`, 4000);
+        }
+      }
       renderRummy();
     }
-
     if (data.status === 'done' && data.gameState) {
       rummyState = data.gameState;
       document.getElementById('rummy-game').style.display = 'none';
@@ -3131,51 +3324,87 @@ function hostStartRummy() {
     const players = data.players || [];
     const deck = buildRummyDeck();
     const joker = deck.splice(Math.floor(Math.random()*deck.length), 1)[0];
-
-    // Deal 13 cards to each player — store separately
-    const hands = {};
     const playerList = [...players];
     if (data.vsAI) playerList.push({ name: '🤖 Computer', idx: playerList.length, isAI: true });
-
+    const hands = {};
     playerList.forEach((p, i) => {
       hands[i] = [];
       for (let c = 0; c < 13; c++) hands[i].push(deck.pop());
     });
-
     const gameState = {
-      players: playerList.map(p => ({ name: p.name, idx: p.idx, isAI: p.isAI || false, points: 0, cardCount: 13 })),
+      players: playerList.map(p => ({ name: p.name, idx: p.idx||i, isAI: p.isAI||false, points: 0, cardCount: 13 })),
       hands,
       deck,
       discardPile: [deck.pop()],
       joker,
+      jokerMode: data.jokerMode || 'visible',
+      jokerRevealedBy: null, // idx of player who revealed joker (hidden mode)
       currentTurn: 0,
       hasDrawn: false,
       round: 1
     };
-
     rummyRef.update({ status: 'playing', gameState });
   });
 }
 
+// ── Render ──
 function renderRummy() {
   if (!rummyState) return;
-  const me = rummyState.players[rummyMyIdx];
-  const myHand = rummyState.hands ? rummyState.hands[rummyMyIdx] || [] : [];
   const isMyTurn = rummyState.currentTurn === rummyMyIdx;
   const turnPlayer = rummyState.players[rummyState.currentTurn];
 
-  // Turn label
   document.getElementById('rummy-turn-label').textContent = isMyTurn ? '⚡ Your Turn!' : `⏳ ${turnPlayer.name}'s Turn`;
-  document.getElementById('rummy-deck-count').textContent = `🂠 ${(rummyState.deck || []).length} left`;
-  document.getElementById('rummy-joker-label').textContent = `🃏 Joker: ${rummyState.joker.v}${rummyState.joker.s}`;
+  document.getElementById('rummy-deck-count').textContent = `🂠 ${(rummyState.deck||[]).length} left`;
+
+  // Joker display
+  const jMode = rummyState.jokerMode || 'visible';
+  const joker = rummyState.joker;
+  const jokerEl = document.getElementById('rummy-joker-label');
+  if (jMode === 'visible') {
+    jokerEl.textContent = `🃏 Joker: ${joker.v}${joker.s}`;
+    jokerEl.style.color = '#ec4899';
+    jokerEl.style.fontSize = '';
+    rummyJokerRevealed = true;
+  } else {
+    if (rummyJokerRevealed) {
+      jokerEl.textContent = `🃏 Joker: ${joker.v}${joker.s} 🔓`;
+      jokerEl.style.color = '#eab308';
+      jokerEl.style.fontSize = '';
+    } else {
+      jokerEl.textContent = `🔒 Show pure sequence to reveal joker`;
+      jokerEl.style.color = 'rgba(255,255,255,0.25)';
+      jokerEl.style.fontSize = '0.62rem';
+    }
+  }
+
+  // Update pure sequence banner
+  updatePureSeqBanner();
+
+  // Update others pure seq display from Firebase state
+  const othersSeq = rummyState.shownPureSeq;
+  const othersEl = document.getElementById('rummy-others-pure-seq');
+  if (othersSeq && othersSeq.playerIdx !== rummyMyIdx) {
+    const pName = rummyState.players[othersSeq.playerIdx]?.name || 'Player';
+    document.getElementById('rummy-others-pure-label').textContent = `✅ ${pName} showed a Pure Sequence!`;
+    const cardsEl = document.getElementById('rummy-others-pure-cards');
+    cardsEl.innerHTML = othersSeq.cards.map(c => {
+      const isRed = c.s==='♥'||c.s==='♦';
+      return `<div class="rummy-card${isRed?' red':''}" style="width:38px;height:52px;font-size:0.6rem;pointer-events:none;"><div>${c.s}</div><div style="font-weight:800;">${c.v}</div></div>`;
+    }).join('');
+    othersEl.style.display = 'block';
+    // Hide after 5 seconds
+    setTimeout(() => { othersEl.style.display = 'none'; }, 5000);
+  } else {
+    othersEl.style.display = 'none';
+  }
 
   // Players bar
   const bar = document.getElementById('rummy-players-bar');
   bar.innerHTML = rummyState.players.map((p,i) => `
     <div class="rummy-player-chip ${i===rummyState.currentTurn?'active-turn':''}">
-      <div style="font-weight:800;font-size:0.78rem;">${p.name}</div>
-      <div style="color:var(--muted);font-size:0.68rem;">${p.cardCount||0} cards</div>
-      <div style="color:#eab308;font-size:0.68rem;">${p.points||0} pts</div>
+      <div style="font-weight:800;font-size:0.75rem;">${p.name}</div>
+      <div style="color:var(--muted);font-size:0.65rem;">${p.cardCount||0} cards</div>
+      <div style="color:#eab308;font-size:0.65rem;">${p.points||0} pts</div>
     </div>`).join('');
 
   // Discard pile
@@ -3184,51 +3413,377 @@ function renderRummy() {
   if (pile.length > 0) {
     const top = pile[pile.length-1];
     const isRed = top.s==='♥'||top.s==='♦';
-    discardEl.innerHTML = `<div style="font-size:0.9rem;color:${isRed?'#e94560':'#111'};line-height:1.2;font-weight:800;">${top.s}<br>${top.v}</div>`;
-    discardEl.style.background = '#fff'; discardEl.style.cursor = isMyTurn ? 'pointer' : 'default';
+    discardEl.innerHTML = `<div style="font-size:0.85rem;color:${isRed?'#e94560':'#111'};font-weight:800;line-height:1.2;">${top.s}<br>${top.v}</div>`;
+    discardEl.style.background = '#fff';
   } else {
     discardEl.innerHTML = 'Empty'; discardEl.style.background = '#1e2a45';
   }
 
-  // Declare button
-  document.getElementById('rummy-declare-btn').style.display = isMyTurn && rummyState.hasDrawn ? 'flex' : 'none';
+  // throw btn updated in renderRummyHand
 
-  // My hand
-  renderRummyHand(myHand);
+  // Declare button
+  const declareBtn = document.getElementById('rummy-declare-btn');
+  declareBtn.style.display = (isMyTurn && rummyState.hasDrawn && canDeclare()) ? 'flex' : 'none';
+
+  renderRummyHand();
+  renderRummyGroups();
 }
 
-function renderRummyHand(hand) {
+function renderRummyHand() {
+  const myHand = rummyState.hands ? (rummyState.hands[rummyMyIdx] || []) : [];
   const handEl = document.getElementById('rummy-hand');
-  document.getElementById('rummy-hand-count').textContent = `(${hand.length})`;
+  document.getElementById('rummy-hand-count').textContent = `(${myHand.length})`;
   handEl.innerHTML = '';
-  hand.forEach((card, i) => {
+  myHand.forEach((card, i) => {
     const isRed = card.s==='♥'||card.s==='♦';
-    const isJoker = card.v === rummyState.joker.v;
+    const jokerVal = rummyState.joker.v;
+    const isJoker = card.v === jokerVal;
+    const jokerVisible = rummyState.jokerMode === 'visible' || rummyJokerRevealed;
     const isSelected = rummySelectedCard === i;
     const div = document.createElement('div');
-    div.className = `rummy-card${isRed?' red':''}${isJoker?' joker-card':''}${isSelected?' selected':''}`;
-    div.innerHTML = `<div style="font-size:0.65rem;">${card.s}</div><div style="font-size:0.8rem;font-weight:800;">${card.v}</div>`;
-    div.onclick = () => {
-      if (rummyState.currentTurn !== rummyMyIdx) { toast("Not your turn!"); return; }
-      if (!rummyState.hasDrawn) { toast("Draw a card first!"); return; }
-      rummySelectedCard = rummySelectedCard === i ? null : i;
-      renderRummyHand(rummyState.hands[rummyMyIdx]);
-    };
+    div.className = `rummy-card${isRed?' red':''}${(isJoker && jokerVisible)?' joker-card':''}${isSelected?' selected':''}`;
+    div.innerHTML = `<div style="font-size:0.6rem;">${card.s}</div><div style="font-size:0.75rem;font-weight:800;">${card.v}</div>`;
+    // Click to select
+    div.onclick = () => selectRummyCard(i);
+    // Drag support
+    div.draggable = true;
+    div.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'hand', idx: i }));
+      div.style.opacity = '0.4';
+      rummySelectedCard = i;
+    });
+    div.addEventListener('dragend', () => { div.style.opacity = '1'; });
+    // Mobile: tap selects card (click handles both desktop and mobile)
     handEl.appendChild(div);
   });
+
+  // Update throw button visibility here — after hand is rendered
+  const throwBtn = document.getElementById('rummy-throw-btn');
+  if (throwBtn && rummyState) {
+    const isMT = rummyState.currentTurn === rummyMyIdx;
+    const showThrow = isMT && rummyState.hasDrawn && rummySelectedCard !== null;
+    throwBtn.style.display = showThrow ? 'block' : 'none';
+  }
+
+  // Hand area - tap to move selected group card back, or drag from group
+  handEl.onclick = () => {
+    if (rummySelectedGroupCard !== null) {
+      removeFromGroup(rummySelectedGroupCard.gi, rummySelectedGroupCard.ci);
+      rummySelectedGroupCard = null;
+    }
+  };
+  handEl.ondragover = e => { e.preventDefault(); handEl.style.background = 'rgba(255,255,255,0.05)'; };
+  handEl.ondragleave = () => { handEl.style.background = 'rgba(255,255,255,0.02)'; };
+  handEl.ondrop = e => {
+    e.preventDefault();
+    handEl.style.background = 'rgba(255,255,255,0.02)';
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+      if (data.source === 'group') removeFromGroup(data.fromGroup, data.cardIdx);
+    } catch(err) {}
+  };
+}
+
+function selectRummyCard(idx) {
+  rummySelectedCard = rummySelectedCard === idx ? null : idx;
+  rummySelectedGroupCard = null;
+  renderRummyHand();
+  renderRummyGroups();
+}
+
+function renderRummyGroups() {
+  const jokerVal = rummyState ? rummyState.joker.v : null;
+  const groupsEl = document.getElementById('rummy-groups');
+  groupsEl.innerHTML = '';
+
+  // Init groups if empty
+  if (rummyGroups.length === 0) {
+    rummyGroups = [{ cards: [] }, { cards: [] }, { cards: [] }];
+  }
+
+  rummyGroups.forEach((group, gi) => {
+    const validation = validateGroup(group.cards, jokerVal);
+    const borderColor = group.cards.length === 0 ? 'rgba(255,255,255,0.08)'
+      : validation.valid ? 'rgba(83,194,139,0.6)' : 'rgba(233,69,96,0.5)';
+    const bgColor = group.cards.length === 0 ? 'rgba(255,255,255,0.02)'
+      : validation.valid ? 'rgba(83,194,139,0.08)' : 'rgba(233,69,96,0.06)';
+
+    const groupDiv = document.createElement('div');
+    groupDiv.style.cssText = `border:2px solid ${borderColor};background:${bgColor};border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;`;
+
+    // Check if this group is a pure sequence for reveal button
+    const jokerValG = rummyState ? rummyState.joker.v : null;
+    const isPureG = isPureSequence(group.cards, jokerValG);
+    const jModeG = rummyState ? (rummyState.jokerMode || 'visible') : 'visible';
+    const showRevealBtn = isPureG && jModeG === 'hidden' && !rummyJokerRevealed;
+
+    // Header
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;gap:4px;flex-wrap:wrap;';
+    header.innerHTML = `
+      <span style="font-weight:800;color:${validation.valid?'var(--accent4)':'var(--muted)'};">Group ${gi+1} ${validation.type}</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button onclick="if(rummySelectedCard!==null){addSelectedToGroup(${gi})}else{toast('Tap a card first!')}" style="background:rgba(234,179,8,0.2);border:1px solid rgba(234,179,8,0.4);border-radius:5px;color:#eab308;font-size:0.65rem;padding:2px 8px;cursor:pointer;font-weight:800;">+ Add</button>
+        <button onclick="clearGroup(${gi})" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:var(--muted);font-size:0.65rem;padding:2px 6px;cursor:pointer;">Clear</button>
+        ${rummyGroups.length > 2 ? `<button onclick="removeGroup(${gi})" style="background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.3);border-radius:5px;color:#e94560;font-size:0.65rem;padding:2px 6px;cursor:pointer;">✕</button>` : ''}
+        ${showRevealBtn ? `<button onclick="showPureSequenceToAll()" style="background:linear-gradient(135deg,var(--accent4),#27ae60);border:none;border-radius:5px;color:#000;font-size:0.65rem;padding:3px 8px;cursor:pointer;font-weight:800;">👁 Reveal Joker</button>` : ''}
+      </div>`;
+    groupDiv.appendChild(header);
+
+    // Cards in group — drop zone
+    const cardsRow = document.createElement('div');
+    cardsRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;min-height:52px;padding:4px;border-radius:8px;transition:background 0.2s;';
+    cardsRow.dataset.group = gi;
+
+    // Drag over group
+    cardsRow.addEventListener('dragover', e => {
+      e.preventDefault();
+      cardsRow.style.background = 'rgba(234,179,8,0.12)';
+    });
+    cardsRow.addEventListener('dragleave', () => {
+      cardsRow.style.background = '';
+    });
+    cardsRow.addEventListener('drop', e => {
+      e.preventDefault();
+      cardsRow.style.background = '';
+      try {
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        if (data.source === 'hand') addSelectedToGroup(gi);
+        else if (data.source === 'group') moveCardBetweenGroups(data.fromGroup, data.cardIdx, gi);
+      } catch(err) {}
+    });
+    // Tap group to add selected card (works on mobile and desktop)
+    cardsRow.addEventListener('click', (e) => {
+      // Only trigger if clicking the empty area, not a card inside
+      if (e.target === cardsRow || e.target.tagName === 'SPAN') {
+        if (rummySelectedCard !== null) addSelectedToGroup(gi);
+      }
+    });
+
+    if (group.cards.length === 0) {
+      const hint = document.createElement('span');
+      hint.style.cssText = 'color:rgba(255,255,255,0.18);font-size:0.7rem;align-self:center;padding:4px;pointer-events:none;';
+      hint.textContent = 'Drag or tap a card here';
+      cardsRow.appendChild(hint);
+    }
+
+    group.cards.forEach((card, ci) => {
+      const isRed = card.s==='♥'||card.s==='♦';
+      const isJoker = card.v === jokerVal;
+      const jokerVisibleG = rummyState.jokerMode === 'visible' || rummyJokerRevealed;
+      const isGroupSelected = rummySelectedGroupCard && rummySelectedGroupCard.gi === gi && rummySelectedGroupCard.ci === ci;
+      const cDiv = document.createElement('div');
+      cDiv.className = `rummy-card${isRed?' red':''}${(isJoker && jokerVisibleG)?' joker-card':''}${isGroupSelected?' selected':''}`;
+      cDiv.style.cssText = 'width:38px;height:52px;font-size:0.65rem;cursor:pointer;';
+      cDiv.innerHTML = `<div>${card.s}</div><div style="font-weight:800;">${card.v}</div>`;
+      cDiv.title = 'Tap to select, tap hand to move back';
+      // Tap to select group card
+      cDiv.onclick = (e) => {
+        e.stopPropagation();
+        if (rummySelectedGroupCard && rummySelectedGroupCard.gi === gi && rummySelectedGroupCard.ci === ci) {
+          rummySelectedGroupCard = null; // deselect
+        } else {
+          rummySelectedGroupCard = { gi, ci };
+          rummySelectedCard = null; // clear hand selection
+        }
+        renderRummyGroups();
+        renderRummyHand();
+      };
+      // Drag from group to group
+      cDiv.draggable = true;
+      cDiv.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'group', fromGroup: gi, cardIdx: ci }));
+        cDiv.style.opacity = '0.4';
+      });
+      cDiv.addEventListener('dragend', () => { cDiv.style.opacity = '1'; });
+      cardsRow.appendChild(cDiv);
+    });
+    groupDiv.appendChild(cardsRow);
+    groupsEl.appendChild(groupDiv);
+  });
+
+  // Overall validity
+  const validEl = document.getElementById('rummy-groups-validity');
+  if (canDeclare()) {
+    validEl.textContent = '✅ Ready to Declare!';
+    validEl.style.color = 'var(--accent4)';
+  } else {
+    const pureOk = hasPureSequence();
+    validEl.textContent = pureOk ? '⚠️ Need all cards grouped' : '❌ Need 1 pure sequence';
+    validEl.style.color = '#e94560';
+  }
+}
+
+function addSelectedToGroup(gi) {
+  if (rummySelectedCard === null) { toast('Tap a card first!'); return; }
+  const hands = JSON.parse(JSON.stringify(rummyState.hands));
+  if (!hands[rummyMyIdx] || rummySelectedCard >= hands[rummyMyIdx].length) {
+    rummySelectedCard = null; renderRummyHand(); return;
+  }
+  const card = hands[rummyMyIdx].splice(rummySelectedCard, 1)[0];
+  rummyGroups[gi].cards.push(card);
+  rummySelectedCard = null;
+  rummyUpdateState({
+    [`gameState/hands/${rummyMyIdx}`]: hands[rummyMyIdx],
+    [`gameState/players/${rummyMyIdx}/cardCount`]: hands[rummyMyIdx].length
+  });
+}
+
+function removeFromGroup(gi, ci) {
+  const hands = JSON.parse(JSON.stringify(rummyState.hands));
+  const card = rummyGroups[gi].cards.splice(ci, 1)[0];
+  hands[rummyMyIdx].push(card);
+  rummyUpdateState({
+    [`gameState/hands/${rummyMyIdx}`]: hands[rummyMyIdx],
+    [`gameState/players/${rummyMyIdx}/cardCount`]: hands[rummyMyIdx].length
+  });
+}
+
+function clearGroup(gi) {
+  const hands = JSON.parse(JSON.stringify(rummyState.hands));
+  rummyGroups[gi].cards.forEach(c => hands[rummyMyIdx].push(c));
+  rummyGroups[gi].cards = [];
+  rummyUpdateState({
+    [`gameState/hands/${rummyMyIdx}`]: hands[rummyMyIdx],
+    [`gameState/players/${rummyMyIdx}/cardCount`]: hands[rummyMyIdx].length
+  });
+}
+
+function removeGroup(gi) {
+  clearGroup(gi);
+  rummyGroups.splice(gi, 1);
+  renderRummy();
+}
+
+function moveCardBetweenGroups(fromGi, cardIdx, toGi) {
+  if (fromGi === toGi) return;
+  const card = rummyGroups[fromGi].cards.splice(cardIdx, 1)[0];
+  rummyGroups[toGi].cards.push(card);
+  renderRummyGroups();
+}
+
+function getMyPureSequence() {
+  const jokerVal = rummyState ? rummyState.joker.v : null;
+  for (const g of rummyGroups) {
+    if (isPureSequence(g.cards, jokerVal)) return g.cards;
+  }
+  return null;
+}
+
+function updatePureSeqBanner() {
+  const banner = document.getElementById('rummy-pure-seq-banner');
+  const hint = document.getElementById('rummy-pure-seq-hint');
+  const showBtn = document.getElementById('rummy-show-pure-btn');
+  const cardsEl = document.getElementById('rummy-pure-seq-cards');
+  const jMode = rummyState ? (rummyState.jokerMode || 'visible') : 'visible';
+
+  if (jMode !== 'hidden' || rummyJokerRevealed) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  const jokerVal = rummyState ? rummyState.joker.v : null;
+  let pureCards = null;
+  for (const g of rummyGroups) {
+    if (isPureSequence(g.cards, jokerVal)) { pureCards = g.cards; break; }
+  }
+
+  if (!pureCards) { banner.style.display = 'none'; return; }
+
+  banner.style.display = 'block';
+  cardsEl.innerHTML = pureCards.map(c => {
+    const isRed = c.s==='♥'||c.s==='♦';
+    return `<div class="rummy-card${isRed?' red':''}" style="width:40px;height:56px;font-size:0.65rem;pointer-events:none;"><div>${c.s}</div><div style="font-weight:800;">${c.v}</div></div>`;
+  }).join('');
+
+  const myHand = rummyState.hands ? (rummyState.hands[rummyMyIdx] || []) : [];
+  const isMyTurn = rummyState.currentTurn === rummyMyIdx;
+
+  if (myHand.length > 0 && rummyState.hasDrawn) {
+    hint.textContent = '⚠️ Discard your extra card first!';
+    hint.style.color = '#eab308';
+    showBtn.style.display = 'none';
+  } else if (myHand.length > 0) {
+    hint.textContent = '⚠️ Move all remaining cards to groups first';
+    hint.style.color = 'rgba(255,255,255,0.4)';
+    showBtn.style.display = 'none';
+  } else {
+    hint.textContent = 'All cards grouped! Click to show everyone & reveal joker.';
+    hint.style.color = 'var(--accent4)';
+    showBtn.style.display = 'block';
+  }
+}
+
+function showPureSequenceToAll() {
+  // Find pure sequence directly from groups
+  const jokerVal = rummyState ? rummyState.joker.v : null;
+  let pureCards = null;
+  let pureGroupIdx = -1;
+  for (let i = 0; i < rummyGroups.length; i++) {
+    if (isPureSequence(rummyGroups[i].cards, jokerVal)) {
+      pureCards = rummyGroups[i].cards;
+      pureGroupIdx = i;
+      break;
+    }
+  }
+
+  if (!pureCards || pureCards.length === 0) {
+    toast('No pure sequence in groups! Form one first.');
+    return;
+  }
+
+  const myHand = rummyState.hands ? (rummyState.hands[rummyMyIdx] || []) : [];
+  if (myHand.length > 0) { toast('Move all hand cards to groups first!'); return; }
+
+  // Save to Firebase so all players see it
+  const shownPureSeq = { playerIdx: rummyMyIdx, cards: pureCards, timestamp: Date.now() };
+
+  if (rummyVsAI) {
+    rummyState.shownPureSeq = shownPureSeq;
+    renderRummy();
+  } else if (rummyRef) {
+    rummyRef.update({ 'gameState/shownPureSeq': shownPureSeq });
+  }
+
+  // Reveal joker only to this player
+  rummyJokerRevealed = true;
+  toast('🔓 Joker revealed! Only you can see it.', 4000);
+  document.getElementById('rummy-pure-seq-banner').style.display = 'none';
+  renderRummy();
+}
+
+function rummyAddGroup() {
+  rummyGroups.push({ cards: [] });
+  renderRummyGroups();
+}
+
+// ── Draw / Discard ──
+function rummyUpdateState(updates) {
+  // Always apply to local state first for instant feedback
+  if (updates['gameState/deck'] !== undefined) rummyState.deck = updates['gameState/deck'];
+  if (updates['gameState/discardPile'] !== undefined) rummyState.discardPile = updates['gameState/discardPile'];
+  if (updates['gameState/hasDrawn'] !== undefined) rummyState.hasDrawn = updates['gameState/hasDrawn'];
+  if (updates['gameState/currentTurn'] !== undefined) rummyState.currentTurn = updates['gameState/currentTurn'];
+  Object.keys(updates).forEach(k => {
+    const handMatch = k.match(/gameState\/hands\/(\d+)/);
+    if (handMatch) rummyState.hands[handMatch[1]] = updates[k];
+    const playerMatch = k.match(/gameState\/players\/(\d+)\/cardCount/);
+    if (playerMatch) rummyState.players[parseInt(playerMatch[1])].cardCount = updates[k];
+  });
+  // Sync to Firebase for online players
+  if (!rummyVsAI && rummyRef) rummyRef.update(updates);
+  renderRummy();
 }
 
 function rummyDrawFromDeck() {
   if (rummyState.currentTurn !== rummyMyIdx) { toast("Not your turn!"); return; }
-  if (rummyState.hasDrawn) { toast("Already drew! Select a card and tap discard to throw."); return; }
+  if (rummyState.hasDrawn) { toast("Already drew! Select a card and tap discard."); return; }
   if (!rummyState.deck.length) { toast("Deck empty!"); return; }
-
   const deck = [...rummyState.deck];
   const card = deck.pop();
   const hands = JSON.parse(JSON.stringify(rummyState.hands));
   hands[rummyMyIdx].push(card);
-
-  rummyRef.update({
+  rummyUpdateState({
     'gameState/deck': deck,
     [`gameState/hands/${rummyMyIdx}`]: hands[rummyMyIdx],
     [`gameState/players/${rummyMyIdx}/cardCount`]: hands[rummyMyIdx].length,
@@ -3240,25 +3795,22 @@ function rummyDrawFromDeck() {
 function rummyDrawFromDiscard() {
   if (rummyState.currentTurn !== rummyMyIdx) { toast("Not your turn!"); return; }
   if (rummyState.hasDrawn) {
-    // Use as discard action
     if (rummySelectedCard === null) { toast("Select a card to discard!"); return; }
     rummyDiscardCard();
     return;
   }
   if (!rummyState.discardPile.length) { toast("Discard pile empty!"); return; }
-
   const pile = [...rummyState.discardPile];
   const card = pile.pop();
   const hands = JSON.parse(JSON.stringify(rummyState.hands));
   hands[rummyMyIdx].push(card);
-
-  rummyRef.update({
+  rummyUpdateState({
     'gameState/discardPile': pile,
     [`gameState/hands/${rummyMyIdx}`]: hands[rummyMyIdx],
     [`gameState/players/${rummyMyIdx}/cardCount`]: hands[rummyMyIdx].length,
     'gameState/hasDrawn': true
   });
-  toast(`Picked ${card.v}${card.s} from discard`);
+  toast(`Picked ${card.v}${card.s}`);
 }
 
 function rummyDiscardCard() {
@@ -3266,56 +3818,79 @@ function rummyDiscardCard() {
   const hands = JSON.parse(JSON.stringify(rummyState.hands));
   const card = hands[rummyMyIdx].splice(rummySelectedCard, 1)[0];
   const pile = [...(rummyState.discardPile||[]), card];
-  const nextTurn = (rummyState.currentTurn + 1) % rummyState.players.length;
-
+  const nextTurn = (rummyState.currentTurn+1) % rummyState.players.length;
   rummySelectedCard = null;
-  rummyRef.update({
+  rummyUpdateState({
     'gameState/discardPile': pile,
     [`gameState/hands/${rummyMyIdx}`]: hands[rummyMyIdx],
     [`gameState/players/${rummyMyIdx}/cardCount`]: hands[rummyMyIdx].length,
     'gameState/currentTurn': nextTurn,
     'gameState/hasDrawn': false
   });
-
-  // Trigger AI if next is AI
-  setTimeout(() => {
-    if (rummyState && rummyState.players[nextTurn] && rummyState.players[nextTurn].isAI) {
-      aiRummyTurn(nextTurn);
-    }
-  }, 1200);
+  // Trigger AI turn if next player is AI
+  if (rummyVsAI) {
+    setTimeout(() => {
+      if (rummyState && rummyState.players[nextTurn] && rummyState.players[nextTurn].isAI) {
+        aiRummyTurnLocal(nextTurn);
+      }
+    }, 1000);
+  }
 }
 
 function rummyDeclare() {
-  // Calculate points for everyone
+  if (!canDeclare()) { toast("Invalid declaration! Check your groups."); return; }
   const players = JSON.parse(JSON.stringify(rummyState.players));
   players.forEach((p, i) => {
+    if (i === rummyMyIdx) { p.points = (p.points||0); return; }
     const hand = rummyState.hands[i] || [];
-    p.points = (p.points||0) + hand.reduce((sum,c) => sum + cardPts(c), 0);
+    p.points = (p.points||0) + hand.reduce((sum,c) => sum+cardPts(c), 0);
   });
-  rummyRef.update({ status: 'done', 'gameState/players': players });
+  if (rummyVsAI) {
+    rummyState.players = players;
+    showRummyResult(players);
+  } else if (rummyRef) {
+    rummyRef.update({ status: 'done', 'gameState/players': players });
+  }
+}
+
+// ── AI ──
+function aiRummyTurnLocal(aiIdx) {
+  // For VS AI games - runs locally
+  if (!rummyState || rummyState.currentTurn !== aiIdx) return;
+  const hands = JSON.parse(JSON.stringify(rummyState.hands));
+  const deck = [...(rummyState.deck||[])];
+  let pile = [...(rummyState.discardPile||[])];
+  if (deck.length) hands[aiIdx].push(deck.pop());
+  let maxPts = -1, maxIdx = 0;
+  hands[aiIdx].forEach((c,i) => { const p = cardPts(c); if(p>maxPts){maxPts=p;maxIdx=i;} });
+  const discarded = hands[aiIdx].splice(maxIdx, 1)[0];
+  pile.push(discarded);
+  const nextTurn = (aiIdx+1) % rummyState.players.length;
+  rummyState.deck = deck;
+  rummyState.discardPile = pile;
+  rummyState.hands[aiIdx] = hands[aiIdx];
+  rummyState.players[aiIdx].cardCount = hands[aiIdx].length;
+  rummyState.currentTurn = nextTurn;
+  rummyState.hasDrawn = false;
+  renderRummy();
 }
 
 function aiRummyTurn(aiIdx) {
-  if (!rummyIsHost) return; // only host runs AI
+  // For online games where host runs AI via Firebase
+  if (!rummyIsHost || !rummyRef) return;
   rummyRef.once('value', snap => {
     const data = snap.val();
     if (!data || data.status !== 'playing') return;
     const gs = data.gameState;
     if (gs.currentTurn !== aiIdx) return;
-
     const hands = JSON.parse(JSON.stringify(gs.hands));
     const deck = [...(gs.deck||[])];
     let pile = [...(gs.discardPile||[])];
-
-    // Draw from deck
     if (deck.length) hands[aiIdx].push(deck.pop());
-
-    // Discard highest point card
     let maxPts = -1, maxIdx = 0;
-    hands[aiIdx].forEach((c,i) => { const p = cardPts(c); if (p>maxPts) { maxPts=p; maxIdx=i; } });
+    hands[aiIdx].forEach((c,i) => { const p = cardPts(c); if(p>maxPts){maxPts=p;maxIdx=i;} });
     const discarded = hands[aiIdx].splice(maxIdx, 1)[0];
     pile.push(discarded);
-
     const nextTurn = (aiIdx+1) % gs.players.length;
     const update = {};
     update['gameState/deck'] = deck;
@@ -3328,6 +3903,33 @@ function aiRummyTurn(aiIdx) {
   });
 }
 
+// ── Sort ──
+function rummySortBySuit() {
+  if (!rummyState) return;
+  const sO = {'♠':0,'♥':1,'♦':2,'♣':3};
+  const hand = [...rummyState.hands[rummyMyIdx]];
+  hand.sort((a,b) => sO[a.s]-sO[b.s] || R_VAL_ORDER[a.v]-R_VAL_ORDER[b.v]);
+  rummySelectedCard = null;
+  rummyUpdateState({ [`gameState/hands/${rummyMyIdx}`]: hand });
+}
+
+function rummySortByValue() {
+  if (!rummyState) return;
+  const hand = [...rummyState.hands[rummyMyIdx]];
+  hand.sort((a,b) => R_VAL_ORDER[a.v]-R_VAL_ORDER[b.v] || a.s.localeCompare(b.s));
+  rummySelectedCard = null;
+  rummyUpdateState({ [`gameState/hands/${rummyMyIdx}`]: hand });
+}
+
+function rummyAutoGroup() {
+  if (!rummyState) return;
+  // Clear all groups first
+  rummyGroups.forEach(g => g.cards = []);
+  rummySortBySuit();
+  toast('Sorted by suit — now group manually!');
+}
+
+// ── Result ──
 function showRummyResult(players) {
   document.getElementById('rummy-game').style.display = 'none';
   const resultEl = document.getElementById('rummy-result');
@@ -3349,37 +3951,24 @@ function showRummyResult(players) {
 }
 
 function restartRummy() {
+  rummyGroups = [];
+  rummySelectedCard = null;
+  rummySelectedGroupCard = null;
+  rummyJokerRevealed = false;
   document.getElementById('rummy-result').style.display = 'none';
-  if (rummyIsHost) {
-    rummyRef.update({ status: 'waiting', gameState: null });
-    document.getElementById('rummy-waiting').style.display = 'flex';
+  document.getElementById('rummy-pure-seq-banner').style.display = 'none';
+  document.getElementById('rummy-others-pure-seq').style.display = 'none';
+  if (rummyVsAI) {
+    document.getElementById('rummy-joker-setup').style.display = 'flex';
   } else {
+    if (rummyIsHost) rummyRef.update({ status: 'waiting', gameState: null });
     document.getElementById('rummy-waiting').style.display = 'flex';
   }
 }
 
-function rummySortBySuit() {
-  if (!rummyState) return;
-  const sO = {'♠':0,'♥':1,'♦':2,'♣':3};
-  const vO = {A:1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,J:11,Q:12,K:13};
-  const hand = [...rummyState.hands[rummyMyIdx]];
-  hand.sort((a,b) => sO[a.s]-sO[b.s] || vO[a.v]-vO[b.v]);
-  rummySelectedCard = null;
-  rummyRef.update({ [`gameState/hands/${rummyMyIdx}`]: hand });
-}
-
-function rummySortByValue() {
-  if (!rummyState) return;
-  const vO = {A:1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,J:11,Q:12,K:13};
-  const hand = [...rummyState.hands[rummyMyIdx]];
-  hand.sort((a,b) => vO[a.v]-vO[b.v] || a.s.localeCompare(b.s));
-  rummySelectedCard = null;
-  rummyRef.update({ [`gameState/hands/${rummyMyIdx}`]: hand });
-}
-
-function rummyAutoGroup() { rummySortBySuit(); toast('Cards grouped by suit!'); }
-
 // ══════════════════════════════════════════════
+//  HOME UPLOADS
+// ══════════════════════════════════════════════// ══════════════════════════════════════════════
 //  HOME UPLOADS
 // ══════════════════════════════════════════════// ══════════════════════════════════════════════
 //  HOME UPLOADS
