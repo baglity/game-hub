@@ -1889,12 +1889,14 @@ function quickJoinRoom() {
     const myKey2 = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
     sessionStorage.setItem('myPlayerKey', myKey2);
     // myRole already 'p2' — do not re-assign
-    roomRef.update({ p2: name, p2key: myKey2 });
-    startGameUI();
-    setTimeout(() => {
-      const seriesLabel = seriesMax <= 1 ? 'Single Game' : `Best of ${seriesMax}`;
-      toast(`✅ Joined as Player 2! ${seriesLabel}`, 3000);
-    }, 600);
+    // Wait for Firebase to confirm key is written BEFORE starting UI
+    roomRef.update({ p2: name, p2key: myKey2 }, () => {
+      startGameUI();
+      setTimeout(() => {
+        const seriesLabel = seriesMax <= 1 ? 'Single Game' : `Best of ${seriesMax}`;
+        toast(`✅ Joined as Player 2! ${seriesLabel}`, 3000);
+      }, 600);
+    });
   });
 }
 
@@ -2014,8 +2016,11 @@ function joinRoom() {
     const myKey3 = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
     sessionStorage.setItem('myPlayerKey', myKey3);
     // myRole already 'p2' — do not re-assign
-    roomRef.update({ p2: name, p2key: myKey3 });
-    startGameUI();
+    // Wait for Firebase to confirm key is written BEFORE starting UI
+    // This ensures bulletproof key check in listenToRoom always finds p2key
+    roomRef.update({ p2: name, p2key: myKey3 }, () => {
+      startGameUI();
+    });
   });
 }
 
@@ -2111,10 +2116,10 @@ function listenToRoom() {
     // This means even if sessionStorage myRole is wrong or lost, the correct role is always restored
     const myKey = sessionStorage.getItem('myPlayerKey');
     if (myKey) {
-      if (data.p1key && data.p1key === myKey) {
+      if (data.p1key === myKey) {
         myRole = 'p1';
         sessionStorage.setItem('myRole', 'p1');
-      } else if (data.p2key && data.p2key === myKey) {
+      } else if (data.p2key === myKey) {
         myRole = 'p2';
         sessionStorage.setItem('myRole', 'p2');
       }
