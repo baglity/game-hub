@@ -1367,7 +1367,7 @@
     </div>
   </div>
 
-  <div class="turn-banner" id="turn-banner">Your turn!</div>
+  <div class="turn-banner" id="turn-banner"></div>
 
   <!-- TTT Board -->
   <div id="ttt-board" style="display:none;">
@@ -1860,6 +1860,7 @@ function quickJoinRoom() {
     return; 
   }
 
+  // Set role FIRST before Firebase callback fires
   myRole = 'p2';
   sessionStorage.setItem('myRole', 'p2');
   sessionStorage.setItem('roomCode', code);
@@ -1887,14 +1888,15 @@ function quickJoinRoom() {
     closeJoinPopup();
     const myKey2 = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
     sessionStorage.setItem('myPlayerKey', myKey2);
-    myRole = 'p2';
-    sessionStorage.setItem('myRole', 'p2');
-    roomRef.update({ p2: name, p2key: myKey2 });
-    startGameUI();
-    setTimeout(() => {
-      const seriesLabel = seriesMax <= 1 ? 'Single Game' : `Best of ${seriesMax}`;
-      toast(`✅ Joined as Player 2! ${seriesLabel}`, 3000);
-    }, 600);
+    // myRole already 'p2' — do not re-assign
+    // Wait for Firebase to confirm key is written BEFORE starting UI
+    roomRef.update({ p2: name, p2key: myKey2 }, () => {
+      startGameUI();
+      setTimeout(() => {
+        const seriesLabel = seriesMax <= 1 ? 'Single Game' : `Best of ${seriesMax}`;
+        toast(`✅ Joined as Player 2! ${seriesLabel}`, 3000);
+      }, 600);
+    });
   });
 }
 
@@ -1945,6 +1947,7 @@ function initFirebase() {
 function createRoom() {
   const name = document.getElementById('p1-name-input').value.trim() || 'Player 1';
   roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+  // Set role FIRST before any Firebase or callbacks can fire
   myRole = 'p1';
   sessionStorage.setItem('myRole', 'p1');
   sessionStorage.setItem('roomCode', roomCode);
@@ -1955,6 +1958,11 @@ function createRoom() {
   const myKey = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
   sessionStorage.setItem('myPlayerKey', myKey);
 
+  const initialState = getInitialState();
+  gameState = initialState; // Set immediately so Player 1 has gameState before Firebase fires
+  scores = { p1: 0, p2: 0 };
+  seriesWins = { p1: 0, p2: 0 };
+
   roomRef.set({
     game: currentGame,
     p1: name,
@@ -1963,7 +1971,8 @@ function createRoom() {
     p2key: '',
     seriesMax: seriesMax,
     seriesWins: { p1: 0, p2: 0 },
-    state: getInitialState(),
+    state: initialState,
+    turn: 'p1',
     scores: { p1: 0, p2: 0 },
     action: null
   });
@@ -1986,11 +1995,11 @@ function createRoom() {
 }
 
 function joinRoom() {
-  sessionStorage.removeItem('myRole');
   const name = document.getElementById('p2-name-input').value.trim() || 'Player 2';
   const code = document.getElementById('join-code').value.trim();
   if (!code || code.length !== 4) { toast('Enter a 4-digit room code'); return; }
 
+  // Set role FIRST before Firebase callback fires
   myRole = 'p2';
   sessionStorage.setItem('myRole', 'p2');
   sessionStorage.setItem('roomCode', code);
@@ -2011,12 +2020,12 @@ function joinRoom() {
     seriesRound = 0;
     const myKey3 = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
     sessionStorage.setItem('myPlayerKey', myKey3);
-    myRole = 'p2';
-    sessionStorage.setItem('myRole', 'p2');
-    roomRef.update({ p2: name, p2key: myKey3 });
-    startGameUI();
-
-    // Series info shown in startGameUI for both players
+    // myRole already 'p2' — do not re-assign
+    // Wait for Firebase to confirm key is written BEFORE starting UI
+    // This ensures bulletproof key check in listenToRoom always finds p2key
+    roomRef.update({ p2: name, p2key: myKey3 }, () => {
+      startGameUI();
+    });
   });
 }
 
@@ -2028,6 +2037,11 @@ function copyCode() {
 //  GAME START
 // ══════════════════════════════════════════════
 function startGameUI() {
+  // GUARANTEE: Lock role from sessionStorage at the very start
+  if (!myRole) {
+    myRole = sessionStorage.getItem('myRole') || '';
+  }
+
   document.getElementById('p1-name').textContent = playerNames.p1;
   document.getElementById('p2-name').textContent = playerNames.p2;
   document.getElementById('score-p1').textContent = 0;
@@ -2085,6 +2099,8 @@ function startGameUI() {
     document.getElementById('admin-panel').classList.remove('open');
     document.getElementById('turn-banner').style.display = '';
     document.getElementById('game-header').style.display = '';
+    // Update banner now that screen is visible and gameState/myRole are ready
+    updateTurnBanner(gameState.turn || 'p1');
     listenToRoom();
     showChatContainer(true);
     listenToChat();
@@ -2097,13 +2113,29 @@ function listenToRoom() {
   roomRef.on('value', snap => {
     if (!snap.exists()) return;
     const data = snap.val();
-    const myKey = sessionStorage.getItem('myPlayerKey');
-    if (data.p1key === myKey) myRole = 'p1';
-    else if (data.p2key === myKey) myRole = 'p2';
 
-    // Restore myRole from sessionStorage if lost
+    // BULLETPROOF role verification using player keys stored in Firebase
+    // Compare this tab's saved key against p1key and p2key in Firebase
+    // This means even if sessionStorage myRole is wrong or lost, the correct role is always restored
+    const myKey = sessionStorage.getItem('myPlayerKey');
+    if (myKey) {
+      if (data.p1key === myKey) {
+        myRole = 'p1';
+        sessionStorage.setItem('myRole', 'p1');
+      } else if (data.p2key === myKey) {
+        myRole = 'p2';
+        sessionStorage.setItem('myRole', 'p2');
+      }
+    }
+    // If still no role after key check, fall back to sessionStorage
     if (!myRole) {
-      myRole = sessionStorage.getItem('myRole') || 'p1';
+      const saved = sessionStorage.getItem('myRole');
+      if (saved) {
+        myRole = saved;
+      } else {
+        console.warn('myRole lost and key mismatch — cannot restore role');
+        return;
+      }
     }
 
     // Sync names from Firebase
@@ -2131,14 +2163,14 @@ function listenToRoom() {
       document.getElementById('score-p2').textContent = scores.p2;
     }
 
-    // Use gameState.turn (same as data.state.turn) - consistent with move checks
-    updateTurnBanner(gameState.turn || data.turn || 'p1');
-
     if (currentGame === 'ttt') renderTtt();
     if (currentGame === 'sos') renderSos();
     if (currentGame === 'tod') renderTod(data);
     if (currentGame === 'nhie') renderNhie(data);
     if (currentGame === 'card-dare') renderCardDare(data);
+
+    // Update turn banner LAST — after role is confirmed and names are synced
+    updateTurnBanner(gameState.turn || data.turn || 'p1');
 
     // If other player clicked Next Round - close overlay immediately
     if (data.rematch && data.rematch !== lastRematch) {
@@ -2172,11 +2204,11 @@ function isMyTurn() {
 //  INITIAL STATE
 // ══════════════════════════════════════════════
 function getInitialState() {
-  if (currentGame === 'ttt') return { board: Array(9).fill(''), status: 'playing', winner: null };
-  if (currentGame === 'sos') return { board: Array(49).fill(''), sosCount: { p1: 0, p2: 0 }, status: 'playing', winner: null, cellOwner: {}, sosLines: [] };
+  if (currentGame === 'ttt') return { board: Array(9).fill(''), turn: 'p1', status: 'playing', winner: null };
+  if (currentGame === 'sos') return { board: Array(49).fill(''), turn: 'p1', sosCount: { p1: 0, p2: 0 }, status: 'playing', winner: null, cellOwner: {}, sosLines: [] };
   if (currentGame === 'tod') return { turn: 'p1', action: null, type: null, questionIdx: null, reply: '' };
   if (currentGame === 'nhie') return { turn: 'p1', statementIdx: null, response: null, status: 'waiting' };
-  if (currentGame === 'card-dare') return { p1Card: null, p2Card: null, dareIdx: null, status: 'drawing', round: 1 };
+  if (currentGame === 'card-dare') return { p1Card: null, p2Card: null, dareIdx: null, status: 'drawing', round: 1, turn: 'p1' };
 }
 
 // ══════════════════════════════════════════════
@@ -2186,6 +2218,7 @@ const TTT_WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6
 
 function tttMove(idx) {
   if (!roomRef) return;
+  console.log('tttMove called — myRole:', myRole, '| gameState.turn:', gameState.turn, '| gameState.status:', gameState.status);
   if (!myRole) { toast("Role not set — please rejoin"); return; }
   if (gameState.status === 'done') return;
   if (gameState.turn !== myRole) {
@@ -2218,15 +2251,7 @@ function tttMove(idx) {
     winnerRole = 'draw';
   }
 
-  // Update locally immediately so X/O shows without waiting for Firebase
-  gameState.board = board;
-  
-  gameState.status = status;
-  gameState.winner = winnerRole;
-  renderTtt();
-  
-
-  // Then sync to Firebase
+  // Send to Firebase — listenToRoom() handles rendering for both players
   roomRef.update({
     'state/board': board,
     'state/turn': nextTurn,
@@ -3105,7 +3130,7 @@ function drawCard(player) {
 function cdNextRound() {
   const round = (gameState.round || 1) + 1;
   roomRef.update({
-    state: { p1Card: null, p2Card: null, dareIdx: null, status: 'drawing', round }
+    state: { p1Card: null, p2Card: null, dareIdx: null, status: 'drawing', round, turn: 'p1' }
   });
 }
 
