@@ -2215,6 +2215,7 @@ const TTT_WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6
 
 function tttMove(idx) {
   if (!roomRef) return;
+  console.log('tttMove called — myRole:', myRole, '| gameState.turn:', gameState.turn, '| gameState.status:', gameState.status);
   if (!myRole) { toast("Role not set — please rejoin"); return; }
   if (gameState.status === 'done') return;
   if (gameState.turn !== myRole) {
