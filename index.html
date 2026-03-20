@@ -1944,25 +1944,34 @@ function initFirebase() {
 // ══════════════════════════════════════════════
 //  ROOM MANAGEMENT
 // ══════════════════════════════════════════════
+
 function createRoom() {
   const name = document.getElementById('p1-name-input').value.trim() || 'Player 1';
-  roomCode = Math.floor(1000 + Math.random() * 9000).toString();
-  // Set role FIRST before any Firebase or callbacks can fire
+
+  // Step 1: Set all state variables FIRST — before any Firebase calls
   myRole = 'p1';
-  sessionStorage.setItem('myRole', 'p1');
-  sessionStorage.setItem('roomCode', roomCode);
-  sessionStorage.removeItem('isJoiner');
+  roomCode = Math.floor(1000 + Math.random() * 9000).toString();
   playerNames.p1 = name;
-
-  roomRef = db.ref('rooms/' + roomCode);
-  const myKey = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
-  sessionStorage.setItem('myPlayerKey', myKey);
-
-  const initialState = getInitialState();
-  gameState = initialState; // Set immediately so Player 1 has gameState before Firebase fires
+  playerNames.p2 = 'Player 2';
   scores = { p1: 0, p2: 0 };
   seriesWins = { p1: 0, p2: 0 };
 
+  // Step 2: Save to sessionStorage
+  sessionStorage.setItem('myRole', 'p1');
+  sessionStorage.setItem('roomCode', roomCode);
+  sessionStorage.removeItem('isJoiner');
+
+  // Step 3: Generate player key
+  const myKey = 'p1_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+  sessionStorage.setItem('myPlayerKey', myKey);
+
+  // Step 4: Set gameState locally so tttMove works immediately
+  gameState = getInitialState();
+
+  // Step 5: Set Firebase ref
+  roomRef = db.ref('rooms/' + roomCode);
+
+  // Step 6: Write to Firebase
   roomRef.set({
     game: currentGame,
     p1: name,
@@ -1971,25 +1980,29 @@ function createRoom() {
     p2key: '',
     seriesMax: seriesMax,
     seriesWins: { p1: 0, p2: 0 },
-    state: initialState,
-    turn: 'p1',
+    state: gameState,
     scores: { p1: 0, p2: 0 },
     action: null
   });
 
-  document.getElementById('display-room-code').textContent = roomCode;
+  // Step 7: Show waiting screen
   showScreen('waiting');
-  // Force re-render after screen shows
-  setTimeout(() => {
-    document.getElementById('display-room-code').textContent = roomCode;
-  }, 100);
+  document.getElementById('display-room-code').textContent = roomCode;
 
-  // Wait for p2
-  roomRef.child('p2').on('value', snap => {
-    if (snap.val() && snap.val() !== '') {
-      playerNames.p2 = snap.val();
-      roomRef.child('p2').off();
-      startGameUI();
+  // Step 8: Wait for Player 2 to join
+  roomRef.child('p2key').on('value', snap => {
+    const p2key = snap.val();
+    if (p2key && p2key !== '') {
+      roomRef.child('p2key').off();
+      // Read full room data before starting
+      roomRef.once('value', fullSnap => {
+        const d = fullSnap.val();
+        playerNames.p2 = d.p2 || 'Player 2';
+        gameState = d.state || gameState;
+        scores = d.scores || scores;
+        seriesWins = d.seriesWins || seriesWins;
+        startGameUI();
+      });
     }
   });
 }
@@ -1998,33 +2011,76 @@ function joinRoom() {
   const name = document.getElementById('p2-name-input').value.trim() || 'Player 2';
   const code = document.getElementById('join-code').value.trim();
   if (!code || code.length !== 4) { toast('Enter a 4-digit room code'); return; }
+  _doJoin(name, code);
+}
 
-  // Set role FIRST before Firebase callback fires
+function quickJoinRoom() {
+  const name = document.getElementById('popup-join-name').value.trim();
+  const code = document.getElementById('popup-join-code').value.trim();
+  if (!name) {
+    document.getElementById('popup-join-name').style.borderColor = '#e94560';
+    document.getElementById('popup-join-name').focus();
+    return;
+  }
+  if (!code || code.length !== 4) {
+    document.getElementById('popup-join-code').style.borderColor = '#e94560';
+    document.getElementById('popup-join-code').focus();
+    return;
+  }
+  closeJoinPopup();
+  _doJoin(name, code);
+}
+
+// Single join function used by both joinRoom and quickJoinRoom
+function _doJoin(name, code) {
+  // Step 1: Set all state variables FIRST
   myRole = 'p2';
+  roomCode = code;
+  playerNames.p2 = name;
+  accessLevel = accessLevel || 'friends';
+
+  // Step 2: Save to sessionStorage
   sessionStorage.setItem('myRole', 'p2');
   sessionStorage.setItem('roomCode', code);
-  playerNames.p2 = name;
-  roomCode = code;
+  sessionStorage.setItem('isJoiner', '1');
+
+  // Step 3: Generate player key
+  const myKey = 'p2_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+  sessionStorage.setItem('myPlayerKey', myKey);
+
+  // Step 4: Set Firebase ref
   roomRef = db.ref('rooms/' + roomCode);
 
+  // Step 5: Read room from Firebase
   roomRef.once('value', snap => {
-    if (!snap.exists()) { toast('❌ Room not found'); return; }
+    if (!snap.exists()) {
+      toast('❌ Room not found');
+      const err = document.getElementById('popup-join-error');
+      if (err) err.style.display = 'block';
+      return;
+    }
+
     const data = snap.val();
     currentGame = data.game;
     playerNames.p1 = data.p1;
-    playerNames.p2 = name;
-    gameState = data.state;
+    gameState = data.state || {};
     scores = data.scores || { p1: 0, p2: 0 };
     seriesMax = data.seriesMax || 1;
     seriesWins = data.seriesWins || { p1: 0, p2: 0 };
     seriesRound = 0;
-    const myKey3 = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
-    sessionStorage.setItem('myPlayerKey', myKey3);
-    // myRole already 'p2' — do not re-assign
-    // Wait for Firebase to confirm key is written BEFORE starting UI
-    // This ensures bulletproof key check in listenToRoom always finds p2key
-    roomRef.update({ p2: name, p2key: myKey3 }, () => {
+
+    // Step 6: Write p2 info to Firebase, then start game ONLY after confirmed written
+    roomRef.update({ p2: name, p2key: myKey }, (error) => {
+      if (error) {
+        toast('❌ Failed to join room. Try again.');
+        return;
+      }
+      // Role is confirmed in Firebase — now safe to start
       startGameUI();
+      setTimeout(() => {
+        const label = seriesMax <= 1 ? 'Single Game' : `Best of ${seriesMax}`;
+        toast(`✅ Joined as Player 2! ${label}`, 3000);
+      }, 600);
     });
   });
 }
@@ -2037,74 +2093,98 @@ function copyCode() {
 //  GAME START
 // ══════════════════════════════════════════════
 function startGameUI() {
-  // GUARANTEE: Lock role from sessionStorage at the very start
-  if (!myRole) {
-    myRole = sessionStorage.getItem('myRole') || '';
+  // Safety: ensure myRole is set from sessionStorage if somehow empty
+  if (!myRole) myRole = sessionStorage.getItem('myRole') || '';
+
+  // Rummy is local-only — handle separately
+  if (currentGame === 'rummy') {
+    document.getElementById('rummy-setup').style.display = 'flex';
+    document.getElementById('rummy-my-name').value = playerNames.p1 || '';
+    setRummyPlayers(2);
+    return;
   }
 
-  document.getElementById('p1-name').textContent = playerNames.p1;
-  document.getElementById('p2-name').textContent = playerNames.p2;
-  document.getElementById('score-p1').textContent = 0;
-  document.getElementById('score-p2').textContent = 0;
-  // Heart for couples, dot for friends
+  // Show the game screen first
+  showScreen('game-area');
+
+  // Hide admin
+  const adminBtn = document.getElementById('admin-btn');
+  if (adminBtn) adminBtn.style.display = 'none';
+  const adminPanel = document.getElementById('admin-panel');
+  if (adminPanel) adminPanel.classList.remove('open');
+
+  // Update player names and scores
+  const p1el = document.getElementById('p1-name');
+  const p2el = document.getElementById('p2-name');
+  const sp1 = document.getElementById('score-p1');
+  const sp2 = document.getElementById('score-p2');
+  if (p1el) p1el.textContent = playerNames.p1;
+  if (p2el) p2el.textContent = playerNames.p2;
+  if (sp1) sp1.textContent = 0;
+  if (sp2) sp2.textContent = 0;
+
+  // Indicator symbol
   const symbol = accessLevel === 'couples' ? '♥' : '●';
   const p1ind = document.getElementById('p1-indicator');
   const p2ind = document.getElementById('p2-indicator');
   if (p1ind) p1ind.textContent = symbol;
   if (p2ind) p2ind.textContent = symbol;
-  // Update score label
-  const scoreLabels = document.querySelectorAll('.score-label');
-  scoreLabels.forEach(l => l.textContent = seriesMax > 1 ? 'Wins' : 'Score');
 
-  // Show series banner for both players
+  // Score label
+  document.querySelectorAll('.score-label').forEach(l => {
+    l.textContent = seriesMax > 1 ? 'Wins' : 'Score';
+  });
+
+  // Series toast
   if (seriesMax > 1) {
     const needed = Math.ceil(seriesMax / 2);
-    const label = `🏆 Best of ${seriesMax} — First to ${needed} wins!`;
-    setTimeout(() => toast(label, 4000), 600);
+    setTimeout(() => toast(`🏆 Best of ${seriesMax} — First to ${needed} wins!`, 4000), 600);
   }
 
-  // Show correct board
-  document.getElementById('ttt-board').style.display = 'none';
-  document.getElementById('sos-section').style.display = 'none';
-  document.getElementById('tod-area').style.display = 'none';
+  // Hide all game boards first
+  ['ttt-board', 'sos-section', 'tod-area', 'nhie-area', 'card-dare-area'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
 
-  if (currentGame === 'ttt') document.getElementById('ttt-board').style.display = 'grid';
-  if (currentGame === 'sos') { document.getElementById('sos-section').style.display = 'flex'; buildSosBoard(); }
+  // Show the correct board
+  if (currentGame === 'ttt') {
+    const b = document.getElementById('ttt-board');
+    if (b) b.style.display = 'grid';
+  }
+  if (currentGame === 'sos') {
+    const b = document.getElementById('sos-section');
+    if (b) b.style.display = 'flex';
+    buildSosBoard();
+  }
   if (currentGame === 'tod') {
-    document.getElementById('tod-area').style.display = 'flex';
-    const uploadWrapper = document.getElementById('upload-section-wrapper');
-    if (uploadWrapper) uploadWrapper.style.display = myRole === 'p1' ? 'block' : 'none';
+    const b = document.getElementById('tod-area');
+    if (b) b.style.display = 'flex';
+    const uw = document.getElementById('upload-section-wrapper');
+    if (uw) uw.style.display = myRole === 'p1' ? 'block' : 'none';
   }
   if (currentGame === 'nhie') {
-    document.getElementById('nhie-area').style.display = 'flex';
+    const b = document.getElementById('nhie-area');
+    if (b) b.style.display = 'flex';
   }
   if (currentGame === 'card-dare') {
-    document.getElementById('card-dare-area').style.display = 'flex';
-    document.getElementById('cd-p1-label').textContent = playerNames.p1;
-    document.getElementById('cd-p2-label').textContent = playerNames.p2;
-    const uploadW = document.getElementById('cd-upload-wrapper');
-    if (uploadW) uploadW.style.display = myRole === 'p1' ? 'block' : 'none';
-  }
-  if (currentGame === 'rummy') {
-    // Rummy is local - skip Firebase room, show setup directly
-    document.getElementById('rummy-setup').style.display = 'flex';
-    document.getElementById('rummy-my-name').value = playerNames.p1 || '';
-    setRummyPlayers(2);
-    return; // skip rest of startGameUI
+    const b = document.getElementById('card-dare-area');
+    if (b) b.style.display = 'flex';
+    const l1 = document.getElementById('cd-p1-label');
+    const l2 = document.getElementById('cd-p2-label');
+    if (l1) l1.textContent = playerNames.p1;
+    if (l2) l2.textContent = playerNames.p2;
+    const uw = document.getElementById('cd-upload-wrapper');
+    if (uw) uw.style.display = myRole === 'p1' ? 'block' : 'none';
   }
 
-  if (currentGame !== 'rummy') {
-    showScreen('game-area');
-    document.getElementById('admin-btn').style.display = 'none';
-    document.getElementById('admin-panel').classList.remove('open');
-    document.getElementById('turn-banner').style.display = '';
-    document.getElementById('game-header').style.display = '';
-    // Update banner now that screen is visible and gameState/myRole are ready
-    updateTurnBanner(gameState.turn || 'p1');
-    listenToRoom();
-    showChatContainer(true);
-    listenToChat();
-  }
+  // Now update the turn banner — screen is visible, role is confirmed
+  updateTurnBanner(gameState.turn || 'p1');
+
+  // Start listening to Firebase for real-time updates
+  listenToRoom();
+  showChatContainer(true);
+  listenToChat();
 }
 
 let lastRematch = null;
@@ -2114,11 +2194,10 @@ function listenToRoom() {
     if (!snap.exists()) return;
     const data = snap.val();
 
-    // BULLETPROOF role verification using player keys stored in Firebase
-    // Compare this tab's saved key against p1key and p2key in Firebase
-    // This means even if sessionStorage myRole is wrong or lost, the correct role is always restored
+    // Verify role using player keys from Firebase
+    // This is the single source of truth for who is p1 and who is p2
     const myKey = sessionStorage.getItem('myPlayerKey');
-    if (myKey) {
+    if (myKey && data.p1key && data.p2key) {
       if (data.p1key === myKey) {
         myRole = 'p1';
         sessionStorage.setItem('myRole', 'p1');
@@ -2127,62 +2206,60 @@ function listenToRoom() {
         sessionStorage.setItem('myRole', 'p2');
       }
     }
-    // If still no role after key check, fall back to sessionStorage
+
+    // Fallback to sessionStorage if key check didn't match
     if (!myRole) {
-      const saved = sessionStorage.getItem('myRole');
-      if (saved) {
-        myRole = saved;
-      } else {
-        console.warn('myRole lost and key mismatch — cannot restore role');
-        return;
-      }
+      myRole = sessionStorage.getItem('myRole') || '';
+      if (!myRole) { console.warn('Role unknown — cannot continue'); return; }
     }
 
-    // Sync names from Firebase
+    // Sync player names
     if (data.p1) {
       playerNames.p1 = data.p1;
-      const p1el = document.getElementById('p1-name');
-      if (p1el) p1el.textContent = data.p1;
+      const el = document.getElementById('p1-name');
+      if (el) el.textContent = data.p1;
     }
     if (data.p2) {
       playerNames.p2 = data.p2;
-      const p2el = document.getElementById('p2-name');
-      if (p2el) p2el.textContent = data.p2;
+      const el = document.getElementById('p2-name');
+      if (el) el.textContent = data.p2;
     }
 
+    // Sync game state
     gameState = data.state || {};
     if (!gameState.turn) gameState.turn = 'p1';
     scores = data.scores || scores;
     if (data.seriesWins) seriesWins = data.seriesWins;
 
-    if (seriesMax > 1) {
-      document.getElementById('score-p1').textContent = seriesWins.p1 || 0;
-      document.getElementById('score-p2').textContent = seriesWins.p2 || 0;
-    } else {
-      document.getElementById('score-p1').textContent = scores.p1;
-      document.getElementById('score-p2').textContent = scores.p2;
-    }
+    // Sync scores display
+    const sp1 = document.getElementById('score-p1');
+    const sp2 = document.getElementById('score-p2');
+    if (sp1) sp1.textContent = seriesMax > 1 ? (seriesWins.p1 || 0) : scores.p1;
+    if (sp2) sp2.textContent = seriesMax > 1 ? (seriesWins.p2 || 0) : scores.p2;
 
+    // Render the correct game
     if (currentGame === 'ttt') renderTtt();
     if (currentGame === 'sos') renderSos();
     if (currentGame === 'tod') renderTod(data);
     if (currentGame === 'nhie') renderNhie(data);
     if (currentGame === 'card-dare') renderCardDare(data);
 
-    // Update turn banner LAST — after role is confirmed and names are synced
-    updateTurnBanner(gameState.turn || data.turn || 'p1');
+    // Update turn banner LAST — after role and state are fully synced
+    updateTurnBanner(gameState.turn);
 
-    // If other player clicked Next Round - close overlay immediately
+    // Handle rematch from other player
     if (data.rematch && data.rematch !== lastRematch) {
       lastRematch = data.rematch;
       document.getElementById('overlay').classList.remove('show');
     }
 
-    // Check win/draw for BOTH players
-    if (data.state.status === 'done' && !document.getElementById('overlay').classList.contains('show')) {
-      const w = data.state.winner;
-      if (w === 'draw') showResult(null, 'draw');
-      else showResult(w, 'win');
+    // Show result overlay when game ends
+    if (data.state && data.state.status === 'done') {
+      if (!document.getElementById('overlay').classList.contains('show')) {
+        const w = data.state.winner;
+        if (w === 'draw') showResult(null, 'draw');
+        else showResult(w, 'win');
+      }
     }
   });
 }
@@ -2218,7 +2295,6 @@ const TTT_WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6
 
 function tttMove(idx) {
   if (!roomRef) return;
-  console.log('tttMove called — myRole:', myRole, '| gameState.turn:', gameState.turn, '| gameState.status:', gameState.status);
   if (!myRole) { toast("Role not set — please rejoin"); return; }
   if (gameState.status === 'done') return;
   if (gameState.turn !== myRole) {
