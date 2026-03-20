@@ -2,1183 +2,1138 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Baglity – Premium Maternity Collection</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@100;200;300;400&family=Archivo+Black&family=Sour+Gummy:wght@400&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#fce4ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HydroAlert - Suppu">
+<link rel="manifest" href="manifest.json">
+<title>HydroAlert - Suppu</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #fff5f7;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --pink: #f48fb1;
+  --pink2: #f06292;
+  --pink-light: #fce4ec;
+  --pink-soft: #fdf0f4;
+  --blue: #90caf9;
+  --blue-light: #e3f2fd;
+  --mint: #a5d6a7;
+  --mint-light: #e8f5e9;
+  --peach: #ffcc80;
+  --peach-light: #fff3e0;
+  --lavender: #ce93d8;
+  --lavender-light: #f3e5f5;
+  --text: #4a3040;
+  --text2: #7b5767;
+  --muted: #b08898;
+  --border: #f8d7e3;
+  --shadow: rgba(244,143,177,0.18);
+  --danger: #ef9a9a;
+  --success: #a5d6a7;
+  --radius: 20px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); }
+body {
+  font-family: 'Nunito', sans-serif;
+  color: var(--text);
+  display: flex; flex-direction: column;
+  max-width: 430px; margin: 0 auto;
+  position: relative; overflow: hidden; height: 100dvh;
+}
 
-  body {
-    background: #080808;
-    font-family: 'Cormorant Garamond', serif;
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* ── Onboarding Screen ── */
+#onboarding {
+  position: fixed; inset: 0; z-index: 200;
+  background: linear-gradient(160deg, #fce4ec 0%, #e3f2fd 50%, #f3e5f5 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 24px;
+  transition: opacity 0.5s, transform 0.5s;
+}
+#onboarding.hide { opacity: 0; transform: scale(1.05); pointer-events: none; }
+.ob-emoji { font-size: 72px; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.ob-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; color: var(--text);
+  text-align: center; margin-bottom: 6px;
+}
+.ob-sub { font-size: 14px; color: var(--text2); text-align: center; margin-bottom: 32px; line-height: 1.6; }
+.ob-label { font-size: 13px; color: var(--text2); align-self: flex-start; margin-bottom: 6px; font-weight: 700; }
+.ob-input {
+  width: 100%; background: white;
+  border: 2px solid var(--pink-light);
+  border-radius: 16px; color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-size: 20px; text-align: center;
+  padding: 14px; outline: none; margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.ob-input:focus { border-color: var(--pink); }
+.ob-weight-row { display: flex; gap: 10px; width: 100%; margin-bottom: 24px; }
+.ob-weight-input {
+  flex: 1; background: white;
+  border: 2px solid var(--pink-light);
+  border-radius: 16px; color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px; text-align: center;
+  padding: 12px; outline: none;
+  transition: border-color 0.2s;
+}
+.ob-weight-input:focus { border-color: var(--pink); }
+.ob-hint { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 24px; }
+.ob-btn {
+  width: 100%; background: linear-gradient(135deg, var(--pink), var(--pink2));
+  border: none; border-radius: 16px;
+  color: white; font-family: 'Nunito', sans-serif;
+  font-size: 17px; font-weight: 800; padding: 16px;
+  cursor: pointer; box-shadow: 0 6px 24px var(--shadow);
+  transition: transform 0.15s;
+}
+.ob-btn:active { transform: scale(0.97); }
 
-  #starsCanvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ── Decorative blobs ── */
+.blob {
+  position: fixed; border-radius: 50%;
+  filter: blur(60px); opacity: 0.35;
+  pointer-events: none; z-index: 0;
+}
+.blob1 { width:220px;height:220px;background:#fce4ec;top:-60px;right:-60px; }
+.blob2 { width:180px;height:180px;background:#e3f2fd;bottom:120px;left:-50px; }
+.blob3 { width:140px;height:140px;background:#f3e5f5;top:40%;right:-40px; }
 
-  .bg-svg {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ── Header ── */
+header {
+  position: relative; z-index: 10;
+  padding: 16px 18px 8px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-left { display: flex; flex-direction: column; }
+.app-name { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.greeting {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; color: var(--text);
+  line-height: 1.2;
+}
+.greeting span { color: var(--pink2); font-style: italic; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.streak-pill {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--peach-light); border: 1.5px solid var(--peach);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 13px; font-weight: 700; color: #e65100;
+}
+.tab-btn {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 12px; color: var(--muted); font-size: 16px;
+  width: 36px; height: 36px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.tab-btn:hover, .tab-btn.active { border-color: var(--pink); color: var(--pink2); background: var(--pink-light); }
 
-  /* Centre card */
-  .wrap {
-    position: relative;
-    z-index: 3;
-    width: 100%;
-    max-width: 560px;
-    padding: 60px 48px 52px;
-    text-align: center;
-  }
+/* ── Main scroll ── */
+main {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  position: relative; z-index: 5;
+  padding: 0 14px 100px;
+  scrollbar-width: none;
+}
+main::-webkit-scrollbar { display: none; }
 
-  .top-rule { display: flex; align-items: center; gap: 14px; justify-content: center; margin-bottom: 28px; }
-  .top-rule .line { flex: 1; max-width: 70px; height: 1px; background: linear-gradient(90deg, transparent, #C9A96E); }
-  .top-rule .line.r { background: linear-gradient(90deg, #C9A96E, transparent); }
-  .top-rule .diamond { width: 7px; height: 7px; background: #C9A96E; transform: rotate(45deg); }
+/* ── Pages ── */
+.page { display: none; }
+.page.active { display: block; }
 
-  /* Logo */
-  .logo-text {
-    font-size: 64px;
-    font-weight: 600;
-    letter-spacing: 18px;
-    color: #F5EDD8;
-    text-transform: uppercase;
-    line-height: 1;
-    text-shadow: 0 0 30px #C9A96E66, 0 0 60px #C9A96E22;
-    margin-bottom: 10px;
-  }
-  /* .logo-img { width: 200px; height: auto; margin: 0 auto 10px; display: block; } */
+/* ── Progress card ── */
+.progress-card {
+  background: linear-gradient(135deg, #fce4ec, #e3f2fd);
+  border-radius: 24px; padding: 20px;
+  margin-bottom: 14px;
+  border: 1.5px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.progress-card::before {
+  content: '💧';
+  position: absolute; right: 16px; top: 12px;
+  font-size: 48px; opacity: 0.15;
+}
+.prog-top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 12px; }
+.prog-ml {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px; color: var(--text); line-height: 1;
+}
+.prog-ml span { font-size: 16px; font-family: 'Nunito', sans-serif; color: var(--text2); }
+.prog-pct {
+  background: white; border-radius: 12px;
+  padding: 6px 12px; font-size: 15px; font-weight: 800;
+  color: var(--pink2);
+}
+.prog-bar-wrap {
+  height: 10px; background: rgba(255,255,255,0.6);
+  border-radius: 10px; overflow: hidden; margin-bottom: 8px;
+}
+.prog-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pink), var(--blue));
+  border-radius: 10px;
+  transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
+  width: 0%;
+}
+.prog-sub { font-size: 12px; color: var(--text2); font-weight: 600; }
 
-  .sub {
-    font-size: 11px;
-    letter-spacing: 6px;
-    color: #E8C060;
-    text-transform: uppercase;
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 600;
-    text-align: center;
-    display: block;
-    width: 100%;
-    text-indent: -18px;
-  }
+/* ── Stats row ── */
+.stats-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.stat-pill {
+  flex: 1; background: white;
+  border-radius: 16px; padding: 12px 8px;
+  text-align: center; border: 1.5px solid var(--border);
+  box-shadow: 0 2px 12px var(--shadow);
+}
+.stat-val { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--pink2); }
+.stat-lbl { font-size: 10px; color: var(--muted); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-  .mid-ornament { margin: 28px auto; display: flex; align-items: center; justify-content: center; gap: 14px; }
-  .mid-ornament .mline { width: 60px; height: 1px; background: #C9A96EBB; }
-  .mid-ornament .star { color: #E8C88A; font-size: 16px; opacity: 1; }
+/* ── Section card ── */
+.card {
+  background: white; border-radius: var(--radius);
+  padding: 16px; margin-bottom: 14px;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 2px 16px var(--shadow);
+}
+.card-title {
+  font-size: 11px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
 
-  /* Products */
-  .products { display: flex; gap: 20px; justify-content: center; margin: 22px 0; }
+/* ── Quick add ── */
+.quick-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.qa-btn {
+  background: var(--pink-soft);
+  border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 12px 4px;
+  cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  transition: all 0.15s; -webkit-user-select: none; user-select: none;
+}
+.qa-btn:active { transform: scale(0.92); background: var(--pink-light); }
+.qa-icon { font-size: 22px; }
+.qa-ml { font-size: 12px; font-weight: 800; color: var(--text); }
+.qa-lbl { font-size: 10px; color: var(--muted); }
 
-  .pbox {
-    width: 200px;
-    border: 1px solid #6A5A3A;
-    position: relative;
-    overflow: hidden;
-    background: rgba(20,16,8,0.8);
-    cursor: pointer;
-    transition: border-color 0.35s, box-shadow 0.35s, transform 0.35s;
-  }
-  .pbox:hover {
-    border-color: #C9A96E;
-    box-shadow: 0 0 24px #C9A96E55, 0 0 50px #C9A96E22, inset 0 0 24px #C9A96E0A;
-    transform: translateY(-5px);
-  }
-  .pbox::before { content:''; position:absolute; inset:0; border:1px solid #C9A96E22; pointer-events:none; z-index:1; transition:border-color 0.35s; }
-  .pbox:hover::before { border-color:#C9A96E55; }
-  .pbox::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,#C9A96E00,#C9A96E0D,#C9A96E00); opacity:0; transition:opacity 0.35s; z-index:2; pointer-events:none; }
-  .pbox:hover::after { opacity:1; }
+/* ── Reminder settings ── */
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--pink-soft);
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.setting-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-  .pimg {
-    width: 100%;
-    height: 190px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(10,10,10,0.8);
-    position: relative;
-    z-index: 3;
-    overflow: hidden;
-  }
-  .pimg img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.4s; }
-  .pbox:hover .pimg img { transform:scale(1.05); }
+/* Toggle */
+.toggle {
+  width: 46px; height: 26px; background: #e0e0e0;
+  border-radius: 13px; position: relative;
+  cursor: pointer; border: none; outline: none; flex-shrink: 0;
+  transition: background 0.3s;
+}
+.toggle.on { background: linear-gradient(90deg, var(--pink), var(--pink2)); }
+.toggle::after {
+  content: ''; position: absolute;
+  width: 20px; height: 20px; background: white;
+  border-radius: 50%; top: 3px; left: 3px;
+  transition: left 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle.on::after { left: 23px; }
 
-  .pimg-placeholder { display:flex; flex-direction:column; align-items:center; gap:10px; }
-  .pimg-placeholder svg { width:44px; height:44px; opacity:0.35; transition:opacity 0.35s; }
-  .pbox:hover .pimg-placeholder svg { opacity:0.65; }
-  .pimg-placeholder span { font-size:10px; letter-spacing:2px; color:#AAAAAA; font-family:'Josefin Sans',sans-serif; font-weight:200; transition:color 0.35s; }
-  .pbox:hover .pimg-placeholder span { color:#C9A96E77; }
+/* Interval chips */
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.chip {
+  background: var(--pink-soft); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  cursor: pointer; transition: all 0.2s;
+}
+.chip.active { background: var(--pink-light); border-color: var(--pink); color: var(--pink2); }
 
-  .pname {
-    padding: 14px 10px;
-    border-top: 1px solid #1E1E1E;
-    text-align: center;
-    font-size: 11px;
-    letter-spacing: 4px;
-    color: #E8C060;
-    text-transform: uppercase;
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 600;
-    background: rgba(5,5,5,0.9);
-    position: relative;
-    z-index: 3;
-    transition: color 0.35s, background 0.35s;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 10px;
-    letter-spacing: 2px;
-  }
-  .pbox:hover .pname { color:#F5EDD8; background:rgba(30,20,5,0.95); border-top-color:#C9A96E44; }
+/* Goal slider */
+.slider-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+input[type=range] {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 4px; background: var(--pink-light); border-radius: 2px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px;
+  background: linear-gradient(135deg, var(--pink), var(--pink2));
+  border-radius: 50%; cursor: pointer;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.slider-val { font-size: 13px; font-weight: 800; color: var(--pink2); min-width: 52px; text-align: right; }
 
-  .tagline {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    justify-content: center;
-    margin: 18px 0 24px;
-  }
-  .tagline .tline { flex: 1; max-width: 50px; height: 1px; background: linear-gradient(90deg, transparent, #C9A96E); }
-  .tagline .tline.r { background: linear-gradient(90deg, #C9A96E, transparent); }
-  .tagline .ttext {
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 4px;
-    color: #E8C060;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
+/* ── Log ── */
+.log-scroll { max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--pink-light) transparent; }
+.log-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px; background: var(--pink-soft);
+  border-radius: 12px; margin-bottom: 6px; font-size: 13px;
+}
+.log-time { color: var(--muted); font-weight: 600; }
+.log-ml { color: var(--pink2); font-weight: 800; font-size: 15px; }
+.log-del { background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 4px; transition: color 0.2s; }
+.log-del:hover { color: var(--danger); }
+.log-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 16px; }
 
-  /* WhatsApp */
-  .wa-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    border: 1px solid #6A5A3A;
-    color: #F5EDD8;
-    padding: 16px 48px;
-    font-size: 14px;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    font-family: 'Josefin Sans', sans-serif;
-    font-style: normal;
-    font-weight: 600;
-    cursor: pointer;
-    background: rgba(0,0,0,0.6);
-    position: relative;
-    overflow: hidden;
-    box-shadow: none;
-    transition: border-color 0.35s, box-shadow 0.35s, transform 0.35s;
-    text-decoration: none;
-  }
-  .wa-btn:hover { border-color:#C9A96E; box-shadow:0 0 18px #C9A96E55,0 0 40px #C9A96E22,inset 0 0 20px #C9A96E0A; transform:translateY(-2px); }
-  .wa-btn::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,#C9A96E00,#C9A96E0D,#C9A96E00); opacity:0; transition:opacity 0.35s; pointer-events:none; }
-  .wa-btn:hover::after { opacity:1; }
-  .wa-icon { width: 22px; height: 22px; flex-shrink: 0; }
+/* ── Weight calculator ── */
+.calc-result {
+  background: linear-gradient(135deg, var(--mint-light), var(--blue-light));
+  border-radius: 14px; padding: 14px; margin-top: 10px;
+  border: 1.5px solid var(--mint); text-align: center;
+  display: none;
+}
+.calc-result.show { display: block; }
+.calc-val { font-family: 'Playfair Display', serif; font-size: 28px; color: #2e7d32; }
+.calc-lbl { font-size: 12px; color: #558b2f; font-weight: 700; margin-top: 4px; }
 
-  /* Social */
-  .social-row { display:flex; align-items:center; justify-content:center; gap:16px; margin-top:28px; }
-  .social-icon {
-    width: 42px; height: 42px;
-    border: 1px solid #6A5A3A;
-    display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer; background: rgba(20,16,8,0.8);
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-    text-decoration: none;
-  }
-  .social-icon:hover { border-color:#C9A96E; box-shadow:0 0 18px #C9A96E55, 0 0 40px #C9A96E22; transform: translateY(-2px); }
-  .social-icon svg { width:18px; height:18px; }
+/* ── Weekly report page ── */
+.week-header {
+  background: linear-gradient(135deg, #fce4ec, #f3e5f5);
+  border-radius: 20px; padding: 18px; margin-bottom: 14px;
+  border: 1.5px solid var(--border); text-align: center;
+}
+.week-title { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); }
+.week-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.day-bars { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; height: 100px; margin: 14px 0 6px; }
+.day-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.day-bar {
+  width: 100%; border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--pink), var(--lavender));
+  min-height: 4px; transition: height 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+.day-bar.goal-hit { background: linear-gradient(180deg, var(--mint), var(--blue)); }
+.day-name { font-size: 10px; color: var(--muted); font-weight: 700; }
+.week-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.week-stat {
+  background: white; border-radius: 16px; padding: 14px;
+  border: 1.5px solid var(--border); text-align: center;
+}
+.week-stat-val { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--pink2); }
+.week-stat-lbl { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+.sync-btn {
+  width: 100%; background: linear-gradient(135deg, var(--pink), var(--pink2));
+  border: none; border-radius: 16px; color: white;
+  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800;
+  padding: 14px; cursor: pointer;
+  box-shadow: 0 4px 16px var(--shadow); transition: transform 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.sync-btn:active { transform: scale(0.97); }
+.sync-status { font-size: 12px; color: var(--muted); text-align: center; margin-top: 8px; }
 
-  .social-label { font-size:9px; letter-spacing:4px; color:#F0D898; font-family:'Josefin Sans',sans-serif; font-weight:600; text-transform:uppercase; margin-top:20px; margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:10px; }
+/* ── Bottom nav ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; z-index: 20;
+  background: white; border-top: 1.5px solid var(--border);
+  display: flex; padding: 8px 0 env(safe-area-inset-bottom, 8px);
+}
+.nav-btn {
+  flex: 1; background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 0; transition: all 0.2s;
+  font-family: 'Nunito', sans-serif;
+}
+.nav-icon { font-size: 22px; }
+.nav-label { font-size: 10px; font-weight: 700; color: var(--muted); }
+.nav-btn.active .nav-label { color: var(--pink2); }
+.nav-btn.active .nav-icon { filter: drop-shadow(0 2px 4px var(--shadow)); }
 
-  .bottom-rule { margin-top:20px; display:flex; align-items:center; gap:14px; justify-content:center; }
-  .bottom-rule .line { flex:1; max-width:50px; height:1px; background:linear-gradient(90deg,transparent,#C9A96EBB); }
-  .bottom-rule .line.r { background:linear-gradient(90deg,#C9A96EBB,transparent); }
-  .bottom-rule span { font-size:11px; letter-spacing:5px; color:#F5EDD8; font-family:'Josefin Sans',sans-serif; font-weight:400; text-transform:uppercase; }
+/* ── FAB ── */
+.fab {
+  position: fixed; bottom: 72px; right: 20px; z-index: 25;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--pink2));
+  border: none; font-size: 26px; cursor: pointer;
+  box-shadow: 0 6px 20px var(--shadow);
+  transition: transform 0.15s; display: flex; align-items: center; justify-content: center;
+}
+.fab:active { transform: scale(0.9); }
 
-  /* Online badge */
-  .online-badge {
-    position: fixed;
-    top: 18px;
-    right: 20px;
-    z-index: 50;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(10,8,4,0.85);
-    border: 1px solid #C9A96E55;
-    padding: 7px 14px;
-    backdrop-filter: blur(6px);
-  }
-  .online-dot {
-    width: 12px;
-    height: 12px;
-    background: #25D366;
-    border-radius: 50%;
-    flex-shrink: 0;
-    animation: blinkDot 1.6s ease-in-out infinite;
-    box-shadow: 0 0 8px #25D366AA;
-  }
-  @keyframes blinkDot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 6px #25D36699; }
-    50%       { opacity: 0.3; box-shadow: none; }
-  }
-  .online-text {
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: #F5EDD8;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-    .logo-text { font-size: 48px; letter-spacing: 10px; }
-    .sub { font-size: 10px; letter-spacing: 3px; text-indent: -3px; white-space: nowrap; }
-    .wa-btn { font-size: 12px; letter-spacing: 3px; padding: 14px 24px; white-space: nowrap; }
-    .wrap { padding: 40px 20px 36px; }
-    .products { gap: 14px; }
-    .pbox { width: 44vw; }
-    .pimg { height: 44vw; }
-    .tagline .ttext { font-size: 9px; letter-spacing: 2px; }
-  }
+/* ── Notification banner ── */
+.notif-bar {
+  position: fixed; top: 0; left: 50%; transform: translateX(-50%) translateY(-120%);
+  max-width: 420px; width: calc(100% - 20px); z-index: 100;
+  background: linear-gradient(135deg, var(--pink), #ec407a);
+  border-radius: 0 0 20px 20px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 8px 24px var(--shadow);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.notif-bar.show { transform: translateX(-50%) translateY(0); }
+.notif-text { flex: 1; }
+.notif-title { font-size: 14px; font-weight: 800; color: white; }
+.notif-sub { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+.notif-close { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 20px; cursor: pointer; }
 
-  /* Review ticker carousel */
-  .ticker-wrap {
-    width: 100%;
-    margin: 40px 0 22px;
-  }
-  .ticker-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 14px;
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: #C9A96E;
-    text-transform: uppercase;
-  }
-  .ticker-outer {
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-    mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
-    -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
-  }
-  .ticker-track {
-    display: flex;
-    gap: 16px;
-    width: max-content;
-    animation: tickerScroll 28s linear infinite;
-  }
-  .ticker-track:hover { animation-play-state: paused; }
-  @keyframes tickerScroll {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-  .review-card {
-    flex-shrink: 0;
-    width: 220px;
-    background: rgba(20,14,6,0.85);
-    border: 1px solid #6A5A3A;
-    padding: 14px 16px;
-    text-align: left;
-    transition: border-color 0.3s;
-  }
-  .review-card:hover { border-color: #C9A96E; }
-  .review-stars {
-    color: #E8C060;
-    font-size: 11px;
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-  }
-  .review-text {
-    font-family: 'Sour Gummy', sans-serif;
-    font-size: 11px;
-    color: #F5EDD8;
-    line-height: 1.7;
-    margin-bottom: 10px;
-  }
-  .review-author {
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: #C9A96E;
-    text-transform: uppercase;
-  }
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(74,48,64,0.4);
+  z-index: 60; display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: white; border-radius: 24px 24px 0 0;
+  padding: 24px 20px 40px; width: 100%;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); margin-bottom: 16px; }
+.modal-input {
+  width: 100%; background: var(--pink-soft);
+  border: 2px solid var(--pink-light); border-radius: 14px;
+  color: var(--text); font-family: 'Nunito', sans-serif;
+  font-size: 28px; text-align: center; padding: 14px; outline: none; margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+.modal-input:focus { border-color: var(--pink); }
+.modal-btn {
+  width: 100%; background: linear-gradient(135deg, var(--pink), var(--pink2));
+  border: none; border-radius: 14px; color: white;
+  font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800;
+  padding: 14px; cursor: pointer;
+}
+
+/* ── Ripple ── */
+@keyframes ripple { to { transform: scale(5); opacity: 0; } }
+.ripple {
+  position: fixed; width: 50px; height: 50px; border-radius: 50%;
+  background: rgba(244,143,177,0.3); pointer-events: none;
+  animation: ripple 0.6s ease-out forwards; z-index: 50;
+  margin-left: -25px; margin-top: -25px;
+}
+
+/* ── Sound wave animation ── */
+@keyframes soundwave {
+  0%,100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+.sound-waves { display: flex; align-items: center; gap: 2px; height: 16px; }
+.wave-bar {
+  width: 3px; background: var(--pink); border-radius: 2px;
+  animation: soundwave 0.8s ease-in-out infinite;
+}
+.wave-bar:nth-child(2) { animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { animation-delay: 0.1s; }
+.waves-off .wave-bar { animation: none; transform: scaleY(0.3); background: var(--muted); }
 </style>
 </head>
 <body>
 
-<canvas id="starsCanvas"></canvas>
+<!-- Blobs -->
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
 
-<!-- ONLINE BADGE -->
-<div class="online-badge">
-  <div class="online-dot"></div>
-  <span class="online-text">We are Online</span>
+<!-- Onboarding -->
+<div id="onboarding">
+  <div class="ob-emoji">💧</div>
+  <div class="ob-title">HydroAlert</div>
+  <div class="ob-sub">Your personal water buddy 🌸<br>Let's set you up in 30 seconds!</div>
+  <div class="ob-label">What's your name?</div>
+  <input class="ob-input" id="obName" type="text" placeholder="e.g. Priya" maxlength="20" autocomplete="off">
+  <div class="ob-label" style="margin-top:6px">Your weight (for goal calculation)</div>
+  <div class="ob-weight-row">
+    <input class="ob-weight-input" id="obWeight" type="number" placeholder="55" min="20" max="200">
+    <div style="display:flex;flex-direction:column;justify-content:center;font-size:14px;font-weight:700;color:var(--muted)">kg</div>
+  </div>
+  <div class="ob-hint">💡 Recommended: 35 ml × your weight in kg per day</div>
+  <button class="ob-btn" onclick="finishOnboarding()">Let's Go! 🚀</button>
 </div>
 
-<svg class="bg-svg" viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-  <defs>
-    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#C9A96E" stop-opacity="0"/>
-      <stop offset="40%" stop-color="#C9A96E" stop-opacity="0.9"/>
-      <stop offset="60%" stop-color="#F5EDD8" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="#C9A96E" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="g2" x1="100%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#C9A96E" stop-opacity="0"/>
-      <stop offset="50%" stop-color="#C9A96E" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#C9A96E" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="p1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#C9A96E" stop-opacity="0.10"/>
-      <stop offset="100%" stop-color="#C9A96E" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="p2" x1="100%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#C9A96E" stop-opacity="0.07"/>
-      <stop offset="100%" stop-color="#C9A96E" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="3" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-  <!-- Gold panels top-right -->
-  <polygon points="900,0 1440,0 1440,600 1100,700" fill="url(#p1)"/>
-  <polygon points="1050,0 1500,200 1350,700 950,500" fill="url(#p2)"/>
-  <!-- Gold panels bottom-left -->
-  <polygon points="0,500 400,400 350,900 0,900" fill="url(#p1)"/>
-  <!-- Glowing diagonal lines -->
-  <line x1="700" y1="0" x2="1500" y2="600" stroke="url(#g1)" stroke-width="1.5" filter="url(#glow)"/>
-  <line x1="720" y1="0" x2="1520" y2="600" stroke="#C9A96E" stroke-width="0.4" opacity="0.3"/>
-  <line x1="1500" y1="100" x2="900" y2="700" stroke="url(#g2)" stroke-width="1.2" filter="url(#glow)"/>
-  <line x1="0" y1="650" x2="500" y2="950" stroke="url(#g1)" stroke-width="1.2" filter="url(#glow)"/>
-  <!-- Corner L-brackets -->
-  <g stroke="#C9A96E" stroke-width="1.5" fill="none" opacity="0.6">
-    <path d="M16,60 L16,16 L60,16"/>
-    <path d="M1380,16 L1424,16 L1424,60"/>
-    <path d="M16,840 L16,884 L60,884"/>
-    <path d="M1380,884 L1424,884 L1424,840"/>
-  </g>
-  <!-- Dashed border -->
-  <rect x="12" y="12" width="1416" height="876" fill="none" stroke="#C9A96E" stroke-width="0.5" stroke-dasharray="5,14" opacity="0.15"/>
-</svg>
-
-<div class="wrap">
-
-  <div class="top-rule">
-    <div class="line"></div>
-    <div class="diamond"></div>
-    <div class="diamond" style="width:5px;height:5px;opacity:0.4;margin:0 -10px"></div>
-    <div class="diamond"></div>
-    <div class="line r"></div>
+<!-- Notification banner -->
+<div class="notif-bar" id="notifBar">
+  <div style="font-size:24px">💧</div>
+  <div class="notif-text">
+    <div class="notif-title" id="notifTitle">Time to drink water!</div>
+    <div class="notif-sub" id="notifSub"></div>
   </div>
+  <button class="notif-close" onclick="dismissNotif()">×</button>
+</div>
 
-  <!-- TO ADD LOGO IMAGE: save as logo.png, uncomment img tag, delete logo-text div -->
-  <!-- <img class="logo-img" src="logo.png" alt="Baglity"> -->
-  <div class="logo-text">Baglity</div>
-  <div class="sub">Your Perfect Travel Partner</div>
-
-  <div class="mid-ornament">
-    <div class="mline"></div>
-    <div class="star">✦</div>
-    <div class="mline"></div>
+<!-- Header -->
+<header>
+  <div class="header-left">
+    <div class="app-name">HydroAlert · Suppu</div>
+    <div class="greeting" id="greeting">Good morning, <span id="greetName">friend</span>! 🌸</div>
   </div>
+  <div class="header-right">
+    <div class="streak-pill">🔥 <span id="streakCount">0</span></div>
+  </div>
+</header>
 
-  <div class="products">
+<main>
+  <!-- HOME PAGE -->
+  <div class="page active" id="pageHome">
 
-    <!-- BLACK BAG -->
-    <div class="pbox" onclick="openPopup('popup-black')" style="cursor:pointer">
-      <div class="pimg">
-         <img src="black-bag-1.jpg" alt="Baglity Black Maternity Bag">
-       </div>
-      <div class="pname">Maternity Bag — Black</div>
-    </div>
-
-    <!-- BLUE BAG -->
-    <div class="pbox" onclick="openPopup('popup-blue')" style="cursor:pointer">
-      <div class="pimg">
-        <img src="blue-bag-1.jpg" alt="Baglity Blue Maternity Bag">
+    <!-- Progress -->
+    <div class="progress-card">
+      <div class="prog-top">
+        <div>
+          <div class="prog-ml"><span id="totalMl">0</span> <span>ml</span></div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">of <span id="goalDisplay">2000</span> ml goal</div>
+        </div>
+        <div class="prog-pct" id="progPct">0%</div>
       </div>
-      <div class="pname">Maternity Bag — Blue</div>
+      <div class="prog-bar-wrap"><div class="prog-bar" id="progBar"></div></div>
+      <div class="prog-sub" id="progSub">Stay hydrated today! 💪</div>
     </div>
 
-  </div>
-
-  <div class="tagline">
-    <div class="tline"></div>
-    <div class="ttext">Premium Maternity Collection</div>
-    <div class="tline r"></div>
-  </div>
-
-  <!-- WHATSAPP: Replace 918610323806 with your number -->
-  <a class="wa-btn"
-     href="https://wa.me/918610323806?text=Hi%2C%20I%27m%20interested%20in%20Baglity%20maternity%20bags.%20Can%20you%20share%20more%20details%3F"
-     target="_blank">
-    <svg class="wa-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M23.5 8.5A10.44 10.44 0 0 0 16 5.5a10.5 10.5 0 0 0-9.1 15.7L5.5 26.5l5.5-1.4A10.5 10.5 0 0 0 26.5 16a10.44 10.44 0 0 0-3-7.5zm-7.5 16a8.7 8.7 0 0 1-4.4-1.2l-.3-.2-3.2.8.9-3.1-.2-.3A8.75 8.75 0 1 1 16 24.5zm4.8-6.5c-.3-.1-1.6-.8-1.8-.9s-.4-.1-.6.1-.7.9-.8 1.1-.3.2-.5.1a7.27 7.27 0 0 1-2.1-1.3 7.84 7.84 0 0 1-1.5-1.8c-.2-.3 0-.4.1-.6l.4-.5.2-.4v-.4l-.8-2c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.24 5.24 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4 13.42 13.42 0 0 0 1.5.6 3.56 3.56 0 0 0 1.6.1 2.75 2.75 0 0 0 1.8-1.3 2.25 2.25 0 0 0 .2-1.3c-.2-.1-.4-.2-.7-.3z" fill="#fff"/></svg>
-    Get Yours on WhatsApp
-  </a>
-
-  <!-- REVIEW TICKER -->
-  <div class="bottom-rule" style="margin-top:28px; margin-bottom:0;"></div>
-  <div class="ticker-wrap">
-    <div class="ticker-label">
-      <div class="mline" style="width:40px"></div>
-      <span>✦ What Our Customers Say ✦</span>
-      <div class="mline" style="width:40px"></div>
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-pill">
+        <div class="stat-val" id="statCups">0</div>
+        <div class="stat-lbl">Cups</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-val" id="statLeft">2000</div>
+        <div class="stat-lbl">ml Left</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-val" id="statAvg">0</div>
+        <div class="stat-lbl">ml/hr</div>
+      </div>
     </div>
-    <div class="ticker-outer">
-      <div class="ticker-track" id="tickerTrack">
-        <!-- Reviews duplicated for seamless loop -->
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Best maternity bag I've ever used. Spacious and stylish!"</div>
-          <div class="review-author">— Priya S.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Water resistant and so many pockets. Perfect for hospital!"</div>
-          <div class="review-author">— Anitha R.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Looks premium and fits everything for my newborn. Love it!"</div>
-          <div class="review-author">— Meera K.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Got so many compliments at the hospital. Beautiful bag!"</div>
-          <div class="review-author">— Divya M.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Fast delivery and packaging was gorgeous. Highly recommend!"</div>
-          <div class="review-author">— Lakshmi P.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"The blue colour is stunning. My husband loves it too!"</div>
-          <div class="review-author">— Sneha T.</div>
-        </div>
-        <!-- Duplicate set for seamless loop -->
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Best maternity bag I've ever used. Spacious and stylish!"</div>
-          <div class="review-author">— Priya S.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Water resistant and so many pockets. Perfect for hospital!"</div>
-          <div class="review-author">— Anitha R.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Looks premium and fits everything for my newborn. Love it!"</div>
-          <div class="review-author">— Meera K.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Got so many compliments at the hospital. Beautiful bag!"</div>
-          <div class="review-author">— Divya M.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"Fast delivery and packaging was gorgeous. Highly recommend!"</div>
-          <div class="review-author">— Lakshmi P.</div>
-        </div>
-        <div class="review-card">
-          <div class="review-stars">★★★★★</div>
-          <div class="review-text">"The blue colour is stunning. My husband loves it too!"</div>
-          <div class="review-author">— Sneha T.</div>
-        </div>
+
+    <!-- Quick Add -->
+    <div class="card">
+      <div class="card-title">Quick Add 💧</div>
+      <div class="quick-grid">
+        <button class="qa-btn" onclick="addWater(100,event)"><span class="qa-icon">🥤</span><span class="qa-ml">100</span><span class="qa-lbl">shot</span></button>
+        <button class="qa-btn" onclick="addWater(250,event)"><span class="qa-icon">🫗</span><span class="qa-ml">250</span><span class="qa-lbl">glass</span></button>
+        <button class="qa-btn" onclick="addWater(500,event)"><span class="qa-icon">🍶</span><span class="qa-ml">500</span><span class="qa-lbl">bottle</span></button>
+        <button class="qa-btn" onclick="openModal()"><span class="qa-icon">✏️</span><span class="qa-ml">custom</span><span class="qa-lbl">amount</span></button>
+      </div>
+    </div>
+
+    <!-- Today's log -->
+    <div class="card">
+      <div class="card-title">
+        Today's Log 📋
+        <button onclick="resetDay()" style="background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700">Reset</button>
+      </div>
+      <div class="log-scroll">
+        <div id="logList"><div class="log-empty">No water logged yet 🌵<br>Start by adding some water!</div></div>
       </div>
     </div>
   </div>
 
-  <div class="social-label">
-    <svg width="70" height="12" viewBox="0 0 70 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="0" y1="6" x2="52" y2="6" stroke="#C9A96E" stroke-width="0.8" opacity="0.7"/>
-      <rect x="58" y="3" width="6" height="6" transform="rotate(45 61 6)" fill="#C9A96E" opacity="0.9"/>
-    </svg>
-    <span>Follow us</span>
-    <svg width="70" height="12" viewBox="0 0 70 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="3" width="6" height="6" transform="rotate(45 7 6)" fill="#C9A96E" opacity="0.9"/>
-      <line x1="18" y1="6" x2="70" y2="6" stroke="#C9A96E" stroke-width="0.8" opacity="0.7"/>
-    </svg>
-  </div>
-  <div class="social-row">
-    <!-- SOCIAL: Replace YOUR_HANDLE / YOUR_PAGE / YOUR_CHANNEL with your actual links -->
-    <a class="social-icon" href="#" target="_blank" title="Instagram">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="5"/>
-        <circle cx="12" cy="12" r="4"/>
-        <circle cx="17.5" cy="6.5" r="0.8" fill="#C9A96E" stroke="none"/>
-      </svg>
-    </a>
-    <a class="social-icon" href="#" target="_blank" title="Facebook">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round">
-        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-      </svg>
-    </a>
-    <a class="social-icon" href="#" target="_blank" title="YouTube">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="5" width="20" height="14" rx="4"/>
-        <polygon points="10,9 16,12 10,15" fill="#C9A96E" stroke="none"/>
-      </svg>
-    </a>
-    <a class="social-icon" href="#" target="_blank" title="Twitter / X">
-      <svg viewBox="0 0 24 24" fill="#C9A96E" stroke="none">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-      </svg>
-    </a>
-    <a class="social-icon" href="#" target="_blank" title="Threads">
-      <svg viewBox="0 0 24 24" fill="#C9A96E" stroke="none">
-        <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.5 12.068c0-3.51.85-6.362 2.495-8.42C5.845 1.344 8.599.161 12.18.136h.014c2.746.018 5.1.818 6.998 2.376 1.798 1.476 2.989 3.564 3.538 6.206l-2.017.387c-.457-2.18-1.417-3.875-2.852-5.036-1.492-1.203-3.457-1.833-5.662-1.846H12.18c-3.028.018-5.378 1.003-6.985 2.926C3.71 7.026 3 9.356 3 12.068c0 2.718.71 5.048 2.113 6.93C6.72 20.996 9.07 21.978 12.098 22h.088c2.506-.014 4.44-.72 5.748-2.1 1.37-1.443 2.054-3.603 2.054-6.042v-.368c-.09-1.696-.55-3.01-1.367-3.9-.756-.826-1.782-1.27-2.963-1.308-.163 0-.325.004-.487.014-.094.006-.188.015-.282.026.108.324.168.666.168 1.017 0 1.657-1.343 3.002-3 3.002s-3-1.345-3-3.002 1.343-3.002 3-3.002c.328 0 .643.053.938.15.366-1.14 1.063-2.032 2.036-2.63.845-.519 1.854-.785 2.974-.785h.028c1.758.023 3.24.691 4.28 1.933 1.056 1.26 1.624 3.082 1.73 5.42v.384c0 2.92-.857 5.52-2.481 7.242C19.27 23.116 16.954 24 14.186 24h-2z"/>
-      </svg>
-    </a>
+  <!-- SETTINGS PAGE -->
+  <div class="page" id="pageSettings">
+    <div class="card" style="margin-top:8px">
+      <div class="card-title">Reminders 🔔</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Enable Alerts</div>
+          <div class="setting-sub" id="nextAlertSub">Reminders off</div>
+        </div>
+        <button class="toggle" id="reminderToggle" onclick="toggleReminders()"></button>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Alert Sound</div>
+          <div class="setting-sub">Play sound with reminder</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="sound-waves waves-off" id="soundWaves">
+            <div class="wave-bar"></div><div class="wave-bar"></div>
+            <div class="wave-bar"></div><div class="wave-bar"></div>
+          </div>
+          <button class="toggle" id="soundToggle" onclick="toggleSound()"></button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Do Not Disturb</div>
+          <div class="setting-sub">Silence 10 PM – 7 AM</div>
+        </div>
+        <button class="toggle on" id="dndToggle" onclick="toggleDnd()"></button>
+      </div>
+      <div style="margin-top:10px">
+        <div class="setting-label" style="font-size:13px;margin-bottom:6px">Remind every</div>
+        <div class="chips" id="intervalChips">
+          <button class="chip" data-min="30" onclick="setAlertInterval(30)">30 min</button>
+          <button class="chip" data-min="45" onclick="setAlertInterval(45)">45 min</button>
+          <button class="chip active" data-min="60" onclick="setAlertInterval(60)">1 hr</button>
+          <button class="chip" data-min="90" onclick="setAlertInterval(90)">1.5 hr</button>
+          <button class="chip" data-min="120" onclick="setAlertInterval(120)">2 hr</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Daily Goal 🎯</div>
+      <div class="setting-row" style="border:none">
+        <div class="setting-label">Water Target</div>
+        <div class="slider-val" id="goalVal">2000 ml</div>
+      </div>
+      <div class="slider-row">
+        <input type="range" id="goalSlider" min="500" max="4000" step="250" value="2000" oninput="updateGoal(this.value)">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Weight Calculator 🧮</div>
+      <div class="setting-label" style="font-size:13px;margin-bottom:8px">Auto-calculate goal from weight</div>
+      <div style="display:flex;gap:8px">
+        <input type="number" id="weightInput" placeholder="Your weight (kg)" min="20" max="200"
+          style="flex:1;background:var(--pink-soft);border:2px solid var(--border);border-radius:12px;padding:10px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);outline:none">
+        <button onclick="calcGoal()" style="background:linear-gradient(135deg,var(--pink),var(--pink2));border:none;border-radius:12px;color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;padding:10px 14px;cursor:pointer">Calculate</button>
+      </div>
+      <div class="calc-result" id="calcResult">
+        <div class="calc-val" id="calcVal">2000 ml</div>
+        <div class="calc-lbl">Recommended daily goal · Applied! ✅</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Profile 👤</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Your Name</div>
+          <div class="setting-sub" id="profileName">—</div>
+        </div>
+        <button onclick="changeName()" style="background:var(--pink-light);border:1.5px solid var(--pink);border-radius:10px;color:var(--pink2);font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;padding:6px 12px;cursor:pointer">Edit</button>
+      </div>
+    </div>
   </div>
 
-  <div class="bottom-rule">
-    <div class="line"></div>
-    <span>Baglity · India</span>
-    <div class="line r"></div>
-  </div>
+  <!-- WEEKLY REPORT PAGE -->
+  <div class="page" id="pageReport">
+    <div class="week-header">
+      <div class="week-title" id="reportTitle">Weekly Report 📊</div>
+      <div class="week-sub" id="reportSub">Last 7 days hydration</div>
+    </div>
 
+    <div class="card">
+      <div class="card-title">Daily Breakdown</div>
+      <div class="day-bars" id="dayBars"></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:700" id="dayLabels"></div>
+      <div style="display:flex;gap:12px;margin-top:10px;font-size:11px;color:var(--muted);font-weight:700">
+        <span>🌸 Below goal</span><span>💧 Goal hit</span>
+      </div>
+    </div>
+
+    <div class="week-stats" id="weekStats"></div>
+
+    <div class="card">
+      <div class="card-title">Sync to Cloud ☁️</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">
+        Report syncs automatically when online.<br>Tap below to sync now.
+      </div>
+      <button class="sync-btn" onclick="syncNow()">
+        <span id="syncIcon">☁️</span> Sync Weekly Report
+      </button>
+      <div class="sync-status" id="syncStatus">Last sync: never</div>
+    </div>
+  </div>
+</main>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav0" onclick="switchPage(0)">
+    <span class="nav-icon">💧</span>
+    <span class="nav-label">Home</span>
+  </button>
+  <button class="nav-btn" id="nav1" onclick="switchPage(1)">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">Settings</span>
+  </button>
+  <button class="nav-btn" id="nav2" onclick="switchPage(2)">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">Report</span>
+  </button>
 </div>
 
-<script>
-const canvas = document.getElementById('starsCanvas');
-const ctx = canvas.getContext('2d');
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-resize();
-window.addEventListener('resize', resize);
+<!-- FAB -->
+<button class="fab" onclick="addWater(250,event)" title="Add 250ml">💧</button>
 
-const sparkles = Array.from({length: 55}, (_, i) => ({
-  x: Math.random() * canvas.width,
-  y: Math.random() * canvas.height,
-  size: Math.random() * 1.8 + 0.6,
-  opacity: Math.random(),
-  speed: Math.random() * 0.012 + 0.005,
-  phase: Math.random() * Math.PI * 2,
-  type: i % 3 === 0 ? 'cross' : i % 5 === 0 ? 'big_cross' : 'dot',
-  color: Math.random() > 0.5 ? '#C9A96E' : '#F5EDD8'
-}));
+<!-- Custom modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title">Custom Amount 💧</div>
+    <input type="number" class="modal-input" id="customInput" placeholder="350 ml" min="1" max="3000">
+    <button class="modal-btn" onclick="addCustom()">Add Water 🌸</button>
+  </div>
+</div>
 
-const INIT_DELAYS = [30, 450, 870, 1290, 1710];
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-class ShootingStar {
-  constructor(initDelay) {
-    this.waiting = true; this.waitTimer = 0; this.waitTarget = initDelay;
-    this.active = false; this.progress = 0; this._spawn();
-  }
-  _spawn() {
-    const W = canvas.width, H = canvas.height;
-    const edge = Math.floor(Math.random() * 3);
-    if (edge === 0)      { this.sx = Math.random() * W * 0.5;  this.sy = Math.random() * H * 0.3; }
-    else if (edge === 1) { this.sx = -10;                        this.sy = Math.random() * H * 0.5; }
-    else                 { this.sx = Math.random() * W * 0.4;  this.sy = -10; }
-    this.trailLen  = Math.random() * 140 + 160;
-    this.totalDist = this.trailLen + 200;
-    this.speed     = Math.random() * 1.2 + 0.8;
-    this.angle     = Math.PI / 4 + (Math.random() - 0.5) * 0.4;
-    this.color     = Math.random() > 0.4 ? '#C9A96E' : '#F5EDD8';
-    this.lineW     = Math.random() * 1 + 1.4;
-    this.progress  = 0;
-  }
-  update() {
-    if (this.waiting) {
-      this.waitTimer++;
-      if (this.waitTimer >= this.waitTarget) { this.waiting = false; this.active = true; this._spawn(); }
-      return;
-    }
-    if (this.active) {
-      this.progress += this.speed;
-      if (this.progress >= this.totalDist) {
-        this.active = false; this.waiting = true; this.waitTimer = 0;
-        this.waitTarget = 360 + Math.random() * 120;
-      }
-    }
-  }
-  opacity() {
-    const fi = 60, fo = 80;
-    if (this.progress < fi) return this.progress / fi;
-    if (this.progress > this.totalDist - fo) return Math.max(0, (this.totalDist - this.progress) / fo);
-    return 1;
-  }
-  draw() {
-    if (!this.active) return;
-    const op = this.opacity(); if (op <= 0) return;
-    const hx = this.sx + Math.cos(this.angle) * this.progress;
-    const hy = this.sy + Math.sin(this.angle) * this.progress;
-    const td = Math.min(this.progress, this.trailLen);
-    const tx = hx - Math.cos(this.angle) * td;
-    const ty = hy - Math.sin(this.angle) * td;
-    const a  = Math.floor(op * 255).toString(16).padStart(2,'0');
-    const grad = ctx.createLinearGradient(tx,ty,hx,hy);
-    grad.addColorStop(0, `${this.color}00`);
-    grad.addColorStop(0.6, `${this.color}${Math.floor(op*120).toString(16).padStart(2,'0')}`);
-    grad.addColorStop(1, `${this.color}${a}`);
-    ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(hx,hy);
-    ctx.strokeStyle=grad; ctx.lineWidth=this.lineW; ctx.lineCap='round'; ctx.stroke();
-    const gr = ctx.createRadialGradient(hx,hy,0,hx,hy,6);
-    gr.addColorStop(0,`${this.color}${a}`); gr.addColorStop(1,`${this.color}00`);
-    ctx.beginPath(); ctx.arc(hx,hy,6,0,Math.PI*2); ctx.fillStyle=gr; ctx.fill();
-  }
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyDdKv7ISaaT_BCxsPqlCIZDrDXgG4d_4do",
+  authDomain: "game-hub-d0a90.firebaseapp.com",
+  databaseURL: "https://game-hub-d0a90-default-rtdb.firebaseio.com",
+  projectId: "game-hub-d0a90",
+  storageBucket: "game-hub-d0a90.firebasestorage.app",
+  messagingSenderId: "921852633768",
+  appId: "1:921852633768:web:0ee77f8a111daf0e3cd89d"
+};
 
-const shooters = INIT_DELAYS.map(d => new ShootingStar(d));
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-function drawCross(x, y, size, op, color, big) {
-  ctx.save(); ctx.globalAlpha = op; ctx.strokeStyle = color;
-  ctx.lineWidth = big ? 0.9 : 0.7;
-  const arm = big ? size * 3.5 : size * 2.5;
-  ctx.beginPath(); ctx.moveTo(x-arm,y); ctx.lineTo(x+arm,y); ctx.moveTo(x,y-arm); ctx.lineTo(x,y+arm); ctx.stroke();
-  if (big) { ctx.lineWidth=0.4; ctx.beginPath(); ctx.moveTo(x-arm*.6,y-arm*.6); ctx.lineTo(x+arm*.6,y+arm*.6); ctx.moveTo(x+arm*.6,y-arm*.6); ctx.lineTo(x-arm*.6,y+arm*.6); ctx.stroke(); }
-  ctx.restore();
-}
-
-let frame = 0;
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  frame++;
-  sparkles.forEach(s => {
-    s.opacity = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(frame * s.speed + s.phase));
-    if (s.type === 'big_cross') drawCross(s.x, s.y, s.size, s.opacity*0.85, s.color, true);
-    else if (s.type === 'cross') drawCross(s.x, s.y, s.size, s.opacity*0.7, s.color, false);
-    else { ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fillStyle=s.color; ctx.globalAlpha=s.opacity; ctx.fill(); ctx.globalAlpha=1; }
-  });
-  shooters.forEach(s => { s.update(); s.draw(); });
-  requestAnimationFrame(animate);
-}
-animate();
+window._fbReady = true;
+window._fbSet = (path, data) => set(ref(db, path), data);
+window._fbGet = (path) => get(ref(db, path)).then(s => s.val());
 </script>
 
-<!-- ============================================================
-     POPUP OVERLAY — added below existing code, nothing above changed
-============================================================ -->
-<style>
-  /* Popup overlay */
-  .popup-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-  }
-  .popup-overlay.active { display: flex; }
-
-  .popup-box {
-    background: #0F0D0A;
-    border: 2.5px solid #C9A96E;
-    width: 90%;
-    max-width: 480px;
-    position: relative;
-    padding: 32px 28px 28px;
-    text-align: center;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-    animation: popIn 0.35s ease;
-  }
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.93); }
-    to   { opacity: 1; transform: scale(1); }
-  }
-
-  /* Close button */
-  .popup-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #000;
-    cursor: pointer;
-    background: #C9A96E;
-    border: none;
-    font-family: 'Josefin Sans', sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 12px #C9A96EAA, 0 0 28px #C9A96E44;
-    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
-    z-index: 10;
-  }
-  .popup-close:hover {
-    background: #F5EDD8;
-    box-shadow: 0 0 20px #C9A96ECC, 0 0 50px #C9A96E66;
-    transform: scale(1.08);
-  }
-
-  /* Bag description */
-  .popup-desc {
-    font-family: 'Sour Gummy', sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    font-style: normal;
-    letter-spacing: 0.5px;
-    color: #F0D898;
-    line-height: 2;
-    margin-bottom: 18px;
-    text-align: center;
-    padding: 0 4px;
-    word-break: normal;
-    overflow-wrap: break-word;
-  }
-
-  /* Popup title */
-  .popup-title {
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 6px;
-    color: #F5EDD8;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    text-shadow: 0 0 20px #C9A96E44;
-  }
-  .popup-sub {
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 12px;
-    letter-spacing: 3px;
-    color: #E8C060;
-    text-transform: uppercase;
-    font-weight: 600;
-    margin-bottom: 20px;
-  }
-
-  /* Photo gallery — 6 photos, 3 per row */
-  .popup-gallery {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-  .popup-photo {
-    width: 100%;
-    aspect-ratio: 1;
-    border: 1px solid #6A5A3A;
-    background: rgba(20,16,8,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    cursor: pointer;
-  }
-  .popup-photo:hover { border-color: #C9A96E; box-shadow: 0 0 10px #C9A96E33; }
-  .popup-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .popup-photo-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-  .popup-photo-placeholder svg { opacity: 0.35; width: 32px; height: 32px; }
-  .popup-photo-placeholder span {
-    font-size: 8px;
-    letter-spacing: 2px;
-    color: #888;
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 200;
-  }
-
-  /* Popup divider */
-  .popup-divider {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-  .popup-divider .dl { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #C9A96E88); }
-  .popup-divider .dl.r { background: linear-gradient(90deg, #C9A96E88, transparent); }
-  .popup-divider span { font-size: 10px; color: #C9A96E; opacity: 0.7; }
-
-  /* Popup WhatsApp button */
-  .popup-wa {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    border: 1px solid #6A5A3A;
-    color: #F5EDD8;
-    padding: 14px 24px;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    background: rgba(0,0,0,0.6);
-    text-decoration: none;
-    transition: border-color 0.35s, box-shadow 0.35s, transform 0.35s;
-    position: relative;
-    overflow: hidden;
-    white-space: nowrap;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  .popup-wa:hover {
-    border-color: #C9A96E;
-    box-shadow: 0 0 18px #C9A96E55, 0 0 40px #C9A96E22;
-    transform: translateY(-2px);
-  }
-  .popup-wa-icon { width: 20px; height: 20px; flex-shrink: 0; }
-
-  /* Fullscreen photo viewer */
-  .fullscreen-viewer {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.97);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
-  .fullscreen-viewer.active { display: flex; }
-  .fullscreen-viewer img {
-    max-width: 100vw;
-    max-height: 100vh;
-    width: 100vw;
-    height: 100vh;
-    object-fit: contain;
-    border: none;
-    box-shadow: none;
-  }
-  .fullscreen-placeholder {
-    width: 320px;
-    height: 320px;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: #888;
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 11px;
-    letter-spacing: 3px;
-  }
-  .fullscreen-placeholder svg { width: 48px; height: 48px; opacity: 0.3; }
-  .fullscreen-close {
-    position: absolute;
-    top: 16px; right: 16px;
-    width: 36px; height: 36px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #000;
-    cursor: pointer;
-    background: #C9A96E;
-    border: none;
-    font-family: 'Josefin Sans', sans-serif;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 14px #C9A96EAA, 0 0 30px #C9A96E44;
-    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
-    z-index: 30;
-  }
-  .fullscreen-close:hover {
-    background: #F5EDD8;
-    box-shadow: 0 0 20px #C9A96ECC, 0 0 50px #C9A96E66;
-    transform: scale(1.08);
-  }
-  .fullscreen-caption {
-    margin-top: 16px;
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 9px;
-    letter-spacing: 4px;
-    color: #E8C060;
-    text-transform: uppercase;
-  }
-  /* Desktop arrow nav buttons */
-  .fullscreen-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(10,8,4,0.6);
-    border: 1px solid #6A5A3A;
-    color: #C9A96E;
-    font-size: 20px;
-    width: 48px;
-    height: 48px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    z-index: 20;
-  }
-  .fullscreen-nav:hover {
-    border-color: #C9A96E;
-    box-shadow: 0 0 18px #C9A96E66, 0 0 40px #C9A96E22;
-    background: rgba(20,14,4,0.85);
-  }
-  .fullscreen-nav.prev { left: 24px; }
-  .fullscreen-nav.next { right: 24px; }
-
-  /* Mobile swipe hint panels — left & right */
-  .swipe-panel {
-    position: absolute;
-    top: 0;
-    width: 72px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.5s;
-    z-index: 10;
-  }
-  .swipe-panel.left  { left: 0;  background: linear-gradient(90deg, rgba(201,169,110,0.10), transparent); }
-  .swipe-panel.right { right: 0; background: linear-gradient(270deg, rgba(201,169,110,0.10), transparent); }
-  .swipe-panel.visible { opacity: 1; }
-
-  @keyframes pulseGlow {
-    0%,100% { box-shadow: 0 0 8px #C9A96E55, 0 0 20px #C9A96E22; opacity: 0.7; }
-    50%      { box-shadow: 0 0 18px #C9A96EAA, 0 0 40px #C9A96E55; opacity: 1; }
-  }
-  .swipe-panel .sp-arrow {
-    width: 36px; height: 36px;
-    border: 1px solid #C9A96E88;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    animation: pulseGlow 1.6s ease-in-out infinite;
-    color: #C9A96E;
-    font-size: 16px;
-  }
-  .swipe-panel .sp-label {
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 8px;
-    letter-spacing: 2px;
-    color: #E8C060;
-    text-transform: uppercase;
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-  }
-  .swipe-panel.left  .sp-label { transform: rotate(180deg); }
-
-  /* Hide swipe panels on desktop, hide arrows on mobile */
-  @media (hover: hover) and (pointer: fine) {
-    .swipe-panel { display: none; }
-  }
-  @media (hover: none) and (pointer: coarse) {
-    .fullscreen-nav { display: none; }
-  }
-</style>
-
-<!-- BLACK BAG POPUP -->
-<div class="popup-overlay" id="popup-black">
-  <div class="popup-box">
-    <button class="popup-close" onclick="closePopup('popup-black')">✕</button>
-    <div class="popup-title">Maternity Bag — Black</div>
-    <!-- DESCRIPTION: Update this text with your actual bag details -->
-    <div class="popup-desc">Diaper Bag for Mothers for Travel with Warranty · Maternity Bag for Newborn Baby · Mothers Travelling Bag · Multipocket Water Resistant Baby Bag · Hospital Bag for Moms</div>
-    <div class="popup-gallery" id="gallery-black">
-      <!-- TO ADD PHOTOS: replace placeholder divs with <img src="black-bag-1.jpg"> inside .popup-photo -->
-      <div class="popup-photo" onclick="openFullscreen('black',0)"><img src="black-bag-1.jpg" alt="Black Bag 1"></div>
-      <div class="popup-photo" onclick="openFullscreen('black',1)"><img src="black-bag-2.jpg" alt="Black Bag 2"></div>
-      <div class="popup-photo" onclick="openFullscreen('black',2)"><img src="black-bag-3.jpg" alt="Black Bag 3"></div>
-      <div class="popup-photo" onclick="openFullscreen('black',3)"><img src="black-bag-4.jpg" alt="Black Bag 4"></div>
-      <div class="popup-photo" onclick="openFullscreen('black',4)"><img src="black-bag-5.jpg" alt="Black Bag 5"></div>
-      <div class="popup-photo" onclick="openFullscreen('black',5)"><img src="black-bag-6.jpg" alt="Black Bag 6"></div>
-    </div>
-    <div class="popup-divider"><div class="dl"></div><span>✦</span><div class="dl r"></div></div>
-    <a class="popup-wa" href="https://wa.me/918610323806?text=Hi%2C%20I%27m%20interested%20in%20the%20Baglity%20Black%20Maternity%20Bag.%20Can%20you%20share%20more%20details%3F" target="_blank">
-      <svg class="popup-wa-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M23.5 8.5A10.44 10.44 0 0 0 16 5.5a10.5 10.5 0 0 0-9.1 15.7L5.5 26.5l5.5-1.4A10.5 10.5 0 0 0 26.5 16a10.44 10.44 0 0 0-3-7.5zm-7.5 16a8.7 8.7 0 0 1-4.4-1.2l-.3-.2-3.2.8.9-3.1-.2-.3A8.75 8.75 0 1 1 16 24.5zm4.8-6.5c-.3-.1-1.6-.8-1.8-.9s-.4-.1-.6.1-.7.9-.8 1.1-.3.2-.5.1a7.27 7.27 0 0 1-2.1-1.3 7.84 7.84 0 0 1-1.5-1.8c-.2-.3 0-.4.1-.6l.4-.5.2-.4v-.4l-.8-2c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.24 5.24 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4 13.42 13.42 0 0 0 1.5.6 3.56 3.56 0 0 0 1.6.1 2.75 2.75 0 0 0 1.8-1.3 2.25 2.25 0 0 0 .2-1.3c-.2-.1-.4-.2-.7-.3z" fill="#fff"/></svg>Get Yours on WhatsApp
-    </a>
-  </div>
-</div>
-
-<!-- BLUE BAG POPUP -->
-<div class="popup-overlay" id="popup-blue">
-  <div class="popup-box">
-    <button class="popup-close" onclick="closePopup('popup-blue')">✕</button>
-    <div class="popup-title">Maternity Bag — Blue</div>
-    <!-- DESCRIPTION: Update this text with your actual bag details -->
-    <div class="popup-desc">Diaper Bag for Mothers for Travel with Warranty · Maternity Bag for Newborn Baby · Mothers Travelling Bag · Multipocket Water Resistant Baby Bag · Hospital Bag for Moms</div>
-    <div class="popup-gallery" id="gallery-blue">
-      <div class="popup-photo" onclick="openFullscreen('blue',0)"><img src="blue-bag-1.jpg" alt="Blue Bag 1"></div>
-      <div class="popup-photo" onclick="openFullscreen('blue',1)"><img src="blue-bag-2.jpg" alt="Blue Bag 2"></div>
-      <div class="popup-photo" onclick="openFullscreen('blue',2)"><img src="blue-bag-3.jpg" alt="Blue Bag 3"></div>
-      <div class="popup-photo" onclick="openFullscreen('blue',3)"><img src="blue-bag-4.jpg" alt="Blue Bag 4"></div>
-      <div class="popup-photo" onclick="openFullscreen('blue',4)"><img src="blue-bag-5.jpg" alt="Blue Bag 5"></div>
-      <div class="popup-photo" onclick="openFullscreen('blue',5)"><img src="blue-bag-6.jpg" alt="Blue Bag 6"></div>
-    </div>
-    <div class="popup-divider"><div class="dl"></div><span>✦</span><div class="dl r"></div></div>
-    <a class="popup-wa" href="https://wa.me/918610323806?text=Hi%2C%20I%27m%20interested%20in%20the%20Baglity%20Blue%20Maternity%20Bag.%20Can%20you%20share%20more%20details%3F" target="_blank">
-      <svg class="popup-wa-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M23.5 8.5A10.44 10.44 0 0 0 16 5.5a10.5 10.5 0 0 0-9.1 15.7L5.5 26.5l5.5-1.4A10.5 10.5 0 0 0 26.5 16a10.44 10.44 0 0 0-3-7.5zm-7.5 16a8.7 8.7 0 0 1-4.4-1.2l-.3-.2-3.2.8.9-3.1-.2-.3A8.75 8.75 0 1 1 16 24.5zm4.8-6.5c-.3-.1-1.6-.8-1.8-.9s-.4-.1-.6.1-.7.9-.8 1.1-.3.2-.5.1a7.27 7.27 0 0 1-2.1-1.3 7.84 7.84 0 0 1-1.5-1.8c-.2-.3 0-.4.1-.6l.4-.5.2-.4v-.4l-.8-2c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.24 5.24 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4 13.42 13.42 0 0 0 1.5.6 3.56 3.56 0 0 0 1.6.1 2.75 2.75 0 0 0 1.8-1.3 2.25 2.25 0 0 0 .2-1.3c-.2-.1-.4-.2-.7-.3z" fill="#fff"/></svg>Get Yours on WhatsApp
-    </a>
-  </div>
-</div>
-
-<!-- FULLSCREEN VIEWER -->
-<div class="fullscreen-viewer" id="fullscreen-viewer">
-  <button class="fullscreen-close" onclick="closeFullscreen()">✕</button>
-
-  <!-- Desktop arrows (hidden on touch devices) -->
-  <button class="fullscreen-nav prev" onclick="navFullscreen(-1)">&#8592;</button>
-  <button class="fullscreen-nav next" onclick="navFullscreen(1)">&#8594;</button>
-
-  <!-- Mobile swipe hint panels (hidden on desktop) -->
-  <div class="swipe-panel left" id="swipe-left">
-    <div class="sp-arrow">&#8592;</div>
-    <div class="sp-label">Swipe</div>
-  </div>
-  <div class="swipe-panel right" id="swipe-right">
-    <div class="sp-arrow">&#8594;</div>
-    <div class="sp-label">Swipe</div>
-  </div>
-
-  <div id="fullscreen-content"></div>
-  <div class="fullscreen-caption" id="fullscreen-caption"></div>
-</div>
-
 <script>
-// ── Popup functions ──
-function openPopup(id) {
-  document.getElementById(id).classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-function closePopup(id) {
-  document.getElementById(id).classList.remove('active');
-  document.body.style.overflow = '';
-}
-document.querySelectorAll('.popup-overlay').forEach(overlay => {
-  overlay.addEventListener('click', function(e) {
-    if (e.target === this) closePopup(this.id);
-  });
-});
+// ──────────────────────────────
+// STATE
+// ──────────────────────────────
+let S = JSON.parse(localStorage.getItem('hydro2') || 'null') || {
+  name: '',
+  weight: 0,
+  goal: 2000,
+  interval: 60,
+  reminders: false,
+  sound: false,
+  dnd: true,
+  streak: 0,
+  lastDate: null,
+  log: [],           // today [{ml,time}]
+  history: {},       // {dateStr: totalMl}
+  lastSync: null,
+};
 
-// ── Fullscreen viewer ──
-let fsPhotos = [];
-let fsIndex  = 0;
-let fsHintTimer = null;
+let alertTimer = null;
+let audioCtx = null;
 
-function openFullscreen(bag, index) {
-  const gallery = document.getElementById('gallery-' + bag);
-  const photos  = gallery.querySelectorAll('.popup-photo');
-  fsPhotos = Array.from(photos).map((p, i) => {
-    const img = p.querySelector('img');
-    return img ? { src: img.src, label: 'Photo ' + (i+1) } : { src: null, label: 'Photo ' + (i+1) };
-  });
-  fsIndex = index;
-  renderFullscreen();
-  document.getElementById('fullscreen-viewer').classList.add('active');
-  showSwipePanels();
-}
-
-function showSwipePanels() {
-  const l = document.getElementById('swipe-left');
-  const r = document.getElementById('swipe-right');
-  if (fsHintTimer) clearTimeout(fsHintTimer);
-  l.classList.add('visible');
-  r.classList.add('visible');
-  fsHintTimer = setTimeout(() => {
-    l.classList.remove('visible');
-    r.classList.remove('visible');
-  }, 2400);
+// ──────────────────────────────
+// ONBOARDING
+// ──────────────────────────────
+function finishOnboarding() {
+  const name = document.getElementById('obName').value.trim();
+  const weight = parseFloat(document.getElementById('obWeight').value);
+  if (!name) { alert('Please enter your name! 🌸'); return; }
+  S.name = name;
+  if (weight > 0) {
+    S.weight = weight;
+    S.goal = Math.round(weight * 35 / 250) * 250;
+  }
+  save();
+  document.getElementById('onboarding').classList.add('hide');
+  setTimeout(() => document.getElementById('onboarding').remove(), 600);
+  init();
 }
 
-function renderFullscreen() {
-  const content = document.getElementById('fullscreen-content');
-  const caption = document.getElementById('fullscreen-caption');
-  const photo   = fsPhotos[fsIndex];
-  if (photo.src) {
-    content.innerHTML = '<img src="' + photo.src + '" alt="' + photo.label + '">';
+// ──────────────────────────────
+// INIT
+// ──────────────────────────────
+function init() {
+  checkNewDay();
+  renderAll();
+  if (S.reminders) scheduleAlert();
+  requestNotifPerm();
+  autoSync();
+  updateGreeting();
+  // Re-init every minute for greeting/next-alert updates
+  setInterval(() => { updateGreeting(); updateNextAlertLabel(); }, 60000);
+}
+
+function checkNewDay() {
+  const today = new Date().toDateString();
+  if (S.lastDate && S.lastDate !== today) {
+    const total = S.log.reduce((a,e)=>a+e.ml,0);
+    S.history[S.lastDate] = total;
+    if (total >= S.goal) S.streak++; else S.streak = 0;
+    S.log = [];
+  }
+  S.lastDate = today;
+  save();
+}
+
+function updateGreeting() {
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const emoji = h < 12 ? '🌸' : h < 17 ? '☀️' : '🌙';
+  document.getElementById('greeting').innerHTML = `${greet}, <span id="greetName">${S.name||'friend'}</span>! ${emoji}`;
+}
+
+// ──────────────────────────────
+// RENDER
+// ──────────────────────────────
+function renderAll() {
+  renderHome();
+  renderSettings();
+  renderReport();
+}
+
+function renderHome() {
+  const total = S.log.reduce((a,e)=>a+e.ml,0);
+  const pct = Math.min(total/S.goal,1);
+  document.getElementById('totalMl').textContent = total;
+  document.getElementById('goalDisplay').textContent = S.goal;
+  document.getElementById('progBar').style.width = (pct*100)+'%';
+  document.getElementById('progPct').textContent = Math.round(pct*100)+'%';
+  document.getElementById('streakCount').textContent = S.streak+(S.streak===1?' day':' days');
+
+  const left = Math.max(S.goal-total,0);
+  let sub = left === 0 ? `🎉 Goal achieved! Amazing ${S.name||''}!` : `${left} ml more to reach your goal 💪`;
+  document.getElementById('progSub').textContent = sub;
+
+  document.getElementById('statCups').textContent = S.log.length;
+  document.getElementById('statLeft').textContent = left;
+  if (S.log.length>0) {
+    const hrs = Math.max((Date.now()-new Date(S.log[0].time).getTime())/3600000,0.1);
+    document.getElementById('statAvg').textContent = Math.round(total/hrs);
+  } else { document.getElementById('statAvg').textContent = 0; }
+
+  // Log list
+  const list = document.getElementById('logList');
+  if (!S.log.length) {
+    list.innerHTML = '<div class="log-empty">No water logged yet 🌵<br>Start by adding some water!</div>';
   } else {
-    content.innerHTML = '<div class="fullscreen-placeholder"><svg viewBox="0 0 32 32" fill="none" style="width:48px;height:48px"><rect x="6" y="10" width="20" height="16" rx="2" stroke="#C9A96E" stroke-width="1"/><path d="M11 10 Q11 6 16 6 Q21 6 21 10" stroke="#C9A96E" stroke-width="1" fill="none"/><circle cx="16" cy="18" r="2" stroke="#C9A96E" stroke-width="0.8"/></svg><span>' + photo.label + '</span></div>';
+    list.innerHTML = [...S.log].reverse().map((e,i)=>{
+      const ri = S.log.length-1-i;
+      const t = new Date(e.time);
+      const ts = t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      return `<div class="log-item">
+        <span class="log-time">${ts}</span>
+        <span class="log-ml">+${e.ml} ml</span>
+        <button class="log-del" onclick="deleteLog(${ri})">✕</button>
+      </div>`;
+    }).join('');
   }
-  caption.textContent = (fsIndex + 1) + ' / ' + fsPhotos.length;
 }
 
-function navFullscreen(dir) {
-  fsIndex = (fsIndex + dir + fsPhotos.length) % fsPhotos.length;
-  renderFullscreen();
+function renderSettings() {
+  document.getElementById('goalVal').textContent = S.goal+' ml';
+  document.getElementById('goalSlider').value = S.goal;
+  document.getElementById('profileName').textContent = S.name||'—';
+  if (S.weight) document.getElementById('weightInput').value = S.weight;
+  // toggles
+  tog('reminderToggle', S.reminders);
+  tog('soundToggle', S.sound);
+  tog('dndToggle', S.dnd);
+  // interval chips
+  document.querySelectorAll('#intervalChips .chip').forEach(c=>{
+    c.classList.toggle('active', parseInt(c.dataset.min)===S.interval);
+  });
+  // sound wave anim
+  const sw = document.getElementById('soundWaves');
+  S.sound ? sw.classList.remove('waves-off') : sw.classList.add('waves-off');
+  updateNextAlertLabel();
 }
 
-function closeFullscreen() {
-  document.getElementById('fullscreen-viewer').classList.remove('active');
-}
+function renderReport() {
+  const name = S.name||'Friend';
+  document.getElementById('reportTitle').textContent = `${name}'s Weekly Report 📊`;
 
-// Only the ✕ button closes fullscreen
-
-// ── Touch swipe support ──
-let touchStartX = 0;
-let touchStartY = 0;
-let touchMoved  = false;
-const fsViewer = document.getElementById('fullscreen-viewer');
-
-fsViewer.addEventListener('touchstart', e => {
-  touchStartX = e.changedTouches[0].clientX;
-  touchStartY = e.changedTouches[0].clientY;
-  touchMoved  = false;
-}, { passive: true });
-
-fsViewer.addEventListener('touchmove', e => {
-  const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
-  const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
-  if (dx > 10 || dy > 10) touchMoved = true;
-}, { passive: true });
-
-fsViewer.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  const dy = e.changedTouches[0].clientY - touchStartY;
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-    navFullscreen(dx < 0 ? 1 : -1);
+  // Build last 7 days
+  const days = [];
+  for (let i=6; i>=0; i--) {
+    const d = new Date(Date.now()-i*86400000);
+    const key = d.toDateString();
+    const ml = key===S.lastDate ? S.log.reduce((a,e)=>a+e.ml,0) : (S.history[key]||0);
+    days.push({ label: d.toLocaleDateString('en',{weekday:'short'}), ml, hit: ml>=S.goal });
   }
-}, { passive: true });
 
-// Keyboard navigation
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (document.getElementById('fullscreen-viewer').classList.contains('active')) {
-      closeFullscreen();
-    } else {
-      document.querySelectorAll('.popup-overlay.active').forEach(p => closePopup(p.id));
+  const maxMl = Math.max(...days.map(d=>d.ml), S.goal, 1);
+  const barsEl = document.getElementById('dayBars');
+  const labelsEl = document.getElementById('dayLabels');
+  barsEl.innerHTML = days.map(d=>{
+    const h = Math.round((d.ml/maxMl)*90);
+    return `<div class="day-bar-wrap">
+      <div class="day-bar${d.hit?' goal-hit':''}" style="height:${Math.max(h,4)}px"></div>
+    </div>`;
+  }).join('');
+  labelsEl.innerHTML = days.map(d=>`<span>${d.label}</span>`).join('');
+
+  // Week stats
+  const totalWeek = days.reduce((a,d)=>a+d.ml,0);
+  const daysHit = days.filter(d=>d.hit).length;
+  const avgDay = Math.round(totalWeek/7);
+  document.getElementById('weekStats').innerHTML = `
+    <div class="week-stat"><div class="week-stat-val">${totalWeek}</div><div class="week-stat-lbl">Total ml</div></div>
+    <div class="week-stat"><div class="week-stat-val">${daysHit}/7</div><div class="week-stat-lbl">Goals Hit</div></div>
+    <div class="week-stat"><div class="week-stat-val">${avgDay}</div><div class="week-stat-lbl">Avg ml/day</div></div>
+    <div class="week-stat"><div class="week-stat-val">${S.streak}🔥</div><div class="week-stat-lbl">Streak</div></div>
+  `;
+
+  if (S.lastSync) {
+    document.getElementById('syncStatus').textContent = 'Last sync: '+new Date(S.lastSync).toLocaleString();
+  }
+}
+
+function updateNextAlertLabel() {
+  if (!S.reminders) { document.getElementById('nextAlertSub').textContent = 'Reminders off'; return; }
+  const ms = S.interval*60000;
+  const next = new Date((S.lastAlertTime||Date.now())+ms);
+  const diff = Math.max(0,Math.round((next-Date.now())/60000));
+  document.getElementById('nextAlertSub').textContent = diff<=0 ? 'Alert very soon!' : `Next in ~${diff} min`;
+}
+
+// ──────────────────────────────
+// WATER LOGGING
+// ──────────────────────────────
+function addWater(ml, event) {
+  if (event) createRipple(event);
+  S.log.push({ml, time:new Date().toISOString()});
+  S.lastAlertTime = Date.now();
+  save(); renderHome();
+  if (S.reminders) rescheduleAlert();
+  // Check goal
+  const total = S.log.reduce((a,e)=>a+e.ml,0);
+  if (total>=S.goal) {
+    const prev = S.log.slice(0,-1).reduce((a,e)=>a+e.ml,0);
+    if (prev<S.goal) showBanner(`🎉 Goal Reached!`,`Amazing ${S.name}! You hit ${S.goal} ml today!`);
+  }
+}
+window.addWater = addWater;
+
+function deleteLog(i) { S.log.splice(i,1); save(); renderHome(); }
+window.deleteLog = deleteLog;
+
+function resetDay() {
+  if (!confirm('Reset today\'s log?')) return;
+  S.log=[]; save(); renderHome();
+}
+window.resetDay = resetDay;
+
+// ──────────────────────────────
+// SETTINGS ACTIONS
+// ──────────────────────────────
+function updateGoal(v) { S.goal=parseInt(v); document.getElementById('goalVal').textContent=v+' ml'; save(); renderHome(); }
+window.updateGoal = updateGoal;
+
+function setAlertInterval(min) { S.interval=min; save(); renderSettings(); if(S.reminders) rescheduleAlert(); }
+window.setAlertInterval = setAlertInterval;
+
+function toggleReminders() {
+  S.reminders=!S.reminders; save(); renderSettings();
+  if(S.reminders){ requestNotifPerm(); scheduleAlert(); } else clearAlertTimer();
+}
+window.toggleReminders = toggleReminders;
+
+function toggleSound() { S.sound=!S.sound; save(); renderSettings(); }
+window.toggleSound = toggleSound;
+
+function toggleDnd() { S.dnd=!S.dnd; save(); renderSettings(); }
+window.toggleDnd = toggleDnd;
+
+function calcGoal() {
+  const w = parseFloat(document.getElementById('weightInput').value);
+  if (!w||w<20) { alert('Enter a valid weight!'); return; }
+  S.weight=w;
+  S.goal = Math.round(w*35/250)*250;
+  document.getElementById('calcVal').textContent = S.goal+' ml';
+  document.getElementById('calcResult').classList.add('show');
+  save(); renderHome(); renderSettings();
+}
+window.calcGoal = calcGoal;
+
+function changeName() {
+  const n = prompt('Enter new name:', S.name);
+  if (n&&n.trim()) { S.name=n.trim(); save(); renderAll(); updateGreeting(); }
+}
+window.changeName = changeName;
+
+// ──────────────────────────────
+// ALERTS
+// ──────────────────────────────
+function requestNotifPerm() {
+  if ('Notification' in window && Notification.permission==='default') Notification.requestPermission();
+}
+
+function scheduleAlert() {
+  clearAlertTimer();
+  alertTimer = setTimeout(()=>{ triggerAlert(); if(S.reminders) scheduleAlert(); }, S.interval*60000);
+}
+function rescheduleAlert() { clearAlertTimer(); scheduleAlert(); }
+function clearAlertTimer() { if(alertTimer){clearTimeout(alertTimer);alertTimer=null;} }
+
+function triggerAlert() {
+  if (!S.reminders) return;
+  if (S.dnd) { const h=new Date().getHours(); if(h>=22||h<7) return; }
+  S.lastAlertTime = Date.now(); save();
+
+  const total = S.log.reduce((a,e)=>a+e.ml,0);
+  const left = Math.max(S.goal-total,0);
+  const sub = left>0 ? `${left} ml left for today's goal 💪` : `You've hit your goal! Keep it up! 🎉`;
+
+  showBanner(`Hey ${S.name}, time to drink water! 💧`, sub);
+
+  if ('Notification' in window && Notification.permission==='granted') {
+    new Notification(`HydroAlert 💧`, {
+      body: `Hey ${S.name}, time to drink water! ${sub}`,
+      tag: 'hydro', renotify: true,
+    });
+  }
+
+  if (S.sound) playAlertSound();
+  updateNextAlertLabel();
+}
+
+function playAlertSound() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    [523,659,784].forEach((freq,i)=>{
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      const t = audioCtx.currentTime + i*0.15;
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(0.2,t+0.05);
+      gain.gain.linearRampToValueAtTime(0,t+0.25);
+      osc.start(t); osc.stop(t+0.3);
+    });
+  } catch(e){}
+}
+
+// ──────────────────────────────
+// FIREBASE SYNC
+// ──────────────────────────────
+async function syncNow() {
+  const btn = document.querySelector('.sync-btn');
+  const iconEl = document.getElementById('syncIcon');
+  iconEl.textContent = '⏳';
+  btn.disabled = true;
+
+  try {
+    if (!window._fbReady) throw new Error('Firebase not ready');
+    const name = S.name||'User';
+    const days = [];
+    for (let i=6;i>=0;i--){
+      const d=new Date(Date.now()-i*86400000);
+      const key=d.toDateString();
+      const ml=key===S.lastDate?S.log.reduce((a,e)=>a+e.ml,0):(S.history[key]||0);
+      days.push({date:d.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'}),ml,goalHit:ml>=S.goal});
     }
+    const totalWeek=days.reduce((a,d)=>a+d.ml,0);
+    const daysHit=days.filter(d=>d.goalHit).length;
+    const report = {
+      userName: name,
+      syncedAt: new Date().toISOString(),
+      weekOf: new Date().toLocaleDateString(),
+      totalMlWeek: totalWeek,
+      daysGoalHit: daysHit,
+      avgMlPerDay: Math.round(totalWeek/7),
+      streak: S.streak,
+      goal: S.goal,
+      dailyBreakdown: days,
+    };
+    await window._fbSet(`hydroalert/${name.toLowerCase().replace(/\s+/g,'_')}/weekly_report`, report);
+    S.lastSync = Date.now(); save();
+    document.getElementById('syncStatus').textContent = 'Last sync: '+new Date().toLocaleString();
+    iconEl.textContent = '✅';
+    showBanner('Sync Complete! ✅', 'Weekly report saved to cloud 🌸');
+  } catch(e) {
+    iconEl.textContent = '❌';
+    document.getElementById('syncStatus').textContent = 'Sync failed — check internet';
+  } finally {
+    btn.disabled=false;
+    setTimeout(()=>iconEl.textContent='☁️', 3000);
   }
-  if (e.key === 'ArrowRight') navFullscreen(1);
-  if (e.key === 'ArrowLeft')  navFullscreen(-1);
-});
+}
+window.syncNow = syncNow;
 
-// ── Auto-open popup from URL parameter ──
-// Taplink black bag URL: yourdomain.com?bag=black
-// Taplink blue bag URL:  yourdomain.com?bag=blue
-window.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const bag = params.get('bag');
-  if (bag === 'black') setTimeout(() => openPopup('popup-black'), 500);
-  if (bag === 'blue')  setTimeout(() => openPopup('popup-blue'), 500);
-});
-</script>
+async function autoSync() {
+  if (!navigator.onLine) return;
+  // Auto-sync once a day if last sync was >23hrs ago
+  if (S.lastSync && Date.now()-S.lastSync < 23*3600000) return;
+  setTimeout(syncNow, 3000); // delay 3s after load
+}
+
+// ──────────────────────────────
+// UI HELPERS
+// ──────────────────────────────
+function switchPage(i) {
+  ['pageHome','pageSettings','pageReport'].forEach((p,j)=>{
+    document.getElementById(p).classList.toggle('active',j===i);
+    document.getElementById('nav'+j).classList.toggle('active',j===i);
+  });
+  if (i===2) renderReport();
+}
+window.switchPage = switchPage;
+
+function tog(id, val) {
+  val ? document.getElementById(id).classList.add('on') : document.getElementById(id).classList.remove('on');
+}
+
+let bannerTimer;
+function showBanner(title, sub) {
+  document.getElementById('notifTitle').textContent = title;
+  document.getElementById('notifSub').textContent = sub;
+  document.getElementById('notifBar').classList.add('show');
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(()=>document.getElementById('notifBar').classList.remove('show'), 5000);
+}
+function dismissNotif() { document.getElementById('notifBar').classList.remove('show'); }
+window.dismissNotif = dismissNotif;
+
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('customInput').focus(),350);
+}
+window.openModal = openModal;
+
+function closeModalOutside(e) {
+  if (e.target===document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('open');
+}
+window.closeModalOutside = closeModalOutside;
+
+function addCustom() {
+  const v=parseInt(document.getElementById('customInput').value);
+  if (v>0&&v<=5000) {
+    addWater(v);
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.getElementById('customInput').value='';
+  }
+}
+window.addCustom = addCustom;
+
+function createRipple(e) {
+  const r=document.createElement('div'); r.className='ripple';
+  r.style.left=(e.clientX||200)+'px'; r.style.top=(e.clientY||400)+'px';
+  document.body.appendChild(r); setTimeout(()=>r.remove(),700);
+}
+
+document.getElementById('customInput').addEventListener('keydown',e=>{ if(e.key==='Enter') addCustom(); });
+
+// ──────────────────────────────
+// PERSIST
+// ──────────────────────────────
+function save() { localStorage.setItem('hydro2', JSON.stringify(S)); }
+
+// ──────────────────────────────
+// SERVICE WORKER
+// ──────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+// ──────────────────────────────
+// BOOT
+// ──────────────────────────────
+if (S.name) {
+  document.getElementById('onboarding').style.display='none';
+  init();
+} else {
+  // Show onboarding, init after
+}
 </script>
 </body>
 </html>
