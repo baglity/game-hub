@@ -1797,6 +1797,7 @@ function goHome() {
   sessionStorage.removeItem('myRole');
   sessionStorage.removeItem('roomCode');
   sessionStorage.removeItem('isJoiner');
+  sessionStorage.removeItem('myPlayerKey');
   myRole = '';
   scores = { p1: 0, p2: 0 };
   seriesWins = { p1: 0, p2: 0 };
@@ -1859,6 +1860,7 @@ function quickJoinRoom() {
     return; 
   }
 
+  // Set role FIRST before Firebase callback fires
   myRole = 'p2';
   sessionStorage.setItem('myRole', 'p2');
   sessionStorage.setItem('roomCode', code);
@@ -1884,9 +1886,10 @@ function quickJoinRoom() {
     seriesRound = 0;
     accessLevel = accessLevel || 'friends';
     closeJoinPopup();
-    roomRef.child('p2').set(name);
-    myRole = 'p2'; // always p2 when joining
-    sessionStorage.setItem('myRole', 'p2');
+    const myKey2 = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
+    sessionStorage.setItem('myPlayerKey', myKey2);
+    // myRole already 'p2' — do not re-assign
+    roomRef.update({ p2: name, p2key: myKey2 });
     startGameUI();
     setTimeout(() => {
       const seriesLabel = seriesMax <= 1 ? 'Single Game' : `Best of ${seriesMax}`;
@@ -1942,6 +1945,7 @@ function initFirebase() {
 function createRoom() {
   const name = document.getElementById('p1-name-input').value.trim() || 'Player 1';
   roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+  // Set role FIRST before any Firebase or callbacks can fire
   myRole = 'p1';
   sessionStorage.setItem('myRole', 'p1');
   sessionStorage.setItem('roomCode', roomCode);
@@ -1949,10 +1953,15 @@ function createRoom() {
   playerNames.p1 = name;
 
   roomRef = db.ref('rooms/' + roomCode);
+  const myKey = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
+  sessionStorage.setItem('myPlayerKey', myKey);
+
   roomRef.set({
     game: currentGame,
     p1: name,
+    p1key: myKey,
     p2: '',
+    p2key: '',
     seriesMax: seriesMax,
     seriesWins: { p1: 0, p2: 0 },
     state: getInitialState(),
@@ -1983,6 +1992,7 @@ function joinRoom() {
   const code = document.getElementById('join-code').value.trim();
   if (!code || code.length !== 4) { toast('Enter a 4-digit room code'); return; }
 
+  // Set role FIRST before Firebase callback fires
   myRole = 'p2';
   sessionStorage.setItem('myRole', 'p2');
   sessionStorage.setItem('roomCode', code);
@@ -2001,12 +2011,11 @@ function joinRoom() {
     seriesMax = data.seriesMax || 1;
     seriesWins = data.seriesWins || { p1: 0, p2: 0 };
     seriesRound = 0;
-    myRole = 'p2'; // always p2 when joining
-
-    roomRef.child('p2').set(name);
+    const myKey3 = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
+    sessionStorage.setItem('myPlayerKey', myKey3);
+    // myRole already 'p2' — do not re-assign
+    roomRef.update({ p2: name, p2key: myKey3 });
     startGameUI();
-
-    // Series info shown in startGameUI for both players
   });
 }
 
@@ -2088,18 +2097,40 @@ function listenToRoom() {
     if (!snap.exists()) return;
     const data = snap.val();
 
-    // Auto-correct myRole using name matching from Firebase
-    if (data.p1 && data.p2) {
-      const myName = myRole === 'p1' ? playerNames.p1 : playerNames.p2;
-      if (myName === data.p1) myRole = 'p1';
-      else if (myName === data.p2) myRole = 'p2';
+    // BULLETPROOF role verification using player keys stored in Firebase
+    // Compare this tab's saved key against p1key and p2key in Firebase
+    // This means even if sessionStorage myRole is wrong or lost, the correct role is always restored
+    const myKey = sessionStorage.getItem('myPlayerKey');
+    if (myKey) {
+      if (data.p1key && data.p1key === myKey) {
+        myRole = 'p1';
+        sessionStorage.setItem('myRole', 'p1');
+      } else if (data.p2key && data.p2key === myKey) {
+        myRole = 'p2';
+        sessionStorage.setItem('myRole', 'p2');
+      }
+    }
+    // If still no role after key check, fall back to sessionStorage
+    if (!myRole) {
+      const saved = sessionStorage.getItem('myRole');
+      if (saved) {
+        myRole = saved;
+      } else {
+        console.warn('myRole lost and key mismatch — cannot restore role');
+        return;
+      }
+    }
+
+    // Sync names from Firebase
+    if (data.p1) {
       playerNames.p1 = data.p1;
-      playerNames.p2 = data.p2;
       const p1el = document.getElementById('p1-name');
-      const p2el = document.getElementById('p2-name');
       if (p1el) p1el.textContent = data.p1;
+    }
+    if (data.p2) {
+      playerNames.p2 = data.p2;
+      const p2el = document.getElementById('p2-name');
       if (p2el) p2el.textContent = data.p2;
-      sessionStorage.setItem('myRole', myRole);
     }
 
     gameState = data.state || {};
@@ -2172,16 +2203,16 @@ function tttMove(idx) {
   if (!roomRef) return;
   if (!myRole) { toast("Role not set — please rejoin"); return; }
   if (gameState.status === 'done') return;
-  if (gameState.board[idx]) return;
   if (gameState.turn !== myRole) {
     const whose = gameState.turn === 'p1' ? playerNames.p1 : playerNames.p2;
     toast(`⏳ ${whose}'s turn!`);
     return;
   }
 
-  // Convert Firebase object to array
+  // Convert Firebase object/array to proper array
   const rawBoard = gameState.board || {};
   const board = Array.from({length: 9}, (_, i) => rawBoard[i] || '');
+  if (board[idx]) return; // cell already taken
   board[idx] = myRole === 'p1' ? 'X' : 'O';
   const nextTurn = myRole === 'p1' ? 'p2' : 'p1';
   const winner = checkTttWin(board);
@@ -2202,6 +2233,7 @@ function tttMove(idx) {
     winnerRole = 'draw';
   }
 
+  // Send to Firebase — listenToRoom() handles rendering for both players
   roomRef.update({
     'state/board': board,
     'state/turn': nextTurn,
@@ -2210,6 +2242,10 @@ function tttMove(idx) {
     scores: newScores,
     seriesWins: newSeriesWins
   });
+
+  if (status === 'done') {
+    setTimeout(() => showResult(winnerRole, winnerRole === 'draw' ? 'draw' : 'win'), 400);
+  }
 }
 
 function checkTttWin(board) {
@@ -2221,7 +2257,6 @@ function checkTttWin(board) {
 
 function renderTtt() {
   const cells = document.querySelectorAll('.ttt-cell');
-  // Firebase may return object instead of array — convert it
   const rawBoard = gameState.board || {};
   const board = Array.from({length: 9}, (_, i) => rawBoard[i] || '');
   const winner = checkTttWin(board);
@@ -2233,12 +2268,26 @@ function renderTtt() {
   }
   const isMyTurn = gameState.turn === myRole;
   cells.forEach((cell, i) => {
-    cell.textContent = board[i] || '';
     cell.className = 'ttt-cell';
-    if (board[i] === 'X') cell.classList.add('x', 'filled');
-    if (board[i] === 'O') cell.classList.add('o', 'filled');
-    if (winLine.includes(i)) cell.classList.add('win');
-    cell.style.cursor = (!board[i] && isMyTurn && gameState.status !== 'done') ? 'pointer' : board[i] ? 'default' : 'not-allowed';
+    cell.textContent = '';
+    cell.style.fontSize = '3rem';
+    cell.style.fontFamily = "'Fredoka One', cursive";
+    if (board[i] === 'X') {
+      cell.textContent = 'X';
+      cell.style.color = '#2563eb';
+      cell.classList.add('filled');
+    } else if (board[i] === 'O') {
+      cell.textContent = 'O';
+      cell.style.color = '#e94560';
+      cell.classList.add('filled');
+    } else {
+      cell.style.color = '';
+    }
+    if (winLine.includes(i)) {
+      cell.classList.add('win');
+      cell.style.background = 'rgba(83,194,139,0.2)';
+    }
+    cell.style.cursor = (!board[i] && isMyTurn && gameState.status !== 'done') ? 'pointer' : 'default';
   });
 }
 
