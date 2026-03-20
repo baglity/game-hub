@@ -1367,7 +1367,7 @@
     </div>
   </div>
 
-  <div class="turn-banner" id="turn-banner">Your turn!</div>
+  <div class="turn-banner" id="turn-banner"></div>
 
   <!-- TTT Board -->
   <div id="ttt-board" style="display:none;">
@@ -2146,14 +2146,14 @@ function listenToRoom() {
       document.getElementById('score-p2').textContent = scores.p2;
     }
 
-    // Use gameState.turn (same as data.state.turn) - consistent with move checks
-    updateTurnBanner(gameState.turn || data.turn || 'p1');
-
     if (currentGame === 'ttt') renderTtt();
     if (currentGame === 'sos') renderSos();
     if (currentGame === 'tod') renderTod(data);
     if (currentGame === 'nhie') renderNhie(data);
     if (currentGame === 'card-dare') renderCardDare(data);
+
+    // Update turn banner LAST — after role is confirmed and names are synced
+    updateTurnBanner(gameState.turn || data.turn || 'p1');
 
     // If other player clicked Next Round - close overlay immediately
     if (data.rematch && data.rematch !== lastRematch) {
