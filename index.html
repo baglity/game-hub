@@ -2027,6 +2027,15 @@ function copyCode() {
 //  GAME START
 // ══════════════════════════════════════════════
 function startGameUI() {
+  // GUARANTEE: Lock role from sessionStorage at the very start
+  // This runs before Firebase fires, so role is always ready
+  if (!myRole) {
+    myRole = sessionStorage.getItem('myRole') || '';
+  }
+  // Set initial turn banner immediately — don't wait for Firebase
+  // p1 always goes first, so show correct state right away
+  updateTurnBanner('p1');
+
   document.getElementById('p1-name').textContent = playerNames.p1;
   document.getElementById('p2-name').textContent = playerNames.p2;
   document.getElementById('score-p1').textContent = 0;
