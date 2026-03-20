@@ -693,43 +693,7 @@
 
   .back-btn:hover { color: var(--text); background: rgba(255,255,255,0.1); }
 
-  .code-boxes {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 4px;
-  }
-
-  .code-box {
-    width: 56px;
-    height: 64px;
-    background: rgba(255,255,255,0.06);
-    border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    color: #fff;
-    font-family: 'Fredoka One', cursive;
-    font-size: 2rem;
-    text-align: center;
-    outline: none;
-    transition: border-color 0.2s, background 0.2s;
-    caret-color: transparent;
-  }
-
-  .code-box:focus {
-    border-color: var(--accent1);
-    background: rgba(37,99,235,0.12);
-  }
-
-  .code-box.filled {
-    border-color: var(--accent4);
-    background: rgba(83,194,139,0.1);
-  }
-
-  .code-box.error {
-    border-color: var(--accent2);
-    background: rgba(233,69,96,0.1);
-    animation: shake 0.4s ease;
-  }
+  .firebase-note {
     background: rgba(245,166,35,0.1);
     border: 1px solid rgba(245,166,35,0.3);
     border-radius: 10px;
@@ -1236,13 +1200,10 @@
 
     <div style="background:var(--card);border-radius:var(--radius);padding:28px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px;">
       <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:#60a5fa;">🔐 Enter Access Code</div>
-      <div class="code-boxes" id="entry-code-boxes">
-        <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-        <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-        <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-        <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-      </div>
-      <input type="hidden" id="entry-code-input">
+      <input type="password" id="entry-code-input" placeholder="Enter code..." maxlength="10"
+        style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12);border-radius:10px;padding:14px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.8rem;letter-spacing:0.4em;text-align:center;outline:none;transition:border-color 0.2s;"
+        onkeydown="if(event.key==='Enter')checkEntryCode()"
+        onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
       <div id="entry-code-error" style="display:none;color:#e94560;font-size:0.82rem;">❌ Wrong code. Try again!</div>
       <button class="btn btn-primary" onclick="checkEntryCode()">🔓 Enter</button>
       <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.2);font-size:0.8rem;">
@@ -1265,13 +1226,9 @@
     </div>
     <div class="input-group">
       <label>Room Code</label>
-      <div class="code-boxes" id="popup-code-boxes">
-        <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-        <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-        <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-        <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-      </div>
-      <input type="hidden" id="popup-join-code">
+      <input type="text" id="popup-join-code" placeholder="Enter 4-digit code..." maxlength="4"
+        onkeydown="if(event.key==='Enter')quickJoinRoom()"
+        style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.8rem;letter-spacing:0.3em;text-align:center;outline:none;">
     </div>
     <div id="popup-join-error" style="display:none;color:#e94560;font-size:0.82rem;text-align:center;">❌ Room not found! Check the code.</div>
     <button class="btn btn-success" onclick="quickJoinRoom()">🔗 Join Game</button>
@@ -1353,13 +1310,9 @@
       </div>
       <div class="input-group">
         <label>Room Code</label>
-        <div class="code-boxes" id="join-code-boxes">
-          <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-          <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-          <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-          <input class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" oninput="codeBoxInput(this)" onkeydown="codeBoxBackspace(event,this)">
-        </div>
-        <input type="hidden" id="join-code">
+        <input type="text" id="join-code" placeholder="Enter 4-digit code..." maxlength="4"
+          onkeydown="if(event.key==='Enter')joinRoom()"
+          style="font-family:'Fredoka One',cursive;font-size:1.4rem;letter-spacing:0.15em;text-align:center;">
       </div>
       <button class="btn btn-secondary" onclick="joinRoom()">🔗 Join Room</button>
     </div>
@@ -1881,7 +1834,7 @@ function closeJoinPopup() {
   document.getElementById('join-popup').style.display = 'none';
   document.getElementById('popup-join-error').style.display = 'none';
   document.getElementById('popup-join-name').value = '';
-  resetCodeBoxes('popup-code-boxes');
+  document.getElementById('popup-join-code').value = '';
 }
 
 function quickJoinRoom() {
@@ -1979,72 +1932,6 @@ function initFirebase() {
   }
 }
 
-// ══════════════════════════════════════════════
-//  CODE BOX HELPERS
-// ══════════════════════════════════════════════
-function codeBoxBackspace(e, el) {
-  if (e.key === 'Backspace' && !el.value) {
-    const boxes = Array.from(el.parentElement.querySelectorAll('.code-box'));
-    const idx = boxes.indexOf(el);
-    if (idx > 0) {
-      boxes[idx - 1].value = '';
-      boxes[idx - 1].classList.remove('filled');
-      boxes[idx - 1].focus();
-    }
-  }
-}
-
-function codeBoxInput(el) {
-  el.value = el.value.replace(/[^0-9]/g, '').slice(0, 1);
-  if (el.value) {
-    el.classList.add('filled');
-    const boxes = Array.from(el.parentElement.querySelectorAll('.code-box'));
-    const idx = boxes.indexOf(el);
-    if (idx < boxes.length - 1) {
-      // Move to next box
-      boxes[idx + 1].focus();
-    } else {
-      // Last box — auto submit
-      const groupId = el.parentElement.id;
-      const code = boxes.map(b => b.value).join('');
-      if (groupId === 'entry-code-boxes') {
-        document.getElementById('entry-code-input').value = code;
-        checkEntryCode();
-      } else {
-        syncCodeBoxes(groupId);
-        if (groupId === 'popup-code-boxes') quickJoinRoom();
-        if (groupId === 'join-code-boxes') joinRoom();
-      }
-    }
-  } else {
-    el.classList.remove('filled');
-  }
-}
-
-function codeBoxNav(el, groupId, isLast) { /* deprecated — kept for safety */ }
-function entryBoxNav(el, idx) { /* deprecated — kept for safety */ }
-
-function syncCodeBoxes(groupId) {
-  const boxes = document.querySelectorAll('#' + groupId + ' .code-box');
-  const code = Array.from(boxes).map(b => b.value).join('');
-  if (groupId === 'popup-code-boxes') document.getElementById('popup-join-code').value = code;
-  if (groupId === 'join-code-boxes') document.getElementById('join-code').value = code;
-}
-
-function resetCodeBoxes(groupId) {
-  const boxes = document.querySelectorAll('#' + groupId + ' .code-box');
-  boxes.forEach(b => { b.value = ''; b.classList.remove('filled', 'error'); });
-  if (groupId === 'popup-code-boxes') document.getElementById('popup-join-code').value = '';
-  if (groupId === 'join-code-boxes') document.getElementById('join-code').value = '';
-}
-
-function shakeCodeBoxes(groupId) {
-  const boxes = document.querySelectorAll('#' + groupId + ' .code-box');
-  boxes.forEach(b => {
-    b.classList.add('error');
-    setTimeout(() => b.classList.remove('error'), 400);
-  });
-}
 
 function createRoom() {
   const name = document.getElementById('p1-name-input').value.trim();
@@ -2116,19 +2003,13 @@ function createRoom() {
 }
 
 function joinRoom() {
-  syncCodeBoxes('join-code-boxes');
   const name = document.getElementById('p2-name-input').value.trim() || 'Player 2';
   const code = document.getElementById('join-code').value.trim();
-  if (!code || code.length !== 4) {
-    shakeCodeBoxes('join-code-boxes');
-    toast('Enter the 4-digit room code');
-    return;
-  }
+  if (!code || code.length !== 4) { toast('Enter a 4-digit room code'); return; }
   _doJoin(name, code);
 }
 
 function quickJoinRoom() {
-  syncCodeBoxes('popup-code-boxes');
   const name = document.getElementById('popup-join-name').value.trim();
   const code = document.getElementById('popup-join-code').value.trim();
   if (!name) {
@@ -2137,13 +2018,12 @@ function quickJoinRoom() {
     return;
   }
   if (!code || code.length !== 4) {
-    shakeCodeBoxes('popup-code-boxes');
-    toast('Enter the 4-digit room code');
+    document.getElementById('popup-join-code').style.borderColor = '#e94560';
+    document.getElementById('popup-join-code').focus();
     return;
   }
   closeJoinPopup();
   _doJoin(name, code);
-}
 }
 
 // Single join function used by both joinRoom and quickJoinRoom
@@ -2172,8 +2052,6 @@ function _doJoin(name, code) {
       toast('❌ Room not found');
       const err = document.getElementById('popup-join-error');
       if (err) err.style.display = 'block';
-      shakeCodeBoxes('popup-code-boxes');
-      shakeCodeBoxes('join-code-boxes');
       return;
     }
 
@@ -4581,17 +4459,12 @@ const COUPLES_CARDS = `
   </div>`;
 
 function checkEntryCode() {
-  const boxes = document.querySelectorAll('#entry-code-boxes .code-box');
-  const input = Array.from(boxes).map(b => b.value).join('').trim();
-  document.getElementById('entry-code-input').value = input;
-
-  // 'join' shortcut — type 0000 won't conflict, this is kept for keyboard shortcut
+  const input = document.getElementById('entry-code-input').value.trim();
   const level = ACCESS_CODES[input];
   if (level) {
     accessLevel = level;
     document.getElementById('entry-code-error').style.display = 'none';
-    // Clear boxes
-    boxes.forEach(b => { b.value = ''; b.classList.remove('filled'); });
+    document.getElementById('entry-code-input').value = '';
     const container = document.getElementById('game-cards-container');
     if (level === 'friends') {
       container.innerHTML = FRIENDS_CARDS;
@@ -4606,11 +4479,11 @@ function checkEntryCode() {
     document.getElementById('admin-btn').style.display = level === 'couples' ? 'flex' : 'none';
   } else {
     document.getElementById('entry-code-error').style.display = 'block';
-    boxes.forEach(b => {
-      b.classList.add('error');
-      setTimeout(() => { b.classList.remove('error'); b.value = ''; b.classList.remove('filled'); }, 400);
-    });
-    setTimeout(() => boxes[0].focus(), 420);
+    document.getElementById('entry-code-input').value = '';
+    document.getElementById('entry-code-input').focus();
+    const inp = document.getElementById('entry-code-input');
+    inp.style.animation = 'shake 0.4s ease';
+    setTimeout(() => inp.style.animation = '', 400);
   }
 }
 
