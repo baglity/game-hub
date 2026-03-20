@@ -1104,55 +1104,11 @@
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- TRUTH OR DARE LOCK OVERLAY -->
-<div class="overlay" id="tod-lock-overlay">
-  <div class="overlay-box" style="max-width:360px;">
-    <span style="font-size:3rem;display:block;margin-bottom:8px;">🔒</span>
-    <div class="overlay-title" style="font-size:1.5rem;margin-bottom:6px;">Access Required</div>
-    <div class="overlay-sub" style="margin-bottom:20px;">Enter the code to play Truth or Dare</div>
-    <input
-      type="password"
-      id="tod-code-input"
-      placeholder="Enter access code..."
-      maxlength="20"
-      style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.3rem;letter-spacing:0.15em;text-align:center;outline:none;margin-bottom:8px;"
-      onkeydown="if(event.key==='Enter') checkTodCode()"
-    >
-    <div id="tod-code-error" style="display:none;color:#e94560;font-size:0.82rem;margin-bottom:10px;">❌ Wrong code. Try again!</div>
-    <button class="btn btn-primary" onclick="checkTodCode()" style="margin-bottom:10px;">🔓 Unlock</button>
-    <button class="btn btn-ghost" onclick="document.getElementById('tod-lock-overlay').classList.remove('show');document.getElementById('tod-code-input').value='';document.getElementById('tod-code-error').style.display='none';" style="font-size:0.85rem;">← Back</button>
-  </div>
-</div>
+<!-- tod-lock-overlay removed — couples already authenticated via entry code -->
 
-<!-- NEVER HAVE I EVER LOCK -->
-<div class="overlay" id="nhie-lock-overlay">
-  <div class="overlay-box" style="max-width:360px;">
-    <span style="font-size:3rem;display:block;margin-bottom:8px;">🔒</span>
-    <div class="overlay-title" style="font-size:1.5rem;margin-bottom:6px;">Couples Only</div>
-    <div class="overlay-sub" style="margin-bottom:20px;">Enter code to play Never Have I Ever</div>
-    <input type="password" id="nhie-code-input" placeholder="Enter access code..." maxlength="20"
-      style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.3rem;letter-spacing:0.15em;text-align:center;outline:none;margin-bottom:8px;"
-      onkeydown="if(event.key==='Enter') checkNhieCode()">
-    <div id="nhie-code-error" style="display:none;color:#e94560;font-size:0.82rem;margin-bottom:10px;">❌ Wrong code. Try again!</div>
-    <button class="btn btn-primary" onclick="checkNhieCode()" style="margin-bottom:10px;">🔓 Unlock</button>
-    <button class="btn btn-ghost" onclick="closeLock('nhie')" style="font-size:0.85rem;">← Back</button>
-  </div>
-</div>
+<!-- nhie-lock-overlay removed — couples already authenticated via entry code -->
 
-<!-- CARD DARE LOCK -->
-<div class="overlay" id="card-dare-lock-overlay">
-  <div class="overlay-box" style="max-width:360px;">
-    <span style="font-size:3rem;display:block;margin-bottom:8px;">🔒</span>
-    <div class="overlay-title" style="font-size:1.5rem;margin-bottom:6px;">Couples Only</div>
-    <div class="overlay-sub" style="margin-bottom:20px;">Enter code to play Card Dare</div>
-    <input type="password" id="card-dare-code-input" placeholder="Enter access code..." maxlength="20"
-      style="width:100%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.3rem;letter-spacing:0.15em;text-align:center;outline:none;margin-bottom:8px;"
-      onkeydown="if(event.key==='Enter') checkCardDareCode()">
-    <div id="card-dare-code-error" style="display:none;color:#e94560;font-size:0.82rem;margin-bottom:10px;">❌ Wrong code. Try again!</div>
-    <button class="btn btn-primary" onclick="checkCardDareCode()" style="margin-bottom:10px;">🔓 Unlock</button>
-    <button class="btn btn-ghost" onclick="closeLock('card-dare')" style="font-size:0.85rem;">← Back</button>
-  </div>
-</div>
+<!-- card-dare-lock-overlay removed — couples already authenticated via entry code -->
 
 <!-- SERIES SELECT OVERLAY -->
 <div class="overlay" id="series-overlay">
@@ -2775,29 +2731,7 @@ function launchGame(game) {
 
 
 
-function closeLock(game) {
-  document.getElementById(game + '-lock-overlay').classList.remove('show');
-  document.getElementById(game + '-code-input').value = '';
-  document.getElementById(game + '-code-error').style.display = 'none';
-}
 
-function checkTodCode() {
-  const input = document.getElementById('tod-code-input').value.trim();
-  if (input === GAME_CODES.tod) { closeLock('tod'); launchGame('tod'); }
-  else { document.getElementById('tod-code-error').style.display = 'block'; document.getElementById('tod-code-input').value = ''; document.getElementById('tod-code-input').focus(); }
-}
-
-function checkNhieCode() {
-  const input = document.getElementById('nhie-code-input').value.trim();
-  if (input === GAME_CODES.nhie) { closeLock('nhie'); launchGame('nhie'); }
-  else { document.getElementById('nhie-code-error').style.display = 'block'; document.getElementById('nhie-code-input').value = ''; document.getElementById('nhie-code-input').focus(); }
-}
-
-function checkCardDareCode() {
-  const input = document.getElementById('card-dare-code-input').value.trim();
-  if (input === GAME_CODES['card-dare']) { closeLock('card-dare'); launchGame('card-dare'); }
-  else { document.getElementById('card-dare-code-error').style.display = 'block'; document.getElementById('card-dare-code-input').value = ''; document.getElementById('card-dare-code-input').focus(); }
-}
 
 function setSeries(n) {
   seriesMax = n;
@@ -4386,6 +4320,8 @@ const ACCESS_CODES = {
   '7598': 'friends',   // shows Tic Tac Toe + SOS
   '0121': 'couples'    // shows Truth or Dare + Never Have I Ever + Card Dare
 };
+
+// Per-game locks removed — couples authenticated via entry code already
 
 let accessLevel = null; // 'friends' or 'couples'
 
